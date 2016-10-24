@@ -75,36 +75,4 @@ public class SnowflakeAvroRegistry extends JDBCAvroRegistry {
         return field;
     }
 
-
-    public JDBCConverter getConverter(final Field f) {
-        Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
-
-        if (AvroUtils.isSameType(basicSchema, AvroUtils._date())) {
-            return new JDBCConverter() {
-
-                @Override
-                public Object convertToAvro(ResultSet value) {
-                    java.util.Date date = null;
-
-                    int index = f.pos() + 1;
-                    try {
-                        date = value.getTimestamp(index);
-                    } catch (SQLException e1) {
-                        try {
-                            date = value.getDate(index);
-                        } catch (SQLException e2) {
-                            throw new ComponentException(e2);
-                        }
-                    }
-                    // We use the Java object date
-                    return date;
-                }
-
-            };
-        } else {
-            return super.getConverter(f);
-        }
-
-    }
-
 }

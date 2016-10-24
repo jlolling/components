@@ -305,7 +305,11 @@ public class SnowflakeTestIT extends AbstractComponentTest {
             assertEquals(Double.valueOf(checkCount), row.get(iC3));
             assertEquals(testDate, row.get(iC4));
             assertEquals(testTime, row.get(iC5));
-            assertEquals(testTimestamp, row.get(iC6));
+            Object timeStamp = row.get(iC6);
+            if (timeStamp instanceof Date)
+                assertEquals(testTimestamp, row.get(iC6));
+            else
+                assertEquals(testTimestamp.getTime(), timeStamp);
             // The database reformats the JSON in this column
             assertThat((String)row.get(iC7), containsString("\"bar\": " + checkCount));
             checkedRows.add(row);
