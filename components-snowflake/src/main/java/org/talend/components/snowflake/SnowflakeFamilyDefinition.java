@@ -1,13 +1,12 @@
 package org.talend.components.snowflake;
 
+import aQute.bnd.annotation.component.Component;
 import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
 import org.talend.components.snowflake.tsnowflakeconnection.TSnowflakeConnectionDefinition;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputDefinition;
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputDefinition;
-
-import aQute.bnd.annotation.component.Component;
 
 /**
  * Install all of the definitions provided for the Snowflake family of components.

@@ -1,13 +1,8 @@
 package org.talend.components.snowflake;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
-
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
-import org.talend.components.common.ProxyProperties;
 import org.talend.components.common.UserPasswordProperties;
 import org.talend.components.snowflake.runtime.SnowflakeSourceOrSink;
 import org.talend.components.snowflake.tsnowflakeconnection.TSnowflakeConnectionDefinition;
@@ -16,6 +11,10 @@ import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
+
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
+import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
         implements SnowflakeProvideConnectionProperties, ComponentReferencePropertiesEnclosing {
@@ -54,7 +53,6 @@ public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
     public Property<String> db = newString("db").setRequired(); //$NON-NLS-1$
 
     public Property<String> schemaName = newString("schemaName").setRequired(); //$NON-NLS-1$
-
 
 
     public Property<String> role = newString("role"); //$NON-NLS-1$

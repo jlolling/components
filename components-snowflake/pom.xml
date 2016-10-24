@@ -72,16 +72,16 @@
             <scope>test</scope>
         </dependency>
 
-	<dependency>
-		<groupId>org.springframework</groupId>
-		<artifactId>spring-test</artifactId>
-		<scope>test</scope>
-	</dependency>
-<!--         <dependency> -->
-<!--             <groupId>org.springframework.boot</groupId> -->
-<!--             <artifactId>spring-boot-starter</artifactId> -->
-<!--             <scope>test</scope> -->
-<!--         </dependency> -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--         <dependency> -->
+        <!--             <groupId>org.springframework.boot</groupId> -->
+        <!--             <artifactId>spring-boot-starter</artifactId> -->
+        <!--             <scope>test</scope> -->
+        <!--         </dependency> -->
         <!-- OSGI paxexam dependencies -->
         <dependency>
             <groupId>org.talend.components</groupId>
@@ -103,7 +103,7 @@
             <classifier>tests</classifier>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
@@ -194,7 +194,9 @@
                                 <Bundle-Name>${project.name} lib</Bundle-Name>
                                 <Service-Component>*</Service-Component>
                                 <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-                                <Include-Resource>{maven-resources},META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt=target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt</Include-Resource>
+                                <Include-Resource>
+                                    {maven-resources},META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt=target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt
+                                </Include-Resource>
                             </instructions>
                         </configuration>
                     </execution>
@@ -208,12 +210,16 @@
                             <classifier>bundle</classifier>
                             <instructions>
                                 <Bundle-SymbolicName>org.talend.components.snowflake</Bundle-SymbolicName>
-                                <Import-Package>!*internal,org.talend*,org.slf4j*,javax*,org.apache.commons*,org.xml.sax*,org.apache.avro.*,org.codehaus.jackson*</Import-Package>
+                                <Import-Package>
+                                    !*internal,org.talend*,org.slf4j*,javax*,org.apache.commons*,org.xml.sax*,org.apache.avro.*,org.codehaus.jackson*
+                                </Import-Package>
                                 <!-- Need to export the jdbc stuff -->
                                 <Export-Package>org.talend.components.snowflake*,com.snowflake*</Export-Package>
                                 <Service-Component>*</Service-Component>
                                 <Bundle-ActivationPolicy>lazy</Bundle-ActivationPolicy>
-                                <Include-Resource>{maven-resources},META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt=target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt</Include-Resource>
+                                <Include-Resource>
+                                    {maven-resources},META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt=target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt
+                                </Include-Resource>
                             </instructions>
                         </configuration>
                     </execution>

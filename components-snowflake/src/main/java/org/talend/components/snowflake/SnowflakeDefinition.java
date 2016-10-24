@@ -21,18 +21,18 @@ public abstract class SnowflakeDefinition extends AbstractComponentDefinition {
 
     @Override
     public String[] getFamilies() {
-        return new String[] { "Cloud/Snowflake" }; //$NON-NLS-1$
+        return new String[]{"Cloud/Snowflake"}; //$NON-NLS-1$
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
-        return new Class[] { SnowflakeConnectionProperties.class };
+        return new Class[]{SnowflakeConnectionProperties.class};
     }
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP };
+        return new Property[]{RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP};
     }
 
     public static RuntimeInfo getCommonRuntimeInfo(ClassLoader classLoader, Class<? extends SourceOrSink> clazz) {

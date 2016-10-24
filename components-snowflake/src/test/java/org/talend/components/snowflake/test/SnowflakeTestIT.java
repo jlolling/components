@@ -1,18 +1,5 @@
 package org.talend.components.snowflake.test;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
-import static org.talend.daikon.properties.presentation.Form.MAIN;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.Properties;
-import java.util.concurrent.ThreadLocalRandom;
-
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.apache.avro.generic.GenericData;
@@ -52,11 +39,24 @@ import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputProperties
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputDefinition;
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.properties.*;
+import org.talend.daikon.properties.PresentationItem;
+import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.properties.test.PropertiesTestUtils;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.*;
+import static org.talend.daikon.properties.presentation.Form.MAIN;
 
 @SuppressWarnings("nls")
 public class SnowflakeTestIT extends AbstractComponentTest {
@@ -84,7 +84,12 @@ public class SnowflakeTestIT extends AbstractComponentTest {
     // So that multiple tests can run at the same time
     private static String testTable = TEST_TABLE + "_" + Integer.toString(ThreadLocalRandom.current().nextInt(1, 100000));
 
-    private static int NUM_COLUMNS = 6;
+
+    private static Date testTimestamp = new Date();
+    private static String testTime = "12:23:00";
+    private static String testDate = "2008-11-04";
+
+    private static int NUM_COLUMNS = 7;
 
     public SnowflakeTestIT() {
         adaptor = new DefaultComponentRuntimeContainerImpl();
@@ -172,10 +177,12 @@ public class SnowflakeTestIT extends AbstractComponentTest {
                             " ("
                             + "ID int PRIMARY KEY, "
                             + "C1 varchar(255), "
-                            + "C2 varchar(255) DEFAULT 'X', "
+                            // + "C2 boolean, "
                             + "C3 double, "
-                            + "C4 timestamp, "
-                            + "C5 variant)");
+                            + "C4 date, "
+                            + "C5 time, "
+                            + "C6 timestamp, "
+                            + "C7 variant)");
         } catch (Exception ex) {
             throw new Exception("Make sure the system properties are correctly set as they might have caused this error", ex);
         }
@@ -220,25 +227,35 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         SchemaBuilder.FieldAssembler<Schema> fa = SchemaBuilder.builder().record("MakeRowRecord").fields() //
                 .name("ID").type().nullable().intType().noDefault() //
                 .name("C1").type().nullable().stringType().noDefault() //
-                .name("C2").type().nullable().stringType().noDefault() //
+                //.name("C2").type().nullable().booleanType().noDefault() //
                 .name("C3").type().nullable().doubleType().noDefault() //
-                // timestamp
+                // date
                 .name("C4").type().nullable().stringType().noDefault() //
+                // time
+                .name("C5").type().nullable().stringType().noDefault() //
+                // timestamp
+                .name("C6").type().nullable().stringType().noDefault() //
                 // variant
-                .name("C5").type().nullable().stringType().noDefault();
+                .name("C7").type().nullable().stringType().noDefault();
         return fa.endRecord();
+    }
+
+    public static String makeJson(int i) {
+        return "{\"key\":" + (i * 1000) + ","
+                + "\"bar\":" + i + "}";
     }
 
     public IndexedRecord makeRow(int i, Random rnd) {
         GenericData.Record row = new GenericData.Record(getMakeRowSchema());
 
-        final String json = "{\"key\":" + String.valueOf(rnd.nextInt()) + ","
-                + "\"bar\":" + i + "}";
         row.put("ID", i);
         row.put("C1", "foo_" + i);
-        row.put("C3", rnd.nextInt() / 3);
-        row.put("C4", new Date());
-        row.put("C5", json);
+        //row.put("C2", "true");
+        row.put("C3", Double.valueOf(i));
+        row.put("C4", testDate);
+        row.put("C5", testTime);
+        row.put("C6", testTimestamp);
+        row.put("C7", makeJson(i));
         return row;
     }
 
@@ -262,6 +279,8 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         int iC3 = 0;
         int iC4 = 0;
         int iC5 = 0;
+        int iC6 = 0;
+        int iC7 = 0;
 
         int checkCount = 0;
         for (IndexedRecord row : rows) {
@@ -269,21 +288,28 @@ public class SnowflakeTestIT extends AbstractComponentTest {
                 rowSchema = row.getSchema();
                 iId = rowSchema.getField("ID").pos();
                 iC1 = rowSchema.getField("C1").pos();
-                iC2 = rowSchema.getField("C2").pos();
+                //  iC2 = rowSchema.getField("C2").pos();
                 iC3 = rowSchema.getField("C3").pos();
                 iC4 = rowSchema.getField("C4").pos();
                 iC5 = rowSchema.getField("C5").pos();
+                iC6 = rowSchema.getField("C6").pos();
+                iC7 = rowSchema.getField("C7").pos();
             }
 
             if (false) {
                 LOGGER.debug("check - id: " + row.get(iId) + " C1: " + row.get(iC1) + " C2: " + row.get(iC2) + " C3: " + row.get(iC3) + " C4: " + row.get(iC4) + " C5: " + row.get(iC5));
             }
-            assertEquals(BigDecimal.valueOf(checkCount++), row.get(iId));
-            assertNotNull(row.get(iC1));
-            assertNotNull(row.get(iC3));
-            assertNotNull(row.get(iC4));
-            assertNotNull(row.get(iC5));
+            assertEquals(BigDecimal.valueOf(checkCount), row.get(iId));
+            assertEquals("foo_" + checkCount, row.get(iC1));
+            //assertEquals("true", row.get(iC2));
+            assertEquals(Double.valueOf(checkCount), row.get(iC3));
+            assertEquals(testDate, row.get(iC4));
+            assertEquals(testTime, row.get(iC5));
+            assertEquals(testTimestamp, row.get(iC6));
+            // The database reformats the JSON in this column
+            assertThat((String)row.get(iC7), containsString("\"bar\": " + checkCount));
             checkedRows.add(row);
+            checkCount++;
         }
         assertEquals(count, checkCount);
         return checkedRows;
@@ -398,7 +424,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
     protected void handleRows(List<IndexedRecord> rows, SnowflakeConnectionTableProperties props, TSnowflakeOutputProperties.OutputAction action) throws Exception {
         TSnowflakeOutputProperties handleProperties = getRightProperties(props);
         handleProperties.outputAction.setValue(action);
-        LOGGER.debug(action + ": " +  rows.size() + " rows");
+        LOGGER.debug(action + ": " + rows.size() + " rows");
         writeRows(makeWriter(handleProperties), rows);
     }
 
@@ -999,14 +1025,14 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         props = (TSnowflakeInputProperties) PropertiesTestUtils.checkAndAfter(getComponentService(), f, props.manualQuery.getName(),
                 props);
 
-        props.query.setValue("select ID, C5 from " + testTable + " where ID > 80");
+        props.query.setValue("select ID, C7 from " + testTable + " where ID > 80");
         checkAndSetupTable(props);
         List<IndexedRecord> rows = readRows(props);
         assertEquals(19, rows.size());
         Schema schema = rows.get(0).getSchema();
         System.out.println(schema.toString());
         assertEquals(BigDecimal.valueOf(81), rows.get(0).get(0));
-        assertThat((String)rows.get(0).get(1), containsString("\"bar\": 81"));
+        assertThat((String) rows.get(0).get(1), containsString("\"bar\": 81"));
     }
 
     @Test
@@ -1065,7 +1091,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         props = (TSnowflakeOutputProperties) PropertiesTestUtils.checkAndBeforePresent(getComponentService(), f, props.upsertKeyColumn.getName(),
                 props);
         LOGGER.debug(props.upsertKeyColumn.getPossibleValues().toString());
-        assertEquals(6, props.upsertKeyColumn.getPossibleValues().size());
+        assertEquals(NUM_COLUMNS, props.upsertKeyColumn.getPossibleValues().size());
         props.upsertKeyColumn.setStoredValue("ID");
 
         handleRows(makeRows(100), props, TSnowflakeOutputProperties.OutputAction.UPSERT);

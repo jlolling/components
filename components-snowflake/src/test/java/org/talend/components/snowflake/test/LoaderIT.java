@@ -4,38 +4,21 @@
 package org.talend.components.snowflake.test;
 
 import com.snowflake.client.jdbc.SnowflakeConnectionV1;
-import com.snowflake.client.loader.LoadResultListener;
-import com.snowflake.client.loader.Loader;
-import com.snowflake.client.loader.LoaderFactory;
-import com.snowflake.client.loader.LoaderProperty;
-import com.snowflake.client.loader.LoadingError;
-import com.snowflake.client.loader.StreamLoader;
-import com.snowflake.client.loader.Operation;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
-
+import com.snowflake.client.loader.*;
 import org.junit.*;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.*;
+import java.sql.*;
+import java.util.*;
+import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.fail;
 
 /**
- * @author dengovatov
+ * This is the loader test from Snowflake. Kept here for reference purposes and to verify the loader.
+ * Not currently working.
  */
 @Ignore
 public class LoaderIT {
@@ -101,7 +84,7 @@ public class LoaderIT {
         testConnection.createStatement().execute(
                 "CREATE OR REPLACE SCHEMA \"" + schema + "\"");
         testConnection.createStatement().execute(
-                "USE SCHEMA \"" + schema+ "\"");
+                "USE SCHEMA \"" + schema + "\"");
         testConnection.createStatement().execute(
                 "CREATE OR REPLACE STAGE loadertest");
         testConnection.createStatement().execute(

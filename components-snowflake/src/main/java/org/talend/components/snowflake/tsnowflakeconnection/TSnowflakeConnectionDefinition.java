@@ -1,8 +1,5 @@
 package org.talend.components.snowflake.tsnowflakeconnection;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
@@ -13,6 +10,9 @@ import org.talend.components.snowflake.runtime.SnowflakeSourceOrSink;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 public class TSnowflakeConnectionDefinition extends SnowflakeDefinition {
 
@@ -29,7 +29,7 @@ public class TSnowflakeConnectionDefinition extends SnowflakeDefinition {
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP };
+        return new Property[]{RETURN_ERROR_MESSAGE_PROP};
     }
 
     @Override

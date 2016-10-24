@@ -1,10 +1,5 @@
 package org.talend.components.snowflake.tsnowflakeoutput;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.*;
-
-import java.util.*;
-
 import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.ISchemaListener;
@@ -17,6 +12,12 @@ import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
+
+import java.util.*;
+
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
+import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperties {
 

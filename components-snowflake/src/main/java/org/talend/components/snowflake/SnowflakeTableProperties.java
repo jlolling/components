@@ -1,7 +1,6 @@
 package org.talend.components.snowflake;
 
 import org.talend.components.api.component.ISchemaListener;
-import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.snowflake.runtime.SnowflakeSourceOrSink;
@@ -9,7 +8,6 @@ import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
-import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.StringProperty;
 
 import java.util.List;

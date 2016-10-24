@@ -3,19 +3,18 @@
  */
 package org.talend.components.snowflake.tsnowflakeinput;
 
-import static org.talend.daikon.properties.property.PropertyFactory.newBoolean;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
-
-import java.util.Collections;
-import java.util.Set;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.snowflake.SnowflakeConnectionProperties;
 import org.talend.components.snowflake.SnowflakeConnectionTableProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Collections;
+import java.util.Set;
+
+import static org.talend.daikon.properties.property.PropertyFactory.newBoolean;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 public class TSnowflakeInputProperties extends SnowflakeConnectionTableProperties {
 

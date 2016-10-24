@@ -1,12 +1,12 @@
 package org.talend.components.snowflake.runtime;
 
+import org.talend.components.api.exception.ComponentException;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.talend.components.api.exception.ComponentException;
 
 /**
  * Contains only runtime helper classes, mainly to do with logging.

@@ -1,10 +1,10 @@
 package org.talend.components.snowflake.runtime;
 
-import java.util.Map;
-
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
+
+import java.util.Map;
 
 public final class SnowflakeWriteOperation implements WriteOperation<Result> {
 

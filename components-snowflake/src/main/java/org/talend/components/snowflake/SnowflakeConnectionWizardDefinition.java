@@ -34,13 +34,13 @@ public class SnowflakeConnectionWizardDefinition extends AbstractComponentWizard
     @Override
     public String getPngImagePath(WizardImageType imageType) {
         switch (imageType) {
-        case TREE_ICON_16X16:
-            return "connectionWizardIcon.png"; //$NON-NLS-1$
-        case WIZARD_BANNER_75X66:
-            return "snowflakeWizardBanner.png"; //$NON-NLS-1$
+            case TREE_ICON_16X16:
+                return "connectionWizardIcon.png"; //$NON-NLS-1$
+            case WIZARD_BANNER_75X66:
+                return "snowflakeWizardBanner.png"; //$NON-NLS-1$
 
-        default:
-            // will return null
+            default:
+                // will return null
         }
         return null;
     }

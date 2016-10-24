@@ -1,8 +1,5 @@
 package org.talend.components.snowflake.tsnowflakeoutput;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.snowflake.SnowflakeDefinition;
@@ -11,6 +8,9 @@ import org.talend.components.snowflake.runtime.SnowflakeSink;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Component that can connect to a snowflake system and put some data into it.
@@ -48,13 +48,13 @@ public class TSnowflakeOutputDefinition extends SnowflakeDefinition {
     @Override
     public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
         return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
-                new Class[] { SnowflakeTableProperties.class });
+                new Class[]{SnowflakeTableProperties.class});
     }
 
     @Override
     public Property[] getReturnProperties() {
-        return new Property[] { RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP,
-                RETURN_REJECT_RECORD_COUNT_PROP };
+        return new Property[]{RETURN_ERROR_MESSAGE_PROP, RETURN_TOTAL_RECORD_COUNT_PROP, RETURN_SUCCESS_RECORD_COUNT_PROP,
+                RETURN_REJECT_RECORD_COUNT_PROP};
     }
 
     @Override

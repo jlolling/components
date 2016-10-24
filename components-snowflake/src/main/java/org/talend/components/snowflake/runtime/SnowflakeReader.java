@@ -1,12 +1,5 @@
 package org.talend.components.snowflake.runtime;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Map;
-import java.util.NoSuchElementException;
-
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
@@ -19,7 +12,13 @@ import org.talend.components.snowflake.SnowflakeConnectionTableProperties;
 import org.talend.components.snowflake.connection.SnowflakeNativeConnection;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputProperties;
 import org.talend.daikon.avro.AvroUtils;
-import org.talend.daikon.avro.converter.IndexedRecordConverter;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Map;
+import java.util.NoSuchElementException;
 
 public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
 
@@ -46,7 +45,7 @@ public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
         super(source);
         this.container = container;
         this.properties = props;
-        factory = new JDBCResultSetIndexedRecordConverter();
+        factory = new SnowflakeResultSetIndexedRecordConverter();
         factory.setSchema(getSchema());
     }
 
@@ -124,7 +123,7 @@ public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
         try {
             return haveNext();
         } catch (SQLException e) {
-            throw new ComponentException(e);
+            throw new IOException(e);
         }
     }
 

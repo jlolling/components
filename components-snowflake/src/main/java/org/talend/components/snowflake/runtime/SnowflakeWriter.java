@@ -8,7 +8,6 @@ import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.snowflake.SnowflakeConnectionProperties;
 import org.talend.components.snowflake.connection.SnowflakeNativeConnection;
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties;
@@ -18,10 +17,7 @@ import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties.OutputAction.UPSERT;
@@ -246,13 +242,20 @@ final class SnowflakeWriter implements Writer<Result> {
         }
 
         if (null == factory) {
-            factory = (IndexedRecordConverter<Object, ? extends IndexedRecord>) JDBCAvroRegistry.get()
+            factory = (IndexedRecordConverter<Object, ? extends IndexedRecord>) SnowflakeAvroRegistry.get()
                     .createIndexedRecordConverter(datum.getClass());
         }
         IndexedRecord input = factory.convertToAvro(datum);
-        int i = 0;
-        for (Object col : row) {
-            row[i] = input.get(i++);
+        List<Schema.Field> fields = input.getSchema().getFields();
+        for (int i = 0; i < row.length; i++) {
+            Field f = fields.get(i);
+            // Date is the only thing that requires conversion
+            if (AvroUtils.isSameType(f.schema(), AvroUtils._date())) {
+                Date date = (Date) input.get(i);
+                row[i] = date.getTime();
+            } else {
+                row[i] = input.get(i);
+            }
         }
 
         loader.submitRow(row);

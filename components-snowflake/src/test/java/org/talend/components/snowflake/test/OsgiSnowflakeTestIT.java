@@ -12,12 +12,6 @@
 // ============================================================================
 package org.talend.components.snowflake.test;
 
-import static org.ops4j.pax.exam.CoreOptions.*;
-
-import java.util.Arrays;
-
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
@@ -34,6 +28,11 @@ import org.talend.components.api.service.ComponentService;
 import org.talend.components.snowflake.tsnowflakeconnection.TSnowflakeConnectionDefinition;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputDefinition;
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputDefinition;
+
+import javax.inject.Inject;
+import java.util.Arrays;
+
+import static org.ops4j.pax.exam.CoreOptions.*;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -57,7 +56,7 @@ public class OsgiSnowflakeTestIT extends SnowflakeTestIT {
                 linkBundle("org.talend.components-components-snowflake-bundle"), //
                 propagateSystemProperties("snowflake.account", "snowflake.password", "snowflake.warehouse", "snowflake.schema",
                         "snowflake.db", "snowflake.user"));
-                //vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"));
+        //vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"));
     }
 
     @Override

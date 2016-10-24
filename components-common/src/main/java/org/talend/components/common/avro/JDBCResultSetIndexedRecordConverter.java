@@ -27,6 +27,11 @@ public class JDBCResultSetIndexedRecordConverter implements IndexedRecordConvert
         return schema;
     }
 
+
+    protected JDBCAvroRegistry getRegistry() {
+        return JDBCAvroRegistry.get();
+    }
+
     @Override
     public void setSchema(Schema schema) {
         this.schema = schema;
@@ -35,7 +40,7 @@ public class JDBCResultSetIndexedRecordConverter implements IndexedRecordConvert
         for (int j = 0; j < names.length; j++) {
             Field f = getSchema().getFields().get(j);
             names[j] = f.name();
-            JDBCAvroRegistry.JDBCConverter jdbcConverter = JDBCAvroRegistry.get().getConverter(f);
+            JDBCAvroRegistry.JDBCConverter jdbcConverter = getRegistry().getConverter(f);
             if (influencer != null) {
                 jdbcConverter.setInfluencer(influencer);
             }

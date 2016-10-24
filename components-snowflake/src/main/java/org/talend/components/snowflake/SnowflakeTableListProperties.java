@@ -1,10 +1,5 @@
 package org.talend.components.snowflake;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
-
-import java.util.List;
-
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.talend.components.api.properties.ComponentPropertiesImpl;
@@ -16,6 +11,11 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
+
+import java.util.List;
+
+import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
 public class SnowflakeTableListProperties extends ComponentPropertiesImpl implements SnowflakeProvideConnectionProperties {
 
