@@ -17,10 +17,10 @@ import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
-import org.talend.components.salesforce.SalesforceConnectionProperties;
 import org.talend.components.salesforce.SalesforceBulkProperties.Concurrency;
+import org.talend.components.salesforce.SalesforceConnectionProperties;
+import org.talend.components.salesforce.runtime.SalesforceBulkExecSource;
 import org.talend.components.salesforce.runtime.SalesforceBulkFileSink;
-import org.talend.components.salesforce.runtime.SalesforceSource;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecProperties;
 import org.talend.components.salesforce.tsalesforceoutputbulk.TSalesforceOutputBulkDefinition;
@@ -292,7 +292,7 @@ public class SalesforceRuntimeTestUtil {
         modelProperties.module.main.schema.setValue(schema);
         modelProperties.schemaFlow.schema.setValue(output);
 
-        Source source = new SalesforceSource();
+        Source source = new SalesforceBulkExecSource();
         source.initialize(null, modelProperties);
         ValidationResult vr = source.validate(null);
         if (vr.getStatus() == ValidationResult.Result.ERROR) {

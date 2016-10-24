@@ -117,6 +117,8 @@ public class SalesforceBulkExecReaderTestIT extends SalesforceTestBase {
                 definition.getClass().getClassLoader())) {
             BoundedSource boundedSource = (BoundedSource) sandboxedInstance.getInstance();
             boundedSource.initialize(null, bulkExecProperties);
+            boundedSource.validate(null);
+
             BoundedReader boundedReader = boundedSource.createReader(null);
 
             try {

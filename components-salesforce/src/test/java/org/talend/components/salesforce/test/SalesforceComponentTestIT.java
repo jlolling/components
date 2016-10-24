@@ -724,20 +724,20 @@ public class SalesforceComponentTestIT extends SalesforceTestBase {
         ComponentProperties properties = this.getComponentService()
                 .getComponentProperties(TSalesforceBulkExecDefinition.COMPONENT_NAME);
 
-        assertNotNull("should not null", definition.getRuntimeInfo(properties, ConnectorTopology.NONE));
-        assertNotNull("should not null", definition.getRuntimeInfo(properties, ConnectorTopology.OUTGOING));
+        RuntimeInfo outgoing = definition.getRuntimeInfo(properties, ConnectorTopology.OUTGOING);
+        RuntimeInfo none = definition.getRuntimeInfo(properties, ConnectorTopology.NONE);
 
-        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(properties, ConnectorTopology.OUTGOING);
-        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo,
+        assertNotNull("should not null", outgoing);
+        assertNotNull("should not null", none);
+
+        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(outgoing,
                 definition.getClass().getClassLoader())) {
             Object instance = sandboxedInstance.getInstance();
             assertNotNull("should not null", instance);
             assertTrue("the type is not right", instance.getClass() == SalesforceBulkExecSource.class);
         }
 
-        runtimeInfo = definition.getRuntimeInfo(properties, ConnectorTopology.NONE);
-        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo,
-                definition.getClass().getClassLoader())) {
+        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(none, definition.getClass().getClassLoader())) {
             Object instance = sandboxedInstance.getInstance();
             assertNotNull("should not null", instance);
             assertTrue("the type is not right", instance.getClass() == SalesforceBulkExecSourceOrSink.class);
