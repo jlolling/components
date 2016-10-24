@@ -54,6 +54,8 @@ import org.talend.components.salesforce.SalesforceModuleListProperties;
 import org.talend.components.salesforce.SalesforceModuleProperties;
 import org.talend.components.salesforce.SalesforceOutputProperties.OutputAction;
 import org.talend.components.salesforce.SalesforceUserPasswordProperties;
+import org.talend.components.salesforce.runtime.SalesforceBulkExecSource;
+import org.talend.components.salesforce.runtime.SalesforceBulkExecSourceOrSink;
 import org.talend.components.salesforce.runtime.SalesforceSourceOrSink;
 import org.talend.components.salesforce.tsalesforcebulkexec.TSalesforceBulkExecDefinition;
 import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
@@ -69,6 +71,9 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.properties.test.PropertiesTestUtils;
+import org.talend.daikon.runtime.RuntimeInfo;
+import org.talend.daikon.runtime.RuntimeUtil;
+import org.talend.daikon.sandbox.SandboxedInstance;
 
 public class SalesforceComponentTestIT extends SalesforceTestBase {
 
@@ -721,6 +726,22 @@ public class SalesforceComponentTestIT extends SalesforceTestBase {
 
         assertNotNull("should not null", definition.getRuntimeInfo(properties, ConnectorTopology.NONE));
         assertNotNull("should not null", definition.getRuntimeInfo(properties, ConnectorTopology.OUTGOING));
+
+        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(properties, ConnectorTopology.OUTGOING);
+        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo,
+                definition.getClass().getClassLoader())) {
+            Object instance = sandboxedInstance.getInstance();
+            assertNotNull("should not null", instance);
+            assertTrue("the type is not right", instance.getClass() == SalesforceBulkExecSource.class);
+        }
+
+        runtimeInfo = definition.getRuntimeInfo(properties, ConnectorTopology.NONE);
+        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo,
+                definition.getClass().getClassLoader())) {
+            Object instance = sandboxedInstance.getInstance();
+            assertNotNull("should not null", instance);
+            assertTrue("the type is not right", instance.getClass() == SalesforceBulkExecSourceOrSink.class);
+        }
     }
 
 }

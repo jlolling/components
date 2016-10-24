@@ -19,7 +19,8 @@ import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.SalesforceDefinition;
 import org.talend.components.salesforce.SalesforceModuleProperties;
-import org.talend.components.salesforce.runtime.SalesforceSource;
+import org.talend.components.salesforce.runtime.SalesforceBulkExecSource;
+import org.talend.components.salesforce.runtime.SalesforceBulkExecSourceOrSink;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
@@ -61,17 +62,20 @@ public class TSalesforceBulkExecDefinition extends SalesforceDefinition {
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(Properties properties, ConnectorTopology componentType) {
-        if (componentType == ConnectorTopology.OUTGOING || componentType == ConnectorTopology.NONE) {
-            return getCommonRuntimeInfo(this.getClass().getClassLoader(), SalesforceSource.class);
-        } else {
+    public RuntimeInfo getRuntimeInfo(Properties properties, ConnectorTopology connectorTopology) {
+        switch (connectorTopology) {
+        case OUTGOING:
+            return getCommonRuntimeInfo(this.getClass().getClassLoader(), SalesforceBulkExecSource.class);
+        case NONE:
+            return getCommonRuntimeInfo(this.getClass().getClassLoader(), SalesforceBulkExecSourceOrSink.class);
+        default:
             return null;
         }
     }
 
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return EnumSet.of(ConnectorTopology.OUTGOING);
+        return EnumSet.of(ConnectorTopology.OUTGOING, ConnectorTopology.NONE);
     }
 
 }

@@ -19,6 +19,7 @@ import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
+import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
@@ -43,24 +44,20 @@ final class SalesforceBulkExecReader extends SalesforceReader {
 
     private int rejectCount;
 
-    public SalesforceBulkExecReader(RuntimeContainer container, SalesforceSource source, TSalesforceBulkExecProperties props) {
+    public SalesforceBulkExecReader(RuntimeContainer container, BoundedSource source, TSalesforceBulkExecProperties props,
+            SalesforceBulkRuntime bulkRuntime) {
         super(container, source);
         properties = props;
+        this.bulkRuntime = bulkRuntime;
     }
 
     @Override
     public boolean start() throws IOException {
-
-        TSalesforceBulkExecProperties sprops = (TSalesforceBulkExecProperties) properties;
-        bulkRuntime = new SalesforceBulkRuntime((SalesforceSource) getCurrentSource(), container);
-        bulkRuntime.setConcurrencyMode(sprops.bulkProperties.concurrencyMode.getValue());
-        bulkRuntime.setAwaitTime(sprops.bulkProperties.waitTimeCheckBatchState.getValue());
+        if (bulkRuntime == null) {
+            return false;
+        }
 
         try {
-            // We only support CSV file for bulk output
-            bulkRuntime.executeBulk(sprops.module.moduleName.getStringValue(), sprops.outputAction.getValue(),
-                    sprops.upsertKeyColumn.getStringValue(), "csv", sprops.bulkFilePath.getStringValue(),
-                    sprops.bulkProperties.bytesToCommit.getValue(), sprops.bulkProperties.rowsToCommit.getValue());
             if (bulkRuntime.getBatchCount() > 0) {
                 batchIndex = 0;
                 currentBatchResult = bulkRuntime.getBatchLog(0);
@@ -138,7 +135,9 @@ final class SalesforceBulkExecReader extends SalesforceReader {
 
     @Override
     public void close() throws IOException {
-        bulkRuntime.close();
+        if (bulkRuntime != null) {
+            bulkRuntime.close();
+        }
     }
 
     @Override

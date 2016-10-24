@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.BoundedReader;
+import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.api.test.ComponentTestUtils;
@@ -114,7 +115,7 @@ public class SalesforceBulkExecReaderTestIT extends SalesforceTestBase {
         RuntimeInfo runtimeInfo = definition.getRuntimeInfo(bulkExecProperties, ConnectorTopology.OUTGOING);
         try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo,
                 definition.getClass().getClassLoader())) {
-            SalesforceSource boundedSource = (SalesforceSource) sandboxedInstance.getInstance();
+            BoundedSource boundedSource = (BoundedSource) sandboxedInstance.getInstance();
             boundedSource.initialize(null, bulkExecProperties);
             BoundedReader boundedReader = boundedSource.createReader(null);
 

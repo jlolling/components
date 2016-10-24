@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.AbstractBoundedReader;
+import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
@@ -42,7 +43,7 @@ public abstract class SalesforceReader<T> extends AbstractBoundedReader<T> {
 
     protected RuntimeContainer container;
 
-    public SalesforceReader(RuntimeContainer container, SalesforceSource source) {
+    public SalesforceReader(RuntimeContainer container, BoundedSource source) {
         super(source);
         this.container = container;
     }

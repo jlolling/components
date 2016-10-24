@@ -58,11 +58,11 @@ public class SalesforceBulkRuntime {
 
     private long awaitTime = 10000L;
 
-    private SalesforceSource sfSource;
+    private SalesforceSourceOrSink sfSourceOrSink;
 
-    public SalesforceBulkRuntime(SalesforceSource sfSource, RuntimeContainer container) throws IOException {
-        this.sfSource = sfSource;
-        this.bulkConnection = sfSource.connect(container).bulkConnection;
+    public SalesforceBulkRuntime(SalesforceSourceOrSink sfSourceOrSink, RuntimeContainer container) throws IOException {
+        this.sfSourceOrSink = sfSourceOrSink;
+        this.bulkConnection = sfSourceOrSink.connect(container).bulkConnection;
         if (this.bulkConnection == null) {
             throw new RuntimeException(
                     "Please check \"Bulk Connection\" checkbox in the setting of the referenced tSalesforceConnection.");
@@ -458,7 +458,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.createJob(job);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return createJob(job);
             }
             throw sfException;
@@ -470,7 +470,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.createBatchFromStream(job, input);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return createBatchFromStream(job, input);
             }
             throw sfException;
@@ -482,7 +482,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.updateJob(job);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return updateJob(job);
             }
             throw sfException;
@@ -494,7 +494,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getBatchInfoList(jobID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getBatchInfoList(jobID);
             }
             throw sfException;
@@ -506,7 +506,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getBatchResultStream(jobID, batchID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getBatchResultStream(jobID, batchID);
             }
             throw sfException;
@@ -518,7 +518,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getJobStatus(jobID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getJobStatus(jobID);
             }
             throw sfException;
@@ -530,7 +530,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getBatchInfo(jobID, batchID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getBatchInfo(jobID, batchID);
             }
             throw sfException;
@@ -548,7 +548,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getQueryResultList(jobID, batchID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getQueryResultList(jobID, batchID);
             }
             throw sfException;
@@ -561,7 +561,7 @@ public class SalesforceBulkRuntime {
             return bulkConnection.getQueryResultStream(jobID, batchID, resultID);
         } catch (AsyncApiException sfException) {
             if (AsyncExceptionCode.InvalidSessionId.equals(sfException.getExceptionCode())) {
-                sfSource.renewSession(bulkConnection.getConfig());
+                sfSourceOrSink.renewSession(bulkConnection.getConfig());
                 return getQueryResultStream(jobID, batchID, resultID);
             }
             throw sfException;
