@@ -59,9 +59,9 @@ public class SalesforceBulkLoadTestIT extends SalesforceTestBase {
         TSalesforceBulkExecDefinition defin = (TSalesforceBulkExecDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceBulkExecDefinition.COMPONENT_NAME);
         TSalesforceBulkExecProperties modelProps = (TSalesforceBulkExecProperties) defin.createRuntimeProperties();
-        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema1(), util.getTestSchema2());
-
         modelProps.outputAction.setValue(TSalesforceBulkExecProperties.OutputAction.INSERT);
+
+        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema1(), util.getTestSchema2());
 
         List<String> ids = new ArrayList<String>();
         List<String> sids = new ArrayList<String>();
@@ -134,9 +134,9 @@ public class SalesforceBulkLoadTestIT extends SalesforceTestBase {
         TSalesforceBulkExecDefinition defin = (TSalesforceBulkExecDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceBulkExecDefinition.COMPONENT_NAME);
         TSalesforceBulkExecProperties modelProps = (TSalesforceBulkExecProperties) defin.createRuntimeProperties();
-        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema1(), util.getTestSchema3());
-
         modelProps.outputAction.setValue(TSalesforceBulkExecProperties.OutputAction.DELETE);
+
+        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema1(), util.getTestSchema3());
 
         try {
             DiOutgoingSchemaEnforcer current = new DiOutgoingSchemaEnforcer(util.getTestSchema3(), false);
@@ -203,9 +203,9 @@ public class SalesforceBulkLoadTestIT extends SalesforceTestBase {
         TSalesforceBulkExecDefinition defin = (TSalesforceBulkExecDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceBulkExecDefinition.COMPONENT_NAME);
         TSalesforceBulkExecProperties modelProps = (TSalesforceBulkExecProperties) defin.createRuntimeProperties();
-        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema4(), util.getTestSchema4());
-
         modelProps.outputAction.setValue(TSalesforceBulkExecProperties.OutputAction.UPDATE);
+
+        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema4(), util.getTestSchema4());
 
         try {
             DiOutgoingSchemaEnforcer current = new DiOutgoingSchemaEnforcer(util.getTestSchema2(), false);
@@ -287,10 +287,10 @@ public class SalesforceBulkLoadTestIT extends SalesforceTestBase {
         TSalesforceBulkExecDefinition defin = (TSalesforceBulkExecDefinition) getComponentService()
                 .getComponentDefinition(TSalesforceBulkExecDefinition.COMPONENT_NAME);
         TSalesforceBulkExecProperties modelProps = (TSalesforceBulkExecProperties) defin.createRuntimeProperties();
-        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema4(), util.getTestSchema4());
-
         modelProps.outputAction.setValue(TSalesforceBulkExecProperties.OutputAction.UPSERT);
         modelProps.upsertKeyColumn.setValue("Id");
+
+        Reader reader = util.initReader(defin, data_file, modelProps, util.getTestSchema4(), util.getTestSchema4());
 
         try {
             DiOutgoingSchemaEnforcer current = new DiOutgoingSchemaEnforcer(util.getTestSchema2(), false);
