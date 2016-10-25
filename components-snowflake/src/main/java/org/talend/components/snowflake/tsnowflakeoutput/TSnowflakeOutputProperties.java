@@ -59,8 +59,6 @@ public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperti
         }
     }
 
-    public static final String FIELD_SNOWFLAKE_ID = "snowflake_id";
-
     public static final String FIELD_ERROR_CODE = "errorCode";
 
     public static final String FIELD_ERROR_FIELDS = "errorFields";
@@ -138,23 +136,7 @@ public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperti
         Schema inputSchema = table.main.schema.getValue();
 
         Schema.Field field = null;
-
-        if (OutputAction.INSERT.equals(outputAction.getValue())) {
-
-            final List<Schema.Field> additionalMainFields = new ArrayList<Schema.Field>();
-
-            field = new Schema.Field(FIELD_SNOWFLAKE_ID, Schema.create(Schema.Type.STRING), null, (Object) null);
-
-            field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
-            field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
-            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
-            additionalMainFields.add(field);
-
-            Schema mainOutputSchema = newSchema(inputSchema, "output", additionalMainFields);
-            schemaFlow.schema.setValue(mainOutputSchema);
-        } else {
-            schemaFlow.schema.setValue(inputSchema);
-        }
+        schemaFlow.schema.setValue(inputSchema);
 
         final List<Schema.Field> additionalRejectFields = new ArrayList<Schema.Field>();
 

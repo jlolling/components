@@ -3,37 +3,43 @@ package org.talend.components.snowflake.runtime;
 import com.snowflake.client.loader.*;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.component.runtime.Writer;
+import org.talend.components.api.component.runtime.WriterWithFeedback;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.snowflake.SnowflakeConnectionProperties;
-import org.talend.components.snowflake.connection.SnowflakeNativeConnection;
 import org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties.OutputAction.UPSERT;
 
-final class SnowflakeWriter implements Writer<Result> {
+public final class SnowflakeWriter  implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
 
     private StreamLoader loader;
 
     private final SnowflakeWriteOperation snowflakeWriteOperation;
 
-    private SnowflakeNativeConnection uploadConnection;
-    private SnowflakeNativeConnection processingConnection;
+    private Connection uploadConnection;
+    private Connection processingConnection;
 
     private Object[] row;
 
     private ResultListener listener;
+
+    protected final List<IndexedRecord> successfulWrites = new ArrayList<>();
+
+    protected final List<IndexedRecord> rejectedWrites = new ArrayList<>();
 
     private String uId;
 
@@ -50,7 +56,6 @@ final class SnowflakeWriter implements Writer<Result> {
     private transient Schema tableSchema;
 
     private transient Schema mainSchema;
-
 
     class ResultListener implements LoadResultListener {
         final private List<LoadingError> errors = new ArrayList<>();
@@ -178,7 +183,7 @@ final class SnowflakeWriter implements Writer<Result> {
         uploadConnection = sink.connect(container);
         if (null == mainSchema) {
             mainSchema = sprops.table.main.schema.getValue();
-            tableSchema = sink.getSchema(processingConnection.getConnection(), sprops.table.tableName.getStringValue());
+            tableSchema = sink.getSchema(container, processingConnection, sprops.table.tableName.getStringValue());
             if (AvroUtils.isIncludeAllFields(mainSchema)) {
                 mainSchema = tableSchema;
             } // else schema is fully specified
@@ -228,7 +233,7 @@ final class SnowflakeWriter implements Writer<Result> {
 
         prop.put(LoaderProperty.remoteStage, "~");
 
-        loader = (StreamLoader) LoaderFactory.createLoader(prop, uploadConnection.getConnection(), processingConnection.getConnection());
+        loader = (StreamLoader) LoaderFactory.createLoader(prop, uploadConnection, processingConnection);
         loader.setListener(listener);
 
         loader.start();
@@ -240,6 +245,8 @@ final class SnowflakeWriter implements Writer<Result> {
         if (null == datum) {
             return;
         }
+        successfulWrites.clear();
+        rejectedWrites.clear();
 
         if (null == factory) {
             factory = (IndexedRecordConverter<Object, ? extends IndexedRecord>) SnowflakeAvroRegistry.get()
@@ -263,6 +270,40 @@ final class SnowflakeWriter implements Writer<Result> {
 
 
     @Override
+    public List<IndexedRecord> getSuccessfulWrites() {
+        return Collections.unmodifiableList(successfulWrites);
+    }
+
+    @Override
+    public List<IndexedRecord> getRejectedWrites() {
+        return Collections.unmodifiableList(rejectedWrites);
+    }
+
+    protected void handleSuccess(IndexedRecord input) {
+        successfulWrites.add(input);
+    }
+
+    protected void handleReject(IndexedRecord input, SQLException e) throws IOException {
+        Schema outSchema = sprops.schemaReject.schema.getValue();
+        IndexedRecord reject = new GenericData.Record(outSchema);
+        for (Schema.Field outField : reject.getSchema().getFields()) {
+            Object outValue = null;
+            Schema.Field inField = input.getSchema().getField(outField.name());
+
+            if (inField != null) {
+                outValue = input.get(inField.pos());
+            } else if ("errorCode".equals(outField.name())) {
+                outValue = e.getSQLState();
+            } else if ("errorMessage".equals(outField.name())) {
+                outValue = e.getMessage();
+            }
+
+            reject.put(outField.pos(), outValue);
+        }
+        rejectedWrites.add(reject);
+    }
+
+    @Override
     public Result close() throws IOException {
         try {
             loader.finish();
@@ -271,13 +312,13 @@ final class SnowflakeWriter implements Writer<Result> {
         }
 
         try {
-            processingConnection.getConnection().close();
+            processingConnection.close();
         } catch (SQLException e) {
             throw new IOException(e);
         }
 
         try {
-            uploadConnection.getConnection().close();
+            uploadConnection.close();
         } catch (SQLException e) {
             throw new IOException(e);
         }

@@ -29,10 +29,7 @@ import org.talend.components.api.wizard.WizardImageType;
 import org.talend.components.api.wizard.WizardNameComparator;
 import org.talend.components.common.CommonTestUtils;
 import org.talend.components.snowflake.*;
-import org.talend.components.snowflake.runtime.SnowflakeSink;
-import org.talend.components.snowflake.runtime.SnowflakeSource;
-import org.talend.components.snowflake.runtime.SnowflakeSourceOrSink;
-import org.talend.components.snowflake.runtime.SnowflakeWriteOperation;
+import org.talend.components.snowflake.runtime.*;
 import org.talend.components.snowflake.tsnowflakeconnection.TSnowflakeConnectionDefinition;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputDefinition;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputProperties;
@@ -51,10 +48,13 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.talend.daikon.properties.presentation.Form.MAIN;
 
@@ -86,10 +86,26 @@ public class SnowflakeTestIT extends AbstractComponentTest {
 
 
     private static Date testTimestamp = new Date();
-    private static String testTime = "12:23:00";
-    private static String testDate = "2008-11-04";
+    private static Date testTime;
+    private static Date testDate;
 
-    private static int NUM_COLUMNS = 7;
+    private static String testTimeString = "12:23";
+
+    private static SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+    private static SimpleDateFormat timeParser = new SimpleDateFormat("HH:mmZ");
+    private static SimpleDateFormat timeFormatter = new SimpleDateFormat("HH:mm");
+
+    static {
+        try {
+            testDate = dateFormatter.parse("2008-11-04");
+            testTime = timeParser.parse(testTimeString + "-0000");
+            System.out.println("testTime: " + testTime.getTime());
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int NUM_COLUMNS = 8;
 
     public SnowflakeTestIT() {
         adaptor = new DefaultComponentRuntimeContainerImpl();
@@ -177,7 +193,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
                             " ("
                             + "ID int PRIMARY KEY, "
                             + "C1 varchar(255), "
-                            // + "C2 boolean, "
+                            + "C2 boolean, "
                             + "C3 double, "
                             + "C4 date, "
                             + "C5 time, "
@@ -227,7 +243,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         SchemaBuilder.FieldAssembler<Schema> fa = SchemaBuilder.builder().record("MakeRowRecord").fields() //
                 .name("ID").type().nullable().intType().noDefault() //
                 .name("C1").type().nullable().stringType().noDefault() //
-                //.name("C2").type().nullable().booleanType().noDefault() //
+                .name("C2").type().nullable().booleanType().noDefault() //
                 .name("C3").type().nullable().doubleType().noDefault() //
                 // date
                 .name("C4").type().nullable().stringType().noDefault() //
@@ -250,10 +266,10 @@ public class SnowflakeTestIT extends AbstractComponentTest {
 
         row.put("ID", i);
         row.put("C1", "foo_" + i);
-        //row.put("C2", "true");
+        row.put("C2", "true");
         row.put("C3", Double.valueOf(i));
-        row.put("C4", testDate);
-        row.put("C5", testTime);
+        row.put("C4", dateFormatter.format(testDate));
+        row.put("C5", testTimeString);
         row.put("C6", testTimestamp);
         row.put("C7", makeJson(i));
         return row;
@@ -288,7 +304,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
                 rowSchema = row.getSchema();
                 iId = rowSchema.getField("ID").pos();
                 iC1 = rowSchema.getField("C1").pos();
-                //  iC2 = rowSchema.getField("C2").pos();
+                iC2 = rowSchema.getField("C2").pos();
                 iC3 = rowSchema.getField("C3").pos();
                 iC4 = rowSchema.getField("C4").pos();
                 iC5 = rowSchema.getField("C5").pos();
@@ -301,17 +317,27 @@ public class SnowflakeTestIT extends AbstractComponentTest {
             }
             assertEquals(BigDecimal.valueOf(checkCount), row.get(iId));
             assertEquals("foo_" + checkCount, row.get(iC1));
-            //assertEquals("true", row.get(iC2));
+            assertEquals(Boolean.valueOf(true), row.get(iC2));
             assertEquals(Double.valueOf(checkCount), row.get(iC3));
-            assertEquals(testDate, row.get(iC4));
-            assertEquals(testTime, row.get(iC5));
+
+            Object date = row.get(iC4);
+            if (date instanceof Long)
+                date = new Date((Long) date);
+            assertEquals(testDate, date);
+
+            Object time = row.get(iC5);
+            if (time instanceof Long)
+                time = new Date((Long) time);
+            // Do millisecond compare to avoid timezone issues
+            assertEquals(testTime.getTime(), ((Date) time).getTime());
+
             Object timeStamp = row.get(iC6);
             if (timeStamp instanceof Date)
                 assertEquals(testTimestamp, row.get(iC6));
             else
                 assertEquals(testTimestamp.getTime(), timeStamp);
             // The database reformats the JSON in this column
-            assertThat((String)row.get(iC7), containsString("\"bar\": " + checkCount));
+            assertThat((String) row.get(iC7), containsString("\"bar\": " + checkCount));
             checkedRows.add(row);
             checkCount++;
         }
@@ -425,11 +451,11 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         return readAndCheckRows(props, outputRows.size());
     }
 
-    protected void handleRows(List<IndexedRecord> rows, SnowflakeConnectionTableProperties props, TSnowflakeOutputProperties.OutputAction action) throws Exception {
+    protected Result handleRows(List<IndexedRecord> rows, SnowflakeConnectionTableProperties props, TSnowflakeOutputProperties.OutputAction action) throws Exception {
         TSnowflakeOutputProperties handleProperties = getRightProperties(props);
         handleProperties.outputAction.setValue(action);
         LOGGER.debug(action + ": " + rows.size() + " rows");
-        writeRows(makeWriter(handleProperties), rows);
+        return writeRows(makeWriter(handleProperties), rows);
     }
 
     protected void checkAndSetupTable(SnowflakeConnectionTableProperties props) throws Throwable {
@@ -663,26 +689,15 @@ public class SnowflakeTestIT extends AbstractComponentTest {
                 ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() + " should be == to " + af,
                 ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() == af);
 
-        Object image = getComponentService().getWizardPngImage(SnowflakeConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
-                WizardImageType.TREE_ICON_16X16);
-        assertNotNull(image);
-        image = getComponentService().getWizardPngImage(SnowflakeConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
-                WizardImageType.WIZARD_BANNER_75X66);
-        assertNotNull(image);
-
-        // Check the non-top-level wizard
-
-        // check password i18n
         assertEquals("Name", connProps.getProperty("name").getDisplayName());
         connProps.name.setValue("connName");
         setupProps(connProps);
         Form userPassword = (Form) connFormWizard.getWidget("userPassword").getContent();
         Property passwordSe = (Property) userPassword.getWidget("password").getContent();
         assertEquals("Password", passwordSe.getDisplayName());
-        // check name i18n
         NamedThing nameProp = connFormWizard.getWidget("name").getContent(); //$NON-NLS-1$
         assertEquals("Name", nameProp.getDisplayName());
-        connProps = (SnowflakeConnectionProperties) PropertiesTestUtils.checkAndValidate(getComponentService(), connFormWizard,
+        PropertiesTestUtils.checkAndValidate(getComponentService(), connFormWizard,
                 "testConnection", connProps);
         assertTrue(connFormWizard.isAllowForward());
 
@@ -827,10 +842,17 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         props.connection.referencedComponent.componentProperties = cProps;
         PropertiesTestUtils.checkAndAfter(getComponentService(), props.connection.getForm(Form.REFERENCE), "referencedComponent", props.connection);
 
+        resetUser();
+
         SnowflakeSourceOrSink = new SnowflakeSourceOrSink();
         SnowflakeSourceOrSink.initialize(null, props);
         SnowflakeSourceOrSink.validate(null);
         assertEquals(ValidationResult.Result.ERROR, SnowflakeSourceOrSink.validate(null).getStatus());
+
+        resetUser();
+        setupProps(cProps);
+
+        checkAndSetupTable(props);
 
         // Back to using the connection props of the Snowflake input component
         props.connection.referencedComponent.referenceType.setValue(ComponentReferenceProperties.ReferenceType.THIS_COMPONENT);
@@ -887,18 +909,6 @@ public class SnowflakeTestIT extends AbstractComponentTest {
             String javaCode = PropertiesTestUtils.generatedNestedComponentCompatibilitiesJavaCode(props);
             LOGGER.debug("Nested Props for (" + cd.getClass().getSimpleName() + ".java:1)" + javaCode);
         }
-    }
-
-    @Override
-    @Test
-    public void testAlli18n() {
-        ComponentTestUtils.testAlli18n(getComponentService(), errorCollector);
-    }
-
-    @Override
-    @Test
-    public void testAllImages() {
-        ComponentTestUtils.testAllImages(getComponentService());
     }
 
     @Test
@@ -1083,6 +1093,84 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         assertEquals("modified2", readRows.get(1).get(1));
         assertEquals("foo_2", readRows.get(2).get(1));
         assertEquals(100, readRows.size());
+    }
+
+    @Test
+    @Ignore
+    public void testOutputFeedback() throws Throwable {
+        TSnowflakeOutputProperties props = (TSnowflakeOutputProperties) getComponentService()
+                .getComponentProperties(TSnowflakeOutputDefinition.COMPONENT_NAME);
+        setupProps(props.getConnectionProperties());
+        checkAndSetupTable(props);
+        props.outputAction.setStoredValue(TSnowflakeOutputProperties.OutputAction.INSERT);
+
+        DefaultComponentRuntimeContainerImpl container = new DefaultComponentRuntimeContainerImpl();
+
+        // Initialize the Sink, WriteOperation and Writer
+        SnowflakeSink sfSink = new SnowflakeSink();
+        sfSink.initialize(container, props);
+        sfSink.validate(container);
+
+        SnowflakeWriteOperation sfWriteOp = sfSink.createWriteOperation();
+        sfWriteOp.initialize(container);
+
+        SnowflakeWriter sfWriter = sfSink.createWriteOperation().createWriter(container);
+        sfWriter.open("uid1");
+
+        // Write one record, which should fail badDate
+        List<IndexedRecord> rows = makeRows(2);
+        IndexedRecord r = rows.get(0);
+
+        r.put(0, "badId");
+        r.put(2, "badBoolean");
+        r.put(4, "badDate");
+        r.put(5, "badTime");
+        r.put(6, "badTimestamp");
+        sfWriter.write(r);
+        sfWriter.close();
+
+        assertThat(sfWriter.getSuccessfulWrites(), hasSize(0));
+        assertThat(sfWriter.getRejectedWrites(), hasSize(1));
+
+        // Check the rejected record.
+        IndexedRecord outputRecord = sfWriter.getRejectedWrites().get(0);
+        assertThat(outputRecord.getSchema().getFields(), hasSize(NUM_COLUMNS + 3));
+
+        // Check the values copied from the incoming record.
+        for (int i = 0; i < r.getSchema().getFields().size(); i++) {
+            assertThat(outputRecord.getSchema().getFields().get(i), is(r.getSchema().getFields().get(i)));
+            assertThat(outputRecord.get(i), is(r.get(i)));
+        }
+
+        // The enriched fields.
+        assertThat(outputRecord.getSchema().getFields().get(4).name(), is("errorCode"));
+        assertThat(outputRecord.getSchema().getFields().get(5).name(), is("errorFields"));
+        assertThat(outputRecord.getSchema().getFields().get(6).name(), is("errorMessage"));
+        assertThat(outputRecord.get(4), is((Object) "REQUIRED_FIELD_MISSING"));
+        assertThat(outputRecord.get(5), is((Object) "Name"));
+        assertThat(outputRecord.get(6), is((Object) "Required fields are missing: [Name]"));
+
+        // Good record
+        r = rows.get(1);
+        sfWriter.write(r);
+
+        assertThat(sfWriter.getSuccessfulWrites(), hasSize(1));
+        assertThat(sfWriter.getRejectedWrites(), hasSize(1));
+
+        outputRecord = sfWriter.getSuccessfulWrites().get(0);
+        assertThat(outputRecord.getSchema().getFields(), hasSize(NUM_COLUMNS));
+
+        // Check the values copied from the incoming record.
+        for (int i = 0; i < r.getSchema().getFields().size(); i++) {
+            assertThat(outputRecord.getSchema().getFields().get(i), is(r.getSchema().getFields().get(i)));
+            assertThat(outputRecord.get(i), is(r.get(i)));
+        }
+
+        Result wr1 = sfWriter.close();
+        assertEquals(1, wr1.getSuccessCount());
+        assertEquals(1, wr1.getRejectCount());
+        assertEquals(2, wr1.getTotalCount());
+        sfWriteOp.finalize(Arrays.asList(wr1), container);
     }
 
     @Test

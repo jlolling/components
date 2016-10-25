@@ -17,8 +17,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 /**
- * This is the loader test from Snowflake. Kept here for reference purposes and to verify the loader.
- * Not currently working.
+ * This is the loader test from Snowflake. Kept here for reference purposes and to verify the loader. All should pass
  */
 @Ignore
 public class LoaderIT {
@@ -99,6 +98,9 @@ public class LoaderIT {
                         + "C3 double, "
                         + "C4 timestamp, "
                         + "C5 variant)");
+
+        putConnection.createStatement().execute(
+                "USE SCHEMA \"" + schema + "\"");
     }
 
     @AfterClass

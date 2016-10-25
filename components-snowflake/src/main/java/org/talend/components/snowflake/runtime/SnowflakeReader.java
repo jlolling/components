@@ -9,11 +9,11 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
 import org.talend.components.snowflake.SnowflakeConnectionTableProperties;
-import org.talend.components.snowflake.connection.SnowflakeNativeConnection;
 import org.talend.components.snowflake.tsnowflakeinput.TSnowflakeInputProperties;
 import org.talend.daikon.avro.AvroUtils;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 
 public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
 
-    private transient SnowflakeNativeConnection connection;
+    private transient Connection connection;
 
     private transient JDBCResultSetIndexedRecordConverter factory;
 
@@ -49,7 +49,7 @@ public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
         factory.setSchema(getSchema());
     }
 
-    protected SnowflakeNativeConnection getConnection() throws IOException {
+    protected Connection getConnection() throws IOException {
         if (null == connection) {
             connection = ((SnowflakeSource) getCurrentSource()).connect(container);
         }
@@ -100,7 +100,7 @@ public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
     public boolean start() throws IOException {
         result = new Result();
         try {
-            statement = getConnection().getConnection().createStatement();
+            statement = getConnection().createStatement();
             resultSet = statement.executeQuery(getQueryString());
             return haveNext();
         } catch (Exception e) {
@@ -150,7 +150,7 @@ public class SnowflakeReader<T> extends AbstractBoundedReader<IndexedRecord> {
             }
 
             if (connection != null) {
-                getConnection().getConnection().close();
+                getConnection().close();
             }
         } catch (SQLException e) {
             throw new IOException(e);

@@ -1,5 +1,6 @@
 package org.talend.components.snowflake.runtime;
 
+import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.talend.components.api.exception.ComponentException;
@@ -28,8 +29,6 @@ public class SnowflakeAvroRegistry extends JDBCAvroRegistry {
             case java.sql.Types.VARCHAR:
             case java.sql.Types.LONGVARCHAR:
             case java.sql.Types.CHAR:
-            case java.sql.Types.DATE:
-            case java.sql.Types.TIME:
                 schema = AvroUtils._string();
                 field = wrap(nullable, schema, name);
                 field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
@@ -51,8 +50,19 @@ public class SnowflakeAvroRegistry extends JDBCAvroRegistry {
                 schema = AvroUtils._double();
                 field = wrap(nullable, schema, name);
                 break;
+            case java.sql.Types.DATE:
+                schema = AvroUtils._int();
+                LogicalTypes.date().addToSchema(schema);
+                field = wrap(nullable, schema, name);
+                break;
+            case java.sql.Types.TIME:
+                schema = AvroUtils._int();
+                LogicalTypes.timeMillis().addToSchema(schema);
+                field = wrap(nullable, schema, name);
+                break;
             case java.sql.Types.TIMESTAMP:
-                schema = AvroUtils._date();
+                schema = AvroUtils._long();
+                LogicalTypes.timestampMillis().addToSchema(schema);
                 field = wrap(nullable, schema, name);
                 break;
             case java.sql.Types.BOOLEAN:
@@ -75,4 +85,49 @@ public class SnowflakeAvroRegistry extends JDBCAvroRegistry {
         return field;
     }
 
+
+    public JDBCConverter getConverter(final Field f) {
+        Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
+
+        if (basicSchema.getLogicalType() == LogicalTypes.date()) {
+            return new JDBCConverter() {
+                @Override
+                public Object convertToAvro(ResultSet value) {
+                    int index = f.pos() + 1;
+                    try {
+                        return value.getDate(index).getTime();
+                    } catch (SQLException e) {
+                        throw new ComponentException(e);
+                    }
+                }
+            };
+        } else if (basicSchema.getLogicalType() == LogicalTypes.timeMillis()) {
+            return new JDBCConverter() {
+                @Override
+                public Object convertToAvro(ResultSet value) {
+                    int index = f.pos() + 1;
+                    try {
+                        return value.getTime(index).getTime();
+                    } catch (SQLException e) {
+                        throw new ComponentException(e);
+                    }
+                }
+            };
+        } else if (basicSchema.getLogicalType() == LogicalTypes.timestampMillis()) {
+            return new JDBCConverter() {
+                @Override
+                public Object convertToAvro(ResultSet value) {
+                    int index = f.pos() + 1;
+                    try {
+                        return value.getTimestamp(index).getTime();
+                    } catch (SQLException e) {
+                        throw new ComponentException(e);
+                    }
+                }
+            };
+        } else {
+            return super.getConverter(f);
+        }
+    }
 }
+
