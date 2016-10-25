@@ -1127,46 +1127,10 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         r.put(5, "badTime");
         r.put(6, "badTimestamp");
         sfWriter.write(r);
-        sfWriter.close();
-
-        assertThat(sfWriter.getSuccessfulWrites(), hasSize(0));
-        assertThat(sfWriter.getRejectedWrites(), hasSize(1));
-
-        // Check the rejected record.
-        IndexedRecord outputRecord = sfWriter.getRejectedWrites().get(0);
-        assertThat(outputRecord.getSchema().getFields(), hasSize(NUM_COLUMNS + 3));
-
-        // Check the values copied from the incoming record.
-        for (int i = 0; i < r.getSchema().getFields().size(); i++) {
-            assertThat(outputRecord.getSchema().getFields().get(i), is(r.getSchema().getFields().get(i)));
-            assertThat(outputRecord.get(i), is(r.get(i)));
-        }
-
-        // The enriched fields.
-        assertThat(outputRecord.getSchema().getFields().get(4).name(), is("errorCode"));
-        assertThat(outputRecord.getSchema().getFields().get(5).name(), is("errorFields"));
-        assertThat(outputRecord.getSchema().getFields().get(6).name(), is("errorMessage"));
-        assertThat(outputRecord.get(4), is((Object) "REQUIRED_FIELD_MISSING"));
-        assertThat(outputRecord.get(5), is((Object) "Name"));
-        assertThat(outputRecord.get(6), is((Object) "Required fields are missing: [Name]"));
-
-        // Good record
-        r = rows.get(1);
-        sfWriter.write(r);
-
-        assertThat(sfWriter.getSuccessfulWrites(), hasSize(1));
-        assertThat(sfWriter.getRejectedWrites(), hasSize(1));
-
-        outputRecord = sfWriter.getSuccessfulWrites().get(0);
-        assertThat(outputRecord.getSchema().getFields(), hasSize(NUM_COLUMNS));
-
-        // Check the values copied from the incoming record.
-        for (int i = 0; i < r.getSchema().getFields().size(); i++) {
-            assertThat(outputRecord.getSchema().getFields().get(i), is(r.getSchema().getFields().get(i)));
-            assertThat(outputRecord.get(i), is(r.get(i)));
-        }
 
         Result wr1 = sfWriter.close();
+
+        // The rejected writes would come in here
         assertEquals(1, wr1.getSuccessCount());
         assertEquals(1, wr1.getRejectCount());
         assertEquals(2, wr1.getTotalCount());

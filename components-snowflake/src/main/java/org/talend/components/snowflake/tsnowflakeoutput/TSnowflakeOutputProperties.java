@@ -36,8 +36,6 @@ public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperti
 
     protected transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
 
-    public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow"); //$NON-NLS-1$
-
     public SchemaProperties schemaReject = new SchemaProperties("schemaReject"); //$NON-NLS-1$
 
     // Have to use an explicit class to get the override of afterTableName(), an anonymous
@@ -59,11 +57,15 @@ public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperti
         }
     }
 
-    public static final String FIELD_ERROR_CODE = "errorCode";
-
-    public static final String FIELD_ERROR_FIELDS = "errorFields";
-
-    public static final String FIELD_ERROR_MESSAGE = "errorMessage";
+    public static final String FIELD_COLUMN_NAME= "columnName";
+    public static final String FIELD_ROW_NUMBER= "rowNumber";
+    public static final String FIELD_CATEGORY= "category";
+    public static final String FIELD_CHARACTER= "character";
+    public static final String FIELD_ERROR_MESSAGE= "errorMessage";
+    public static final String FIELD_BYTE_OFFSET= "byteOffset";
+    public static final String FIELD_LINE= "line";
+    public static final String FIELD_SQL_STATE= "sqlState";
+    public static final String FIELD_CODE= "code";
 
 
     public TSnowflakeOutputProperties(String name) {
@@ -132,67 +134,44 @@ public class TSnowflakeOutputProperties extends SnowflakeConnectionTableProperti
             upsertKeyColumn.setPossibleValues(getFieldNames(table.main.schema));
     }
 
+
+    private void addSchemaField(String name, List<Schema.Field> fields) {
+        Schema.Field field = new Schema.Field(name, Schema.create(Schema.Type.STRING), null, (Object) null);
+        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
+        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
+        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
+        fields.add(field);
+    }
+
     private void updateOutputSchemas() {
         Schema inputSchema = table.main.schema.getValue();
 
-        Schema.Field field = null;
-        schemaFlow.schema.setValue(inputSchema);
-
         final List<Schema.Field> additionalRejectFields = new ArrayList<Schema.Field>();
+        addSchemaField(FIELD_COLUMN_NAME, additionalRejectFields);
+        addSchemaField(FIELD_ROW_NUMBER, additionalRejectFields);
+        addSchemaField(FIELD_CATEGORY, additionalRejectFields);
+        addSchemaField(FIELD_CHARACTER, additionalRejectFields);
+        addSchemaField(FIELD_ERROR_MESSAGE, additionalRejectFields);
+        addSchemaField(FIELD_BYTE_OFFSET, additionalRejectFields);
+        addSchemaField(FIELD_LINE, additionalRejectFields);
+        addSchemaField(FIELD_SQL_STATE, additionalRejectFields);
+        addSchemaField(FIELD_CODE, additionalRejectFields);
 
-        field = new Schema.Field(FIELD_ERROR_CODE, Schema.create(Schema.Type.STRING), null, (Object) null);
-        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
-        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
-        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
-        additionalRejectFields.add(field);
+        Schema rejectSchema = Schema.createRecord("rejectOutput", inputSchema.getDoc(), inputSchema.getNamespace(),
+                inputSchema.isError());
 
-        field = new Schema.Field(FIELD_ERROR_FIELDS, Schema.create(Schema.Type.STRING), null, (Object) null);
-        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
-        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
-        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
-        additionalRejectFields.add(field);
+        List<Schema.Field> copyFieldList = new ArrayList<>();
+        copyFieldList.addAll(additionalRejectFields);
 
-        field = new Schema.Field(FIELD_ERROR_MESSAGE, Schema.create(Schema.Type.STRING), null, (Object) null);
-        field.addProp(SchemaConstants.TALEND_IS_LOCKED, "false");
-        field.addProp(SchemaConstants.TALEND_FIELD_GENERATED, "true");
-        field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255");
-        additionalRejectFields.add(field);
-
-        Schema rejectSchema = newSchema(inputSchema, "rejectOutput", additionalRejectFields);
+        rejectSchema.setFields(copyFieldList);
 
         schemaReject.schema.setValue(rejectSchema);
-    }
-
-    private Schema newSchema(Schema metadataSchema, String newSchemaName, List<Schema.Field> moreFields) {
-        Schema newSchema = Schema.createRecord(newSchemaName, metadataSchema.getDoc(), metadataSchema.getNamespace(),
-                metadataSchema.isError());
-
-        // Deep Copy
-        List<Schema.Field> copyFieldList = new ArrayList<>();
-        for (Schema.Field se : metadataSchema.getFields()) {
-            Schema.Field field = new Schema.Field(se.name(), se.schema(), se.doc(), se.defaultVal(), se.order());
-            field.getObjectProps().putAll(se.getObjectProps());
-            for (Map.Entry<String, Object> entry : se.getObjectProps().entrySet()) {
-                field.addProp(entry.getKey(), entry.getValue());
-            }
-            copyFieldList.add(field);
-        }
-
-        copyFieldList.addAll(moreFields);
-
-        newSchema.setFields(copyFieldList);
-        for (Map.Entry<String, Object> entry : metadataSchema.getObjectProps().entrySet()) {
-            newSchema.addProp(entry.getKey(), entry.getValue());
-        }
-
-        return newSchema;
     }
 
     @Override
     protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
         HashSet<PropertyPathConnector> connectors = new HashSet<>();
         if (isOutputConnection) {
-            connectors.add(FLOW_CONNECTOR);
             connectors.add(REJECT_CONNECTOR);
         } else {
             connectors.add(MAIN_CONNECTOR);

@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.talend.components.snowflake.tsnowflakeoutput.TSnowflakeOutputProperties.OutputAction.UPSERT;
 
-public final class SnowflakeWriter  implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
+public final class SnowflakeWriter  implements Writer<Result> {
 
     private StreamLoader loader;
 
@@ -80,11 +80,12 @@ public final class SnowflakeWriter  implements WriterWithFeedback<Result, Indexe
 
         @Override
         public boolean needSuccessRecords() {
-            return true;
+            return false;
         }
 
         @Override
         public void addError(LoadingError error) {
+            // TODO - need to have a way to dispatch the errors
             errors.add(error);
         }
 
@@ -245,9 +246,6 @@ public final class SnowflakeWriter  implements WriterWithFeedback<Result, Indexe
         if (null == datum) {
             return;
         }
-        successfulWrites.clear();
-        rejectedWrites.clear();
-
         if (null == factory) {
             factory = (IndexedRecordConverter<Object, ? extends IndexedRecord>) SnowflakeAvroRegistry.get()
                     .createIndexedRecordConverter(datum.getClass());
@@ -266,41 +264,6 @@ public final class SnowflakeWriter  implements WriterWithFeedback<Result, Indexe
         }
 
         loader.submitRow(row);
-    }
-
-
-    @Override
-    public List<IndexedRecord> getSuccessfulWrites() {
-        return Collections.unmodifiableList(successfulWrites);
-    }
-
-    @Override
-    public List<IndexedRecord> getRejectedWrites() {
-        return Collections.unmodifiableList(rejectedWrites);
-    }
-
-    protected void handleSuccess(IndexedRecord input) {
-        successfulWrites.add(input);
-    }
-
-    protected void handleReject(IndexedRecord input, SQLException e) throws IOException {
-        Schema outSchema = sprops.schemaReject.schema.getValue();
-        IndexedRecord reject = new GenericData.Record(outSchema);
-        for (Schema.Field outField : reject.getSchema().getFields()) {
-            Object outValue = null;
-            Schema.Field inField = input.getSchema().getField(outField.name());
-
-            if (inField != null) {
-                outValue = input.get(inField.pos());
-            } else if ("errorCode".equals(outField.name())) {
-                outValue = e.getSQLState();
-            } else if ("errorMessage".equals(outField.name())) {
-                outValue = e.getMessage();
-            }
-
-            reject.put(outField.pos(), outValue);
-        }
-        rejectedWrites.add(reject);
     }
 
     @Override
