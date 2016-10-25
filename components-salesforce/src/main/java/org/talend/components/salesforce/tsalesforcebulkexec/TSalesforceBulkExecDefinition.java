@@ -16,6 +16,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.InputComponentDefinition;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.salesforce.SalesforceDefinition;
 import org.talend.components.salesforce.SalesforceModuleProperties;
@@ -24,7 +25,7 @@ import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
-public class TSalesforceBulkExecDefinition extends SalesforceDefinition {
+public class TSalesforceBulkExecDefinition extends SalesforceDefinition implements InputComponentDefinition {
 
     public static final String COMPONENT_NAME = "tSalesforceBulkExec"; //$NON-NLS-1$
 
