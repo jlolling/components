@@ -206,7 +206,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
 
     @AfterClass
     public static void teardownDatabase() throws SQLException {
-        if (!false) {
+        if (false) {
             testConnection.createStatement().execute(
                     "DROP TABLE IF EXISTS " + schema +
                             "." + testTable);
@@ -927,7 +927,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
         Schema main = SchemaBuilder.record("Main").fields().name("C").type().stringType().noDefault().name("D").type()
                 .stringType().noDefault().endRecord();
 
-        assertEquals(2, outputProps.getAvailableConnectors(null, true).size());
+        assertEquals(1, outputProps.getAvailableConnectors(null, true).size());
         for (Connector connector : outputProps.getAvailableConnectors(null, true)) {
             if (connector.getName().equals(Connector.MAIN_NAME)) {
                 outputProps.setConnectedSchema(connector, main, true);
@@ -940,7 +940,7 @@ public class SnowflakeTestIT extends AbstractComponentTest {
 
         TSnowflakeOutputProperties afterSerialized = org.talend.daikon.properties.Properties.Helper.fromSerializedPersistent(serialized,
                 TSnowflakeOutputProperties.class).object;
-        assertEquals(2, afterSerialized.getAvailableConnectors(null, true).size());
+        assertEquals(1, afterSerialized.getAvailableConnectors(null, true).size());
         for (Connector connector : afterSerialized.getAvailableConnectors(null, true)) {
             if (connector.getName().equals(Connector.MAIN_NAME)) {
                 Schema main2 = afterSerialized.getSchema(connector, true);
