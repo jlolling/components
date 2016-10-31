@@ -12,15 +12,12 @@
 // ============================================================================
 package org.talend.components.api.properties;
 
-import static org.talend.daikon.properties.property.Property.Flags.DESIGN_TIME_ONLY;
-import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
-import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
+import static org.talend.daikon.properties.property.Property.Flags.*;
+import static org.talend.daikon.properties.property.PropertyFactory.*;
 
 import java.lang.reflect.Field;
 import java.util.EnumSet;
-import java.util.List;
 
-import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 
 /**
@@ -49,6 +46,7 @@ public class ComponentReferenceProperties extends ComponentPropertiesImpl {
     //
     public Property<ReferenceType> referenceType = newEnum("referenceType", ReferenceType.class);
 
+    // type of the component to be used by the designer to provide a list of possible instances to ref to.s
     public Property<String> componentType = newProperty("componentType").setFlags(EnumSet.of(DESIGN_TIME_ONLY)); //$NON-NLS-1$
 
     public Property<String> componentInstanceId = newProperty("componentInstanceId"); //$NON-NLS-1$
@@ -59,31 +57,8 @@ public class ComponentReferenceProperties extends ComponentPropertiesImpl {
      */
     public ComponentProperties componentProperties;
 
-    /**
-     * The properties that encloses this object. The field name of this object in the enclosing properties must be
-     * {@code referencedComponent}.
-     */
-    public ComponentReferencePropertiesEnclosing enclosingProperties;
-
     public ComponentReferenceProperties(String name, ComponentReferencePropertiesEnclosing enclosing) {
         super(name);
-        this.enclosingProperties = enclosing;
-    }
-
-    // IMPORTANT - this is the name of the property in the enclosingProperties that uses this
-    // ComponentReferenceProperties
-    public void afterReferencedComponent() {
-        if (enclosingProperties != null) {
-            enclosingProperties.afterReferencedComponent();
-        }
-    }
-
-    @Override
-    public List<Form> getForms() {
-        if (enclosingProperties != null) {
-            return ((ComponentProperties) enclosingProperties).getForms();
-        }
-        return super.getForms();
     }
 
     @Override

@@ -12,14 +12,8 @@
 // ============================================================================
 package org.talend.components.salesforce.test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -548,11 +542,11 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
 
         String compId = "comp1";
         // Use the connection props of the salesforce connect component
-        props.connection.referencedComponent.referenceType
+        props.connection.referencedConnection.referenceType
                 .setValue(ComponentReferenceProperties.ReferenceType.COMPONENT_INSTANCE);
-        props.connection.referencedComponent.componentInstanceId.setValue(compId);
-        props.connection.referencedComponent.componentProperties = cProps;
-        checkAndAfter(props.connection.getForm(Form.REFERENCE), "referencedComponent", props.connection);
+        props.connection.referencedConnection.componentInstanceId.setValue(compId);
+        props.connection.referencedConnection.componentProperties = cProps;
+        checkAndAfter(props.connection.getForm(Form.REFERENCE), "referencedConnection", props.connection);
 
         salesforceSourceOrSink = new SalesforceSourceOrSink();
         salesforceSourceOrSink.initialize(null, props);
@@ -560,9 +554,9 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
         assertEquals(ValidationResult.Result.ERROR, salesforceSourceOrSink.validate(null).getStatus());
 
         // Back to using the connection props of the salesforce input component
-        props.connection.referencedComponent.referenceType.setValue(ComponentReferenceProperties.ReferenceType.THIS_COMPONENT);
-        props.connection.referencedComponent.componentInstanceId.setValue(null);
-        props.connection.referencedComponent.componentProperties = null;
+        props.connection.referencedConnection.referenceType.setValue(ComponentReferenceProperties.ReferenceType.THIS_COMPONENT);
+        props.connection.referencedConnection.componentInstanceId.setValue(null);
+        props.connection.referencedConnection.componentProperties = null;
         // Check that the null referenced component works.
         checkAndAfter(props.connection.getForm(Form.REFERENCE), "referencedComponent", props.connection);
 
@@ -596,7 +590,7 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
                 .getComponentDefinition(TSalesforceInputDefinition.COMPONENT_NAME);
         TSalesforceInputProperties inProps = (TSalesforceInputProperties) getComponentService()
                 .getComponentProperties(TSalesforceInputDefinition.COMPONENT_NAME);
-        inProps.connection.referencedComponent.componentInstanceId.setValue(currentComponentName);
+        inProps.connection.referencedConnection.componentInstanceId.setValue(currentComponentName);
 
         SalesforceSourceOrSink salesforceInputSourceOrSink = new SalesforceSourceOrSink();
         salesforceInputSourceOrSink.initialize(connContainer, inProps);
