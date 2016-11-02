@@ -12,7 +12,7 @@
 // ============================================================================
 package org.talend.components.jdbc.tjdbccommit;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
+import static org.talend.daikon.properties.presentation.Widget.*;
 
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
@@ -21,6 +21,7 @@ import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
+import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -34,7 +35,8 @@ public class TJDBCCommitProperties extends ComponentPropertiesImpl
     }
 
     // main
-    public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this);
+    public ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
+            "referencedComponent", TJDBCConnectionDefinition.COMPONENT_NAME);
 
     public Property<Boolean> closeConnection = PropertyFactory.newBoolean("closeConnection").setRequired();
 
@@ -45,7 +47,6 @@ public class TJDBCCommitProperties extends ComponentPropertiesImpl
         Form mainForm = CommonUtils.addForm(this, Form.MAIN);
 
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
-        referencedComponent.componentType.setValue(TJDBCConnectionDefinition.COMPONENT_NAME);
         mainForm.addRow(compListWidget);
         mainForm.addRow(closeConnection);
     }

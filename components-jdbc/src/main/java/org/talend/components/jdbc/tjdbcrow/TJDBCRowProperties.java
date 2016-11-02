@@ -12,8 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc.tjdbcrow;
 
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
+import static org.talend.daikon.properties.presentation.Widget.*;
+import static org.talend.daikon.properties.property.PropertyFactory.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,6 +36,7 @@ import org.talend.components.jdbc.module.PreparedStatementTable;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.sqlbuilder.JDBCSQLBuilder;
 import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionDefinition;
+import org.talend.components.jdbc.tjdbcconnection.TJDBCConnectionProperties;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.ValidationResult;
@@ -52,7 +53,8 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties
     }
 
     // main
-    public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this);
+    public ComponentReferenceProperties<TJDBCConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
+            "referencedComponent", TJDBCConnectionDefinition.COMPONENT_NAME);
 
     public JDBCConnectionModule connection = new JDBCConnectionModule("connection");
 
@@ -108,7 +110,6 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties
         Form mainForm = CommonUtils.addForm(this, Form.MAIN);
 
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
-        referencedComponent.componentType.setValue(TJDBCConnectionDefinition.COMPONENT_NAME);
         mainForm.addRow(compListWidget);
 
         mainForm.addRow(connection.getForm(Form.MAIN));
@@ -276,7 +277,7 @@ public class TJDBCRowProperties extends FixedConnectorsComponentProperties
     }
 
     private List<String> getFieldNames(Property<Schema> schema) {
-        Schema s = (Schema) schema.getValue();
+        Schema s = schema.getValue();
         List<String> fieldNames = new ArrayList<>();
         for (Schema.Field f : s.getFields()) {
             fieldNames.add(f.name());

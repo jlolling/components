@@ -27,7 +27,7 @@ public class ComponentReferencePropertiesTest {
     @Test
     public void testComponentReferenceProperties() {
         // basic element
-        ComponentReferenceProperties componentReferenceProperties = new ComponentReferenceProperties("testReference", null);
+        ComponentReferenceProperties componentReferenceProperties = new ComponentReferenceProperties("testReference", "foo");
         assertEquals("testReference", componentReferenceProperties.getName());
         assertEquals(0, componentReferenceProperties.getForms().size());
 

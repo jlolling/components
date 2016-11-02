@@ -18,6 +18,7 @@ import static org.talend.daikon.properties.property.PropertyFactory.*;
 import java.lang.reflect.Field;
 import java.util.EnumSet;
 
+import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 
 /**
@@ -33,7 +34,7 @@ import org.talend.daikon.properties.property.Property;
  * The {@link org.talend.daikon.properties.presentation.WidgetType#COMPONENT_REFERENCE} uses this class as its
  * properties and the Widget will populate these values.
  */
-public class ComponentReferenceProperties extends ComponentPropertiesImpl {
+public class ComponentReferenceProperties<P extends Properties> extends ComponentPropertiesImpl {
 
     public enum ReferenceType {
         THIS_COMPONENT,
@@ -49,16 +50,25 @@ public class ComponentReferenceProperties extends ComponentPropertiesImpl {
     // type of the component to be used by the designer to provide a list of possible instances to ref to.s
     public Property<String> componentType = newProperty("componentType").setFlags(EnumSet.of(DESIGN_TIME_ONLY)); //$NON-NLS-1$
 
-    public Property<String> componentInstanceId = newProperty("componentInstanceId"); //$NON-NLS-1$
+    public Property<String> componentInstanceId = newString("componentInstanceId"); //$NON-NLS-1$
 
     /**
      * The properties associated with the referenced component. This can be used at design time. This is non-null only
      * if there is a componentInstanceId specified.
      */
-    public ComponentProperties componentProperties;
+    public P componentProperties;
 
+    /**
+     * @deprecated please use the constructor {@link #ComponentReferenceProperties(String, String)}
+     */
+    @Deprecated
     public ComponentReferenceProperties(String name, ComponentReferencePropertiesEnclosing enclosing) {
         super(name);
+    }
+
+    public ComponentReferenceProperties(String name, String propDefinitionName) {
+        super(name);
+        componentType.setValue(propDefinitionName);
     }
 
     @Override
