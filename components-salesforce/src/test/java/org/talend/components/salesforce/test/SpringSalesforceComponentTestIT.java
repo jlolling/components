@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.service.spring.SpringTestApp;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringTestApp.class)
@@ -27,9 +28,17 @@ public class SpringSalesforceComponentTestIT extends SalesforceComponentTestIT {
     @Inject
     ComponentService componentService;
 
+    @Inject
+    DefinitionRegistryService defRegistry;
+
     @Override
     public ComponentService getComponentService() {
         return componentService;
+    }
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        return defRegistry;
     }
 
 }

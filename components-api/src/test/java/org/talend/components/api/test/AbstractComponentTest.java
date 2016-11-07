@@ -21,12 +21,13 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.component.runtime.Writer;
-import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.exception.error.ComponentsApiErrorCode;
 import org.talend.components.api.service.ComponentService;
+import org.talend.daikon.definition.Definition;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
+import org.talend.daikon.exception.TalendRuntimeException;
 
 public abstract class AbstractComponentTest {
 
@@ -36,21 +37,32 @@ public abstract class AbstractComponentTest {
 
     abstract public ComponentService getComponentService();
 
+    abstract public DefinitionRegistryService getDefinitionRegistry();
+
     @Test
     public void testAlli18n() {
         ComponentTestUtils.testAlli18n(getComponentService(), errorCollector);
     }
 
+    /**
+     * @deprecated use {@link #assertAlli18nAreSet()}
+     */
     @Test
+    @Deprecated
     public void testAllImages() {
         ComponentTestUtils.testAllImages(getComponentService());
     }
 
-    protected void assertComponentIsRegistered(String componentName) {
+    @Test
+    public void asserAllImagesAreProvided() {
+        ComponentTestUtils.testAllImages(getDefinitionRegistry());
+    }
+
+    public void assertComponentIsRegistered(String componentName) {
         try {
-            ComponentDefinition componentDefinition = getComponentService().getComponentDefinition(componentName);
+            Definition componentDefinition = getDefinitionRegistry().getDefinitionsMapByType(Definition.class).get(componentName);
             assertNotNull(componentDefinition);
-        } catch (ComponentException ce) {
+        } catch (TalendRuntimeException ce) {
             if (ce.getCode() == ComponentsApiErrorCode.WRONG_COMPONENT_NAME) {
                 fail("Could not find component [], please check the registered component familly is in package org.talend.components");
             } else {
@@ -60,7 +72,7 @@ public abstract class AbstractComponentTest {
     }
 
     public static Map<String, Object> getConsolidatedResults(Result result, Writer writer) {
-        List<Result> results = new ArrayList();
+        List<Result> results = new ArrayList<>();
         results.add(result);
         Map<String, Object> resultMap = writer.getWriteOperation().finalize(results, null);
         return resultMap;

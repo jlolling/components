@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLStreamHandler;
 import java.net.URLStreamHandlerFactory;
+import java.util.Collection;
 import java.util.Set;
 
 import org.junit.rules.ErrorCollector;
@@ -31,6 +32,8 @@ import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
+import org.talend.daikon.definition.Definition;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.test.PropertiesTestUtils;
@@ -114,6 +117,58 @@ public class ComponentTestUtils {
                                 + wizDef.getClass().getPackage().getName().replace('.', '/') + "/" + pngImagePath + "]",
                         resourceAsStream);
             }
+        }
+    }
+
+    /**
+     * check that all Components and Wizards have theirs images properly set.
+     * 
+     * @param componentService service to get the components to be checked.
+     */
+    public static void testAllImages(DefinitionRegistryService defRegService) {
+        // check all definitions
+        Collection<Definition> allDefinitions = defRegService.getDefinitionsMapByType(Definition.class).values();
+        for (Definition def : allDefinitions) {
+            // check def
+            {
+                String imagePath = def.getImagePath();
+                assertNotNull("the definition [" + def.getName() + "] must return an image path.", imagePath);
+                InputStream resourceAsStream = def.getClass().getResourceAsStream(imagePath);
+                assertNotNull("Failed to find the image for path [" + imagePath + "] for the definition [" + def.getName()
+                        + "].\nIt should be located at [" + def.getClass().getPackage().getName().replace('.', '/') + "/"
+                        + imagePath + "]", resourceAsStream);
+            }
+            // check components
+            if (def instanceof ComponentDefinition) {
+                ComponentDefinition compDef = (ComponentDefinition) def;
+                for (ComponentImageType compIT : ComponentImageType.values()) {
+                    String pngImagePath = compDef.getPngImagePath(compIT);
+                    assertNotNull("the component [" + compDef.getName() + "] must return an image path for type [" + compIT + "]",
+                            pngImagePath);
+                    InputStream resourceAsStream = compDef.getClass().getResourceAsStream(pngImagePath);
+                    assertNotNull(
+                            "Failed to find the image for path [" + pngImagePath + "] for the component:type ["
+                                    + compDef.getName() + ":" + compIT + "].\nIt should be located at ["
+                                    + compDef.getClass().getPackage().getName().replace('.', '/') + "/" + pngImagePath + "]",
+                            resourceAsStream);
+                }
+            }
+            // check wizards
+            if (def instanceof ComponentWizardDefinition) {
+                ComponentWizardDefinition wizDef = (ComponentWizardDefinition) def;
+                for (WizardImageType wizIT : WizardImageType.values()) {
+                    String pngImagePath = wizDef.getPngImagePath(wizIT);
+                    assertNotNull("the wizard [" + wizDef.getName() + "] must return an image path for type [" + wizIT + "]",
+                            pngImagePath);
+                    InputStream resourceAsStream = wizDef.getClass().getResourceAsStream(pngImagePath);
+                    assertNotNull(
+                            "Failed to find the image for path [" + pngImagePath + "] for the component:type [" + wizDef.getName()
+                                    + ":" + wizIT + "].\nIt should be located at ["
+                                    + wizDef.getClass().getPackage().getName().replace('.', '/') + "/" + pngImagePath + "]",
+                            resourceAsStream);
+                }
+            }
+
         }
     }
 

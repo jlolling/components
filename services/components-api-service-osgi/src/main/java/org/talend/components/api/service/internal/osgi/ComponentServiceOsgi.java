@@ -57,9 +57,16 @@ public class ComponentServiceOsgi implements ComponentService {
 
     GlobalI18N gctx;
 
+    private DefinitionRegistry defRegistry;
+
     @Reference
     public void osgiInjectGlobalContext(GlobalI18N aGctx) {
         this.gctx = aGctx;
+    }
+
+    @Reference
+    public void osgiInjectdefinitionRegistry(DefinitionRegistry defRegistry) {
+        this.defRegistry = defRegistry;
     }
 
     private ComponentServiceImpl componentServiceDelegate;
@@ -91,13 +98,12 @@ public class ComponentServiceOsgi implements ComponentService {
 
     @Activate
     void activate(BundleContext bundleContext) throws InvalidSyntaxException {
-        DefinitionRegistry registry = new DefinitionRegistry();
         Map<String, ComponentInstaller> installers = populateMap(bundleContext, ComponentInstaller.class);
         for (ComponentInstaller installer : installers.values()) {
-            installer.install(registry);
+            installer.install(defRegistry);
         }
-        registry.lock();
-        this.componentServiceDelegate = new ComponentServiceImpl(registry);
+        defRegistry.lock();
+        this.componentServiceDelegate = new ComponentServiceImpl(defRegistry);
     }
 
     @Override

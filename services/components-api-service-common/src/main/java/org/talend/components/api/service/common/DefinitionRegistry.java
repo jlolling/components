@@ -13,11 +13,10 @@
 package org.talend.components.api.service.common;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.talend.components.api.ComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
@@ -64,25 +63,27 @@ public class DefinitionRegistry implements ComponentInstaller.ComponentFramework
         return definitions;
     }
 
-    /**
-     * @return a subset of the known definitions
-     */
-    public <T extends Definition> Iterable<T> getDefinitionsByType(final Class<T> cls) {
-        // If we ever add a guava dependency: return Iterables.filter(definitions, cls);
-        List<T> byType = new ArrayList<>();
-        for (Definition def : getIterableDefinitions()) {
-            if (cls.isAssignableFrom(def.getClass())) {
-                byType.add((T) def);
-            }
-        }
-        return byType;
-    }
+    // /**
+    // * @return a subset of the known definitions
+    // */
+    // public <T extends Definition> Iterable<T> getDefinitionsByType(final Class<T> cls) {
+    // // If we ever add a guava dependency: return Iterables.filter(definitions, cls);
+    // List<T> byType = new ArrayList<>();
+    // for (Definition def : getIterableDefinitions()) {
+    // if (cls.isAssignableFrom(def.getClass())) {
+    // byType.add((T) def);
+    // }
+    // }
+    // return byType;
+    // }
 
     @Override
     public <T extends Definition> Map<String, T> getDefinitionsMapByType(Class<T> cls) {
         Map<String, T> definitionsAsMap = new HashMap<>();
-        for (T def : getDefinitionsByType(cls)) {
-            definitionsAsMap.put(def.getName(), def);
+        for (Entry<String, Definition> def : definitions.entrySet()) {
+            if (cls.isAssignableFrom(def.getValue().getClass())) {
+                definitionsAsMap.put(def.getKey(), (T) def.getValue());
+            } // else wrong type
         }
         return definitionsAsMap;
     }

@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -10,31 +10,36 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.api;
+package org.talend.components.api.service;
 
+import static org.junit.Assert.*;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 import java.io.File;
 
+import javax.inject.Inject;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.libraries.JUnitBundlesOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.talend.components.api.service.common.DefinitionRegistry;
+import org.talend.daikon.i18n.GlobalI18N;
+import org.talend.daikon.i18n.I18nMessageProvider;
 
-/**
- * created by sgandon on 8 sept. 2015 Detailled comment
- */
-public class ComponentsPaxExamOptions {
-
-    /**
-     * 
-     */
-    private static final String APACHE_KARAF_AID = "apache-karaf";
-
-    private static final String ORG_APACHE_KARAF_GID = "org.apache.karaf";
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
+public class OsgiServiceTestIT {
 
     static String localRepo = System.getProperty("maven.repo.local", "");
 
-    public static Option[] getOptions() {
+    @Configuration
+    public Option[] config() {
         if (localRepo != null && !"".equals(localRepo) && !new File(localRepo).isAbsolute()) {
             throw new RuntimeException("maven.repo.local system properties must be absolute.");
         }
@@ -52,14 +57,10 @@ public class ComponentsPaxExamOptions {
                 linkBundle("org.apache.commons-commons-compress"), //
                 linkBundle("org.apache.commons-commons-lang3"), //
                 linkBundle("org.apache.avro-avro"), //
-                linkBundle("org.eclipse.jetty.orbit-javax.servlet"), //
                 linkBundle("org.talend.daikon-daikon-bundle"), //
-                linkBundle("org.talend.daikon-daikon-tests").noStart(), //
-                linkBundle("org.talend.components-components-api-service-osgi").start(), //
                 linkBundle("org.talend.components-components-api-bundle"), //
-                linkBundle("org.talend.components-components-api-tests").noStart(),
                 linkBundle("org.apache.servicemix.bundles-org.apache.servicemix.bundles.hamcrest"), //
-                linkBundle("org.ops4j.pax.url-pax-url-aether"),
+                linkBundle("org.ops4j.pax.url-pax-url-aether"), linkBundle("org.talend.components-components-api-service-osgi"),
                 // this is copied from junitBundles() to remove the default pax-exam hamcrest bundle that does
                 // not contains all the nice hamcrest Matchers
                 new DefaultCompositeOption(new JUnitBundlesOption(), systemProperty("pax.exam.invoker").value("junit"),
@@ -70,15 +71,26 @@ public class ComponentsPaxExamOptions {
 
         // ,vmOption("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5010"), systemTimeout(0)//
         );
-
     }
 
-    // static KarafDistributionBaseConfigurationOption newKarafDistributionConfiguration() {
-    // return karafDistributionConfiguration()
-    // .frameworkUrl(
-    // maven().groupId(ORG_APACHE_KARAF_GID).artifactId(APACHE_KARAF_AID).versionAsInProject().type("tar.gz"))
-    // .karafVersion(MavenUtils.getArtifactVersion(ORG_APACHE_KARAF_GID, APACHE_KARAF_AID)).name("Apache Karaf")
-    // .unpackDirectory(new File("target/paxexam/")).useDeployFolder(false);
-    // }
+    @Inject
+    ComponentService compService;
+
+    @Inject
+    DefinitionRegistry defRegistry;
+
+    @Inject
+    GlobalI18N globI18n;
+
+    @Inject
+    I18nMessageProvider i18nProvider;
+
+    @Test
+    public void test() {
+        assertNotNull(compService);
+        assertNotNull(defRegistry);
+        assertNotNull(globI18n);
+        assertNotNull(i18nProvider);
+    }
 
 }

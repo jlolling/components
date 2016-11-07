@@ -1,8 +1,6 @@
 package org.talend.components.filedelimited;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -27,8 +25,8 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.DataRejectException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
-import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.service.common.ComponentServiceImpl;
+import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.api.test.ComponentTestUtils;
 import org.talend.components.common.EncodingTypeProperties;
@@ -42,6 +40,7 @@ import org.talend.components.filedelimited.tfileoutputdelimited.TFileOutputDelim
 import org.talend.components.filedelimited.tfileoutputdelimited.TFileOutputDelimitedProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 
@@ -64,6 +63,8 @@ public class FileDelimitedTestBasic extends AbstractComponentTest {
 
     private ComponentServiceImpl componentService;
 
+    private DefinitionRegistry testComponentRegistry;
+
     public FileDelimitedTestBasic() {
         adaptor = new DefaultComponentRuntimeContainerImpl();
     }
@@ -77,12 +78,18 @@ public class FileDelimitedTestBasic extends AbstractComponentTest {
     @Override
     public ComponentService getComponentService() {
         if (componentService == null) {
-            DefinitionRegistry testComponentRegistry = new DefinitionRegistry();
-
-            testComponentRegistry.registerComponentFamilyDefinition(new FileDelimitedFamilyDefinition());
-            componentService = new ComponentServiceImpl(testComponentRegistry);
+            componentService = new ComponentServiceImpl(getDefinitionRegistry());
         }
         return componentService;
+    }
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        if (testComponentRegistry == null) {
+            testComponentRegistry = new DefinitionRegistry();
+            testComponentRegistry.registerComponentFamilyDefinition(new FileDelimitedFamilyDefinition());
+        }
+        return testComponentRegistry;
     }
 
     protected ComponentProperties checkAndAfter(Form form, String propName, ComponentProperties props) throws Throwable {

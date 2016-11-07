@@ -34,6 +34,7 @@ import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.ComponentWizardDefinition;
 import org.talend.components.api.wizard.WizardImageType;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.exception.ExceptionContext;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.properties.Properties;
@@ -48,9 +49,9 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ComponentServiceImpl.class);
 
-    private DefinitionRegistry definitionRegistry;
+    private DefinitionRegistryService definitionRegistry;
 
-    public ComponentServiceImpl(DefinitionRegistry componentRegistry) {
+    public ComponentServiceImpl(DefinitionRegistryService componentRegistry) {
         this.definitionRegistry = componentRegistry;
     }
 
@@ -63,7 +64,7 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
     public Set<ComponentDefinition> getAllComponents() {
         // If we ever add a guava dependency: return Sets.newHashSet(getDefinitionsByType...)
         Set<ComponentDefinition> defs = new HashSet<>();
-        for (ComponentDefinition def : definitionRegistry.getDefinitionsByType(ComponentDefinition.class)) {
+        for (ComponentDefinition def : definitionRegistry.getDefinitionsMapByType(ComponentDefinition.class).values()) {
             defs.add(def);
         }
         return defs;
@@ -72,7 +73,8 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
     @Override
     public Set<ComponentWizardDefinition> getTopLevelComponentWizards() {
         Set<ComponentWizardDefinition> defs = new HashSet<>();
-        for (ComponentWizardDefinition def : definitionRegistry.getDefinitionsByType(ComponentWizardDefinition.class)) {
+        for (ComponentWizardDefinition def : definitionRegistry.getDefinitionsMapByType(ComponentWizardDefinition.class)
+                .values()) {
             if (def.isTopLevel()) {
                 defs.add(def);
             }
@@ -93,7 +95,7 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
         if (compDefMap.isEmpty()) {
             throw TalendRuntimeException.createUnexpectedException("fails to retrieve any Component definitions.");
         }
-        for (ComponentDefinition def : definitionRegistry.getDefinitionsByType(ComponentDefinition.class)) {
+        for (ComponentDefinition def : definitionRegistry.getDefinitionsMapByType(ComponentDefinition.class).values()) {
             if (name.equals(def.getName())) {
                 return def;
             }
@@ -121,7 +123,7 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
     public List<ComponentWizard> getComponentWizardsForProperties(ComponentProperties properties, String location) {
         List<ComponentWizard> wizards = new ArrayList<>();
         for (ComponentWizardDefinition wizardDefinition : definitionRegistry
-                .getDefinitionsByType(ComponentWizardDefinition.class)) {
+                .getDefinitionsMapByType(ComponentWizardDefinition.class).values()) {
             if (wizardDefinition.supportsProperties(properties.getClass())) {
                 ComponentWizard wizard = wizardDefinition.createWizard(properties, location);
                 wizards.add(wizard);
@@ -133,7 +135,7 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
     @Override
     public List<ComponentDefinition> getPossibleComponents(ComponentProperties... properties) {
         List<ComponentDefinition> returnList = new ArrayList<>();
-        for (ComponentDefinition cd : definitionRegistry.getDefinitionsByType(ComponentDefinition.class)) {
+        for (ComponentDefinition cd : definitionRegistry.getDefinitionsMapByType(ComponentDefinition.class).values()) {
             if (cd.supportsProperties(properties)) {
                 returnList.add(cd);
             }

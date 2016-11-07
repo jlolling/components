@@ -42,7 +42,7 @@ public class DefintitionRegistryTest {
         ComponentDefinition def = new TestComponentDefinition();
         registry.registerDefinition(Arrays.asList(def));
         assertThat(registry.getIterableDefinitions(), contains((Definition) def));
-        assertThat(registry.getDefinitionsByType(ComponentDefinition.class), contains(def));
+        assertThat(registry.getDefinitionsMapByType(ComponentDefinition.class).values(), contains(def));
     }
 
     @Test

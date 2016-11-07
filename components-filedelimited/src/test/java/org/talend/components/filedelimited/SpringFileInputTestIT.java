@@ -8,6 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.service.spring.SpringTestApp;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = SpringTestApp.class)
@@ -16,8 +17,17 @@ public class SpringFileInputTestIT extends AbstractComponentTest {
     @Inject
     private ComponentService componentService;
 
+    @Override
     public ComponentService getComponentService() {
         return componentService;
+    }
+
+    @Inject
+    DefinitionRegistryService osgiDefinitionService;
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        return osgiDefinitionService;
     }
 
 }

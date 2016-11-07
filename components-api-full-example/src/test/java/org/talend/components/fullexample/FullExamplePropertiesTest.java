@@ -17,10 +17,11 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.service.ComponentService;
-import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.service.common.ComponentServiceImpl;
+import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.presentation.Form;
@@ -30,6 +31,8 @@ public class FullExamplePropertiesTest extends AbstractComponentTest {
     FullExampleProperties cp;
 
     private ComponentService simpleComponentService;
+
+    private DefinitionRegistry componentRegistry;
 
     @Before
     public void init() {
@@ -56,11 +59,18 @@ public class FullExamplePropertiesTest extends AbstractComponentTest {
     @Override
     public ComponentService getComponentService() {
         if (simpleComponentService == null) {
-            DefinitionRegistry componentRegistry = new DefinitionRegistry();
-            componentRegistry.registerComponentFamilyDefinition(new FullExampleFamilyDefinition());
-            simpleComponentService = new ComponentServiceImpl(componentRegistry);
+            simpleComponentService = new ComponentServiceImpl(getDefinitionRegistry());
         }
         return simpleComponentService;
+    }
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        if (componentRegistry == null) {
+            componentRegistry = new DefinitionRegistry();
+            componentRegistry.registerComponentFamilyDefinition(new FullExampleFamilyDefinition());
+        } // else use the cache
+        return componentRegistry;
     }
 
     /**

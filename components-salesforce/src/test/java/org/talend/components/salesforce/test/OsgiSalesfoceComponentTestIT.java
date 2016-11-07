@@ -31,6 +31,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.talend.components.api.ComponentsPaxExamOptions;
 import org.talend.components.api.service.ComponentService;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -41,6 +42,9 @@ public class OsgiSalesfoceComponentTestIT extends SalesforceComponentTestIT {
 
     @Inject
     BundleContext bc;
+
+    @Inject
+    DefinitionRegistryService defRegistry;
 
     @Configuration
     public Option[] config() {
@@ -63,6 +67,11 @@ public class OsgiSalesfoceComponentTestIT extends SalesforceComponentTestIT {
         return osgiCompService;
     }
 
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        return defRegistry;
+    }
+
     @Test
     public void showbundleContext() throws InvalidSyntaxException {
         System.out.println(" CLASS IS LOCATED :" + this.getClass().getResource(""));
@@ -78,4 +87,5 @@ public class OsgiSalesfoceComponentTestIT extends SalesforceComponentTestIT {
         }
         System.out.println("XXX");
     }
+
 }

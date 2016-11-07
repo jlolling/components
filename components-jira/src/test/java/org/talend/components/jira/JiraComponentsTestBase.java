@@ -19,12 +19,13 @@ import org.talend.components.api.service.ComponentService;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.jira.tjirainput.TJiraInputDefinition;
 import org.talend.components.jira.tjiraoutput.TJiraOutputDefinition;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 /**
  * Integration tests for Jira Input component, which check if nothing was missed
  * during component implementation
  */
-public class JiraComponentsTestBase extends AbstractComponentTest {
+abstract public class JiraComponentsTestBase extends AbstractComponentTest {
 
     @Inject
     private ComponentService componentService;
@@ -32,6 +33,14 @@ public class JiraComponentsTestBase extends AbstractComponentTest {
     @Override
     public ComponentService getComponentService() {
         return componentService;
+    }
+
+    @Inject
+    DefinitionRegistryService osgiDefinitionService;
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        return osgiDefinitionService;
     }
 
     @Test

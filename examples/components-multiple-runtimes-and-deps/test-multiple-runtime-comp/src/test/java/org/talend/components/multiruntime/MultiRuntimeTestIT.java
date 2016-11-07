@@ -24,6 +24,7 @@ import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.talend.components.api.ComponentsPaxExamOptions;
 import org.talend.components.api.service.ComponentService;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
@@ -41,6 +42,14 @@ public class MultiRuntimeTestIT extends AbstractMultiRuntimeComponentTests {
     @Override
     public ComponentService getComponentService() {
         return osgiCompService;
+    }
+
+    @Inject
+    DefinitionRegistryService osgiDefinitionService;
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        return osgiDefinitionService;
     }
 
 }

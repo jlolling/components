@@ -49,7 +49,7 @@ public interface ComponentService extends PropertiesService<Properties> {
      * Get the list of all the components {@link ComponentDefinition} that are registered
      *
      * @return the set of component definitions, never null.
-     * @deprecated use {@link DefinitionRegistryService#getDefinitionsByType(ComponentDefinition.class)}
+     * @deprecated use {@link DefinitionRegistryService#getDefinitionsMapByType(ComponentDefinition.class).values()}
      */
     @Deprecated
     Set<ComponentDefinition> getAllComponents();

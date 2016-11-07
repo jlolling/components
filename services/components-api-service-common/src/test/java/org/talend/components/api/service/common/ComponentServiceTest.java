@@ -12,15 +12,8 @@
 // ============================================================================
 package org.talend.components.api.service.common;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -53,6 +46,7 @@ import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.api.test.ComponentTestUtils;
 import org.talend.components.api.wizard.ComponentWizard;
 import org.talend.components.api.wizard.WizardImageType;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.i18n.I18nMessages;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -70,6 +64,8 @@ public class ComponentServiceTest extends AbstractComponentTest {
 
     private ComponentServiceImpl componentService;
 
+    private DefinitionRegistry testComponentRegistry;
+
     @BeforeClass
     public static void setupMavenUrlHandler() {
         ComponentTestUtils.setupMavenUrlHandler();
@@ -85,12 +81,19 @@ public class ComponentServiceTest extends AbstractComponentTest {
     @Override
     public ComponentService getComponentService() {
         if (componentService == null) {
-            DefinitionRegistry testComponentRegistry = new DefinitionRegistry();
-            testComponentRegistry.registerDefinition(Arrays.asList(new TestComponentDefinition()));
-            testComponentRegistry.registerComponentWizardDefinition(Arrays.asList(new TestComponentWizardDefinition()));
-            componentService = new ComponentServiceImpl(testComponentRegistry);
+            componentService = new ComponentServiceImpl(getDefinitionRegistry());
         }
         return componentService;
+    }
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        if (testComponentRegistry == null) {
+            testComponentRegistry = new DefinitionRegistry();
+            testComponentRegistry.registerDefinition(Arrays.asList(new TestComponentDefinition()));
+            testComponentRegistry.registerComponentWizardDefinition(Arrays.asList(new TestComponentWizardDefinition()));
+        } // else already created so use the cache
+        return testComponentRegistry;
     }
 
     @Test
@@ -172,7 +175,7 @@ public class ComponentServiceTest extends AbstractComponentTest {
                         new URL("mvn:org.apache.maven/maven-artifact/3.3.3/jar"), //
                         new URL("mvn:org.eclipse.aether/aether-transport-file/1.0.0.v20140518/jar"), //
                         new URL("mvn:org.talend.components/file-input/0.1.0.SNAPSHOT/jar")//
-                ));
+        ));
     }
 
     @Test

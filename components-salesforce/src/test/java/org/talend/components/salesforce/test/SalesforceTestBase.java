@@ -12,10 +12,8 @@
 // ============================================================================
 package org.talend.components.salesforce.test;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -40,8 +38,8 @@ import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
-import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.service.common.ComponentServiceImpl;
+import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.salesforce.SalesforceConnectionModuleProperties;
 import org.talend.components.salesforce.SalesforceConnectionProperties;
@@ -56,6 +54,7 @@ import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputPropert
 import org.talend.components.salesforce.tsalesforceoutput.TSalesforceOutputProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
@@ -100,12 +99,19 @@ public class SalesforceTestBase extends AbstractComponentTest {
     @Override
     public ComponentService getComponentService() {
         if (componentService == null) {
-            DefinitionRegistry testComponentRegistry = new DefinitionRegistry();
-            // register component
-            testComponentRegistry.registerComponentFamilyDefinition(new SalesforceFamilyDefinition());
-            componentService = new ComponentServiceImpl(testComponentRegistry);
+            componentService = new ComponentServiceImpl(getDefinitionRegistry());
         }
         return componentService;
+    }
+
+    @Override
+    public DefinitionRegistryService getDefinitionRegistry() {
+        if (testComponentRegistry == null) {
+            testComponentRegistry = new DefinitionRegistry();
+            // register component
+            testComponentRegistry.registerComponentFamilyDefinition(new SalesforceFamilyDefinition());
+        } // else use the cached field.
+        return testComponentRegistry;
     }
 
     protected ComponentProperties checkAndAfter(Form form, String propName, ComponentProperties props) throws Throwable {
@@ -134,6 +140,8 @@ public class SalesforceTestBase extends AbstractComponentTest {
     public static final String NOT_EXISTING_MODULE_NAME = "foobar";
 
     public static final String TEST_KEY = "Address2 456";
+
+    private DefinitionRegistry testComponentRegistry;
 
     protected void setupModule(SalesforceModuleProperties moduleProps, String module) throws Throwable {
         Form f = moduleProps.getForm(Form.REFERENCE);
