@@ -35,6 +35,7 @@ public class KafkaFamilyDefinition extends AbstractComponentFamilyDefinition imp
                 new KafkaOutputDefinition());
     }
 
+    @Override
     public void install(ComponentFrameworkContext ctx) {
         ctx.registerComponentFamilyDefinition(this);
     }
