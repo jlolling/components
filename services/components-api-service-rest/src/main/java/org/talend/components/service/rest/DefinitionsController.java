@@ -25,17 +25,19 @@ import static org.springframework.web.bind.annotation.RequestMethod.POST;
 /**
  * This is needed because when annotating the interface with Spring MVC, the ones on methods parameters were not taken in account.
  */
-@Service(name = "DataStoreController")
-public interface DataStoreController {
+@Service(name = "DefinitionsController")
+@RequestMapping("definitions")
+public interface DefinitionsController {
 
     /**
      * Return all known DataStore definitions.
      *
      * @return all known DataStore definitions.
      * @returnWrapped java.lang.Iterable<org.talend.components.common.datastore.DatastoreDefinition>
+     * @param type
      */
-    @RequestMapping(value = "/datastoresDefinitions", method = GET)
-    Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions();
+    @RequestMapping(value = "{type}", method = GET)
+    Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions(@PathVariable("type") DefinitionType type);
 
     /**
      * Return the wanted DataStore definition.
@@ -44,7 +46,7 @@ public interface DataStoreController {
      * @return the wanted DataStore definition.
      * @returnWrapped org.talend.components.common.datastore.DatastoreDefinition
      */
-    @RequestMapping(value = "/datastoresDefinitions/{dataStoreName}/properties", method = GET)
+    @RequestMapping(value = "/{dataStoreName}/properties", method = GET)
     String getDatastoreDefinition(@PathVariable(value = "dataStoreName") String dataStoreName);
 
     /**
@@ -55,7 +57,7 @@ public interface DataStoreController {
      * @HTTP 204 If the given properties is valid.
      * @HTTP 400 If the given properties is not valid.
      */
-    @RequestMapping(value = "/datastoresDefinitions/{dataStoreName}/test", method = POST)
+    @RequestMapping(value = "/{dataStoreName}/test", method = POST)
     void validateDatastoreDefinition(@PathVariable(value = "dataStoreName") String dataStoreName,
                                      @RequestBody DatastoreProperties properties);
 
@@ -68,7 +70,7 @@ public interface DataStoreController {
      * @HTTP 400 If the given definition is not valid.
      * @HTTP 404 If the data store is not found
      */
-    @RequestMapping(value = "/datastoresDefinitions/{dataStoreName}/testLive", method = POST)
+    @RequestMapping(value = "/{dataStoreName}/testLive", method = POST)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     boolean checkDatastoreConnection(@PathVariable("dataStoreName") String dataStoreName,
                                      @RequestBody DatastoreProperties dataStoreProperties);
@@ -77,7 +79,7 @@ public interface DataStoreController {
      * @param propertyName
      * @return
      */
-    @RequestMapping(value = "/datastoresDefinitions/{dataStoreName}/properties/{propertyName}/test", method = POST)
+    @RequestMapping(value = "/{dataStoreName}/properties/{propertyName}/test", method = POST)
     boolean checkDatastoreProperty(@PathVariable("dataStoreName") String dataStoreName, //
                                    @PathVariable("propertyName") String propertyName, //
                                    @RequestBody Object value);

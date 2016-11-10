@@ -1,8 +1,5 @@
 package org.talend.components.service.rest.impl;
 
-import static java.util.stream.StreamSupport.*;
-import static org.slf4j.LoggerFactory.*;
-
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -13,20 +10,24 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.common.datastore.DatastoreDefinition;
 import org.talend.components.common.datastore.DatastoreProperties;
-import org.talend.components.service.rest.DataStoreController;
 import org.talend.components.service.rest.DataStoreDefinitionDTO;
+import org.talend.components.service.rest.DefinitionType;
+import org.talend.components.service.rest.DefinitionsController;
 import org.talend.components.service.rest.serialization.JsonSerializationHelper;
 import org.talend.daikon.annotation.ServiceImplementation;
 import org.talend.daikon.definition.service.DefinitionRegistryService;
+
+import static java.util.stream.StreamSupport.stream;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Rest controller in charge of data stores.
  */
 @ServiceImplementation
-public class DataStoreControllerImpl implements DataStoreController {
+public class DefinitionsControllerImpl implements DefinitionsController {
 
     /** This class' logger. */
-    private static final Logger log = getLogger(DataStoreControllerImpl.class);
+    private static final Logger log = getLogger(DefinitionsControllerImpl.class);
 
     @Autowired
     private ComponentService componentServiceDelegate;
@@ -38,7 +39,7 @@ public class DataStoreControllerImpl implements DataStoreController {
     private JsonSerializationHelper jsonSerializationHelper;
 
     @Override
-    public Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions() {
+    public Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions(DefinitionType type) {
         log.debug("listing datastore definitions");
         Iterable<DatastoreDefinition> definitionsByType = //
         definitionServiceDelegate.getDefinitionsMapByType(DatastoreDefinition.class).values();
