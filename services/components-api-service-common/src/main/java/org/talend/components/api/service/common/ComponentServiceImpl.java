@@ -93,13 +93,12 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
         if (compDefMap.isEmpty()) {
             throw TalendRuntimeException.createUnexpectedException("fails to retrieve any Component definitions.");
         }
-        for (ComponentDefinition def : definitionRegistry.getDefinitionsByType(ComponentDefinition.class)) {
-            if (name.equals(def.getName())) {
-                return def;
-            }
+        ComponentDefinition componentDefinition = definitionRegistry.getDefinitionsMapByType(ComponentDefinition.class).get(name);
+        if (componentDefinition == null) {
+            // The component was not found.
+            throw ComponentException.build(ComponentsApiErrorCode.WRONG_COMPONENT_NAME).set(name);
         }
-        // The component was not found.
-        throw new ComponentException(ComponentsApiErrorCode.WRONG_COMPONENT_NAME, ExceptionContext.build().put("name", name)); //$NON-NLS-1$
+        return componentDefinition;
     }
 
     @Override
