@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.avro.Schema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.talend.components.api.RuntimableDefinition;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.Connector;
@@ -192,7 +193,7 @@ public class ComponentServiceImpl extends PropertiesServiceImpl implements Compo
 
     @Override
     public RuntimeInfo getRuntimeInfo(String componentName, Properties properties, ConnectorTopology componentType) {
-        ComponentDefinition componentDef = getComponentDefinition(componentName);
+        RuntimableDefinition componentDef = getComponentDefinition(componentName);
         return componentDef.getRuntimeInfo(properties, componentType);
 
     }

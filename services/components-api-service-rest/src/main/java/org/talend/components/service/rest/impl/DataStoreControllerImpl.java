@@ -53,7 +53,7 @@ public class DataStoreControllerImpl implements DataStoreController {
         DatastoreDefinition def = definitionServiceDelegate.getDefinitionsMapByType(DatastoreDefinition.class).get(dataStoreName);
 
         if (def != null) {
-            return jsonSerializationHelper.toJson(def.createProperties(), dataStoreName);
+            return jsonSerializationHelper.toJson(definitionServiceDelegate.createProperties(def, ""), dataStoreName);
         } else {
             throw TalendRuntimeException.build(CommonErrorCodes.UNREGISTERED_DEFINITION).set(dataStoreName);
         }

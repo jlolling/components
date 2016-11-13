@@ -14,7 +14,6 @@ package org.talend.components.api.wizard;
 
 import org.talend.components.api.AbstractTopLevelDefinition;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.daikon.properties.Properties;
 
 public abstract class AbstractComponentWizardDefintion extends AbstractTopLevelDefinition implements ComponentWizardDefinition {
 
@@ -47,8 +46,8 @@ public abstract class AbstractComponentWizardDefintion extends AbstractTopLevelD
     }
 
     @Override
-    public Properties createProperties() {
-        // this should eventually be used to create the Properties instance associated with the wizard.
+    public Class getPropertiesClass() {
+        // this should eventually be used to create the Properties class associated with the wizard.
         return null;
     }
 
