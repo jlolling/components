@@ -40,6 +40,7 @@ public interface ComponentDefinition extends RuntimableDefinition<Properties, Co
     /**
      * Create and initialize a suitable {@link ComponentProperties} which configures an instance of this component.
      */
+    @Override
     ComponentProperties createProperties();
 
     /**
@@ -123,8 +124,9 @@ public interface ComponentDefinition extends RuntimableDefinition<Properties, Co
      * @param connectorTopology the topology of connectors you want to get the Runtime from.
      * 
      * @return the runtime information related to this component and <code>connectorTopology</code>. Should return null if the
-     * <code>componentType</code> is not par of the supported types returned by {@link #getSupportedConnectorTopologies()}
+     *         <code>componentType</code> is not par of the supported types returned by {@link #getSupportedConnectorTopologies()}
      */
+    @Override
     RuntimeInfo getRuntimeInfo(Properties properties, ConnectorTopology connectorTopology);
 
     /**

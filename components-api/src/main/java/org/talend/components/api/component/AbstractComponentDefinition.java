@@ -22,12 +22,10 @@ import java.util.List;
 import org.talend.components.api.AbstractTopLevelDefinition;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.definition.Definition;
 import org.talend.daikon.exception.TalendRuntimeException;
 import org.talend.daikon.properties.property.Property;
 
-public abstract class AbstractComponentDefinition extends AbstractTopLevelDefinition
-        implements ComponentDefinition, Definition {
+public abstract class AbstractComponentDefinition extends AbstractTopLevelDefinition implements ComponentDefinition {
 
     /**
      * Component name.
