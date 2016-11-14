@@ -162,7 +162,7 @@ public class DefinitionRegistry implements ComponentInstaller.ComponentFramework
         List<Definition> matchingDefs = new ArrayList<>();
         for (Definition def : definitions.values()) {
             Class<? extends Properties> defPropClass = def.getPropertiesClass();
-            if (defPropClass != null && def.getPropertiesClass().isAssignableFrom(propertiesClass)) {
+            if (defPropClass != null && propertiesClass.isAssignableFrom(def.getPropertiesClass())) {
                 matchingDefs.add(def);
             }
         }
