@@ -9,23 +9,23 @@
  * 9 rue Pages 92150 Suresnes, France
  */
 
-package org.talend.components.service.rest;
+package org.talend.components.service.rest.dto;
 
 import org.talend.daikon.properties.ValidationResult;
 
-public class PropertiesValidationResponse {
+public class PropertyValidationResponse {
 
-    private ValidationResult validationResult;
+    private ValidationResult.Result validationResult;
 
-    public PropertiesValidationResponse(ValidationResult validationResult) {
+    public PropertyValidationResponse(ValidationResult.Result validationResult) {
         this.validationResult = validationResult;
     }
 
-    public ValidationResult getValidationResult() {
+    public ValidationResult.Result getValidationResult() {
         return validationResult;
     }
 
-    public void setValidationResult(ValidationResult validationResult) {
+    public void setValidationResult(ValidationResult.Result validationResult) {
         this.validationResult = validationResult;
     }
 }
