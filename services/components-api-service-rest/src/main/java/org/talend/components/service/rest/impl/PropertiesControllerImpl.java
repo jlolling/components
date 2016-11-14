@@ -11,6 +11,11 @@
 
 package org.talend.components.service.rest.impl;
 
+import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
+import static org.talend.daikon.properties.ValidationResult.Result.ERROR;
+
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 
@@ -20,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreDefinition;
@@ -33,11 +39,6 @@ import org.talend.daikon.annotation.ServiceImplementation;
 import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ValidationResult;
-
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NO_CONTENT;
-import static org.talend.daikon.properties.ValidationResult.Result.ERROR;
 
 @ServiceImplementation
 public class PropertiesControllerImpl implements PropertiesController {
@@ -56,15 +57,16 @@ public class PropertiesControllerImpl implements PropertiesController {
     @Override
     public String getProperties(@PathVariable("name") String definitionName) {
         Validate.notNull(definitionName, "Data store name cannot be null.");
-        final DatastoreDefinition datastoreDefinition = getDataStoreDefinition(definitionName);
+
+        final ComponentProperties componentProperties = componentService.getComponentProperties(definitionName);
 
         String result;
-        if (datastoreDefinition == null) {
+        if (componentProperties == null) {
             log.debug("Did not found data store definition for {}", definitionName);
             result = null;
         } else {
-            log.debug("Found data store definition {} for {}", datastoreDefinition, definitionName);
-            result = jsonSerializationHelper.toJson(datastoreDefinition.createProperties());
+            log.debug("Found data store definition {} for {}", componentProperties, definitionName);
+            result = jsonSerializationHelper.toJson(componentProperties);
         }
         return result;
     }
