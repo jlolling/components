@@ -11,7 +11,35 @@
 
 package org.talend.components.service.rest;
 
+import org.talend.components.api.RuntimableDefinition;
+import org.talend.components.api.component.ComponentDefinition;
+import org.talend.components.common.datastore.DatastoreDefinition;
+
+/**
+ * Supported definition types.
+ */
 public enum DefinitionType {
-    COMPONENT,
-    DATA_STORE
+    COMPONENT(ComponentDefinition.class),
+    DATA_STORE(DatastoreDefinition.class);
+
+    /** The target class for the type. */
+    private Class<? extends RuntimableDefinition> targetClass;
+
+    /**
+     * Private constructor.
+     * @param targetClass the target class.
+     */
+    DefinitionType(Class<? extends RuntimableDefinition> targetClass) {
+        this.targetClass = targetClass;
+    }
+
+    /**
+     * @return the target class.
+     */
+    public Class<? extends RuntimableDefinition> getTargetClass() {
+        return targetClass;
+    }
+
+
+
 }

@@ -11,77 +11,40 @@
 
 package org.talend.components.service.rest;
 
-import org.springframework.http.HttpStatus;
+import static org.springframework.web.bind.annotation.RequestMethod.GET;
+
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.talend.components.common.datastore.DatastoreProperties;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.talend.components.service.rest.dto.DefinitionDTO;
+import org.talend.components.service.rest.dto.TopologyDTO;
 import org.talend.daikon.annotation.Service;
 
-import static org.springframework.web.bind.annotation.RequestMethod.GET;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
-
 /**
- * This is needed because when annotating the interface with Spring MVC, the ones on methods parameters were not taken in account.
+ * Definition controller..
  */
 @Service(name = "DefinitionsController")
-@RequestMapping("definitions")
 public interface DefinitionsController {
 
     /**
-     * Return all known DataStore definitions.
+     * Return all known definitions that match the given type.
      *
-     * @return all known DataStore definitions.
-     * @returnWrapped java.lang.Iterable<org.talend.components.common.datastore.DatastoreDefinition>
-     * @param type
+     * @param type the wanted definition type.
+     * @return all known definitions that match the given type.
+     * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
      */
-    @RequestMapping(value = "{type}", method = GET)
-    Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions(@PathVariable("type") DefinitionType type);
+    @RequestMapping(value = "/definitions/{type}", method = GET)
+    Iterable<DefinitionDTO> listDefinitions(@PathVariable("type") DefinitionType type);
 
     /**
-     * Return the wanted DataStore definition.
+     * Return components that match the given topology.
      *
-     * @param dataStoreName the name of the wanted datastore.
-     * @return the wanted DataStore definition.
-     * @returnWrapped org.talend.components.common.datastore.DatastoreDefinition
+     * @param topology the wanted topology.
+     * @return the list of all definitions that match the wanted topology.
+     * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
      */
-    @RequestMapping(value = "/{dataStoreName}/properties", method = GET)
-    String getDatastoreDefinition(@PathVariable(value = "dataStoreName") String dataStoreName);
+    @RequestMapping(value = "/definitions/components", method = GET)
+    Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam("topology") TopologyDTO topology);
 
-    /**
-     * Validates the given datastore definitions.
-     *
-     * @param dataStoreName the name of the datastore to validate.
-     * @param properties    the datastore properties to validate.
-     * @HTTP 204 If the given properties is valid.
-     * @HTTP 400 If the given properties is not valid.
-     */
-    @RequestMapping(value = "/{dataStoreName}/test", method = POST)
-    void validateDatastoreDefinition(@PathVariable(value = "dataStoreName") String dataStoreName,
-                                     @RequestBody DatastoreProperties properties);
-
-    /**
-     * Validates the given datastore definitions.
-     *
-     * @param dataStoreName       the name of the datastore to validate.
-     * @param dataStoreProperties the datastore properties to validate.
-     * @HTTP 204 If the given definition is valid.
-     * @HTTP 400 If the given definition is not valid.
-     * @HTTP 404 If the data store is not found
-     */
-    @RequestMapping(value = "/{dataStoreName}/testLive", method = POST)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    boolean checkDatastoreConnection(@PathVariable("dataStoreName") String dataStoreName,
-                                     @RequestBody DatastoreProperties dataStoreProperties);
-
-    /**
-     * @param propertyName
-     * @return
-     */
-    @RequestMapping(value = "/{dataStoreName}/properties/{propertyName}/test", method = POST)
-    boolean checkDatastoreProperty(@PathVariable("dataStoreName") String dataStoreName, //
-                                   @PathVariable("propertyName") String propertyName, //
-                                   @RequestBody Object value);
 
 }

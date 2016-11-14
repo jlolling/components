@@ -1,89 +1,110 @@
+/*
+ * Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+ *
+ * This source code is available under agreement available at
+ * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+ *
+ * You should have received a copy of the agreement
+ * along with this program; if not, write to Talend SA
+ * 9 rue Pages 92150 Suresnes, France
+ */
+
 package org.talend.components.service.rest.impl;
-
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.Validate;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.talend.components.api.service.ComponentService;
-import org.talend.components.common.datastore.DatastoreDefinition;
-import org.talend.components.common.datastore.DatastoreProperties;
-import org.talend.components.service.rest.DataStoreDefinitionDTO;
-import org.talend.components.service.rest.DefinitionType;
-import org.talend.components.service.rest.DefinitionsController;
-import org.talend.components.service.rest.serialization.JsonSerializationHelper;
-import org.talend.daikon.annotation.ServiceImplementation;
-import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 import static java.util.stream.StreamSupport.stream;
 import static org.slf4j.LoggerFactory.getLogger;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.talend.components.api.RuntimableDefinition;
+import org.talend.components.api.component.ComponentDefinition;
+import org.talend.components.common.datastore.DatastoreDefinition;
+import org.talend.components.service.rest.DefinitionType;
+import org.talend.components.service.rest.DefinitionTypeConverter;
+import org.talend.components.service.rest.DefinitionsController;
+import org.talend.components.service.rest.dto.DefinitionDTO;
+import org.talend.components.service.rest.dto.TopologyDTO;
+import org.talend.components.service.rest.dto.TopologyDTOConverter;
+import org.talend.daikon.annotation.ServiceImplementation;
+import org.talend.daikon.definition.service.DefinitionRegistryService;
 
 /**
- * Rest controller in charge of data stores.
+ * Definition controller..
  */
 @ServiceImplementation
+@RequestMapping(produces = APPLICATION_JSON_UTF8_VALUE)
 public class DefinitionsControllerImpl implements DefinitionsController {
 
     /** This class' logger. */
-    private static final Logger log = getLogger(DefinitionsControllerImpl.class);
-
-    @Autowired
-    private ComponentService componentServiceDelegate;
+    private static final Logger logger = getLogger(DefinitionsControllerImpl.class);
 
     @Autowired
     private DefinitionRegistryService definitionServiceDelegate;
 
-    @Autowired
-    private JsonSerializationHelper jsonSerializationHelper;
-
-    @Override
-    public Iterable<DataStoreDefinitionDTO> listDataStoreDefinitions(DefinitionType type) {
-        log.debug("listing datastore definitions");
-        Iterable<DatastoreDefinition> definitionsByType = //
-        definitionServiceDelegate.getDefinitionsMapByType(DatastoreDefinition.class).values();
-
-        return stream(definitionsByType.spliterator(), false).map(DataStoreDefinitionDTO::from).collect(Collectors.toList());
+    @InitBinder
+    public void initBinder(WebDataBinder dataBinder) {
+        dataBinder.registerCustomEditor(DefinitionType.class, new DefinitionTypeConverter());
+        dataBinder.registerCustomEditor(TopologyDTO.class, new TopologyDTOConverter());
     }
 
+    /**
+     * Return all known definitions that match the given type.
+     *
+     * @param type the wanted definition type.
+     * @return all known definitions that match the given type.
+     * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
+     */
     @Override
-    public String getDatastoreDefinition(@PathVariable String dataStoreName) {
-        Validate.notNull(dataStoreName, "Data store name cannot be null.");
-        final Iterable<DatastoreDefinition> iterable = definitionServiceDelegate
-                .getDefinitionsMapByType(DatastoreDefinition.class).values();
+    public Iterable<DefinitionDTO> listDefinitions(@PathVariable("type") DefinitionType type) {
+        logger.debug("listing definitions for {} ", type);
 
-        final Optional<DatastoreDefinition> first = stream(iterable.spliterator(), true) //
-                .filter(def -> dataStoreName.equals(def.getName())) //
-                .findFirst();
+        Iterable<? extends RuntimableDefinition> definitionsByType = //
+                definitionServiceDelegate.getDefinitionsMapByType(type.getTargetClass()).values();
 
-        String result;
-        if (first.isPresent()) {
-            log.debug("Found data store definition {} for {}", first.get(), dataStoreName);
-            result = jsonSerializationHelper.toJson(first.get().createProperties());
-        } else {
-            log.debug("Did not found data store definition for {}", dataStoreName);
-            result = null;
-        }
+        return stream(definitionsByType.spliterator(), false)
+                // this if...else is ugly, one should try to find a better solution
+                .map(c -> {
+                    if (type == DefinitionType.COMPONENT) {
+                        return new DefinitionDTO((ComponentDefinition)c);
+                    }
+                    else {
+                        return new DefinitionDTO((DatastoreDefinition)c);
+                    }
+                }) //
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Return components that match the given topology.
+     *
+     * @param topology the wanted topology.
+     * @return the list of all definitions that match the wanted topology.
+     * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
+     */
+    @Override
+    public Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam("topology") TopologyDTO topology) {
+        final Collection<ComponentDefinition> definitions = //
+                definitionServiceDelegate.getDefinitionsMapByType(ComponentDefinition.class).values();
+
+        final List<DefinitionDTO> result = definitions.stream() //
+                .filter(c -> c.getSupportedConnectorTopologies().contains(topology.getTopology())) //
+                .map(DefinitionDTO::new) //
+                .collect(Collectors.toList());
+
+        logger.debug("found {} component definitions for topology {}", result.size(), topology);
+
         return result;
     }
 
-    @Override
-    public void validateDatastoreDefinition(String dataStoreName, DatastoreProperties properties) {
-        log.debug("validate {}", properties);
-
-    }
-
-    @Override
-    public boolean checkDatastoreConnection(String dataStoreName, DatastoreProperties datastoreProperties) {
-        log.debug("checkDataStoreConnection on {}", dataStoreName); // Shouldn't it be in an aspect?
-        Validate.notNull(datastoreProperties, "Data stores properties cannot be null.");
-        return false;
-    }
-
-    @Override
-    public boolean checkDatastoreProperty(String dataStoreName, String propertyName, Object value) {
-        return false;
-    }
 
 }
