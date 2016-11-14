@@ -44,7 +44,7 @@ public interface DefinitionsController {
      * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
      */
     @RequestMapping(value = "/definitions/components", method = GET)
-    Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam("topology") TopologyDTO topology);
+    Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam(value="topology", required = false) TopologyDTO topology);
 
 
 }

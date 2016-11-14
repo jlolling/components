@@ -1,6 +1,8 @@
 package org.talend.components.service.rest.mock;
 
-import java.util.Collections;
+import static java.util.Arrays.asList;
+
+import java.util.HashSet;
 import java.util.Set;
 
 import org.talend.components.api.component.AbstractComponentDefinition;
@@ -18,11 +20,21 @@ import org.talend.daikon.runtime.RuntimeInfo;
 public class MockComponentDefinition extends AbstractComponentDefinition {
 
     private String name;
+    private Set<ConnectorTopology> topologies;
 
     public MockComponentDefinition(String name) {
         super("mock "+ name);
         this.name = name;
+        this.topologies = new HashSet<>();
     }
+
+    public MockComponentDefinition(String name, ConnectorTopology... topologies) {
+        this(name);
+        if (topologies != null) {
+            this.topologies.addAll(asList(topologies));
+        }
+    }
+
 
     @Override
     public String[] getFamilies() {
@@ -51,7 +63,7 @@ public class MockComponentDefinition extends AbstractComponentDefinition {
 
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return Collections.emptySet();
+        return topologies;
     }
 
 }

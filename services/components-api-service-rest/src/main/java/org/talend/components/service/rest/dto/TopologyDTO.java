@@ -10,13 +10,13 @@ import org.talend.components.api.component.ConnectorTopology;
 public enum TopologyDTO {
 
     /** source -> incoming*/
-    source(INCOMING),
+    SOURCE(INCOMING),
     /** sink -> outgoing. */
-    sink(OUTGOING),
+    SINK(OUTGOING),
     /** Transformer -> incoming and outgoing. */
-    transformer(INCOMING_AND_OUTGOING),
+    TRANSFORMER(INCOMING_AND_OUTGOING),
     /** configuration -> none. */
-    configuration(NONE);
+    CONFIGURATION(NONE);
 
     /** The connector topology to map. */
     private ConnectorTopology topology;
