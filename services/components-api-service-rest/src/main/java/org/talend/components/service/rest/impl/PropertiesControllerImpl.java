@@ -59,7 +59,7 @@ public class PropertiesControllerImpl implements PropertiesController {
         final RuntimableDefinition<?, ?> definition = getDefinition(definitionName);
         notNull(definition, "Could not find data store definition of name %s", definitionName);
         log.debug("Found data store definition {} for {}", definition, definitionName);
-        return jsonSerializationHelper.toJson(definitionServiceDelegate.createProperties(definition, ""));
+        return jsonSerializationHelper.toJson(definitionServiceDelegate.createProperties(definition, ""), definitionName);
     }
 
     @Override

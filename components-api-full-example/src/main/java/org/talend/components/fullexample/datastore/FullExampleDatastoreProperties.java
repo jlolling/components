@@ -16,7 +16,7 @@ public class FullExampleDatastoreProperties extends PropertiesImpl implements Da
 
     public Property<Integer> tagId = PropertyFactory.newInteger("tagId");
 
-    FullExampleDatastoreProperties(String name) {
+    public FullExampleDatastoreProperties(String name) {
         super(name);
     }
 

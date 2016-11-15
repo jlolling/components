@@ -18,10 +18,8 @@ import java.util.HashMap;
 import javax.inject.Inject;
 
 import org.springframework.stereotype.Component;
-import org.talend.components.common.datastore.DatastoreDefinition;
 import org.talend.daikon.definition.service.DefinitionRegistryService;
 import org.talend.daikon.properties.Properties;
-import org.talend.daikon.serialize.SerializerDeserializer;
 import org.talend.daikon.serialize.jsonschema.JsonSchemaUtil;
 
 import com.cedarsoftware.util.io.JsonWriter;
@@ -73,22 +71,15 @@ public class JsonSerializationHelper {
         return JsonSchemaUtil.toJson(properties, definitionName);
     }
 
-    public String toJson(DatastoreDefinition definition) {
-        return toJson((Object) definition);
-    }
-
     /**
-     * convert jsonStream (Jsonio with no type) input stream into the given clazz
+     * Creates a ui-spec representation of the properties including json-schema, json-ui and json-data
+     * 
+     * @param properties instance of the properties to serialize.
+     * @return json string in ui-specs representation of the data.
      */
-    public <T> T toObject(InputStream jsonStream, Class<T> clazz) {
-        return SerializerDeserializer.fromSerialized(jsonStream, clazz, null, false).object;
-    }
-
-    /**
-     * convert obj into a json String (using Jsonio with no @type)
-     */
-    public String toJson(Object obj) {
-        return SerializerDeserializer.toSerialized(obj, false, jsonIoOptions);
+    public String toJson(Properties properties) {
+        return JsonSchemaUtil.toJson(properties,
+                definitionRegistry.getDefinitionForPropertiesType(properties.getClass()).iterator().next().getName());
     }
 
 }
