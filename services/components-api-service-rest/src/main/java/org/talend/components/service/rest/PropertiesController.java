@@ -31,7 +31,7 @@ public interface PropertiesController {
     @RequestMapping(value = "{name}", method = GET)
     String getProperties(@PathVariable("name") String definitionName);
 
-    /** Validate **/
+    /** Validate the coherence of a set of properties for a specific component. **/
     @RequestMapping(value = "{definitionName}/validate", method = POST)
     ResponseEntity<PropertiesValidationResponse> validateProperties(@PathVariable("definitionName") String definitionName,
                                                                     @RequestBody FormDataContainer formData);
