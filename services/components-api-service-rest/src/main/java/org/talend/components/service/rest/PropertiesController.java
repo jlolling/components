@@ -16,51 +16,33 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.talend.components.service.rest.dto.PropertiesValidationResponse;
+import org.talend.components.service.rest.dto.PropertyValidationResponse;
 import org.talend.daikon.annotation.Service;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @Service(name = "PropertiesController")
 @RestController
-@RequestMapping(value = "properties",
-                consumes = APPLICATION_JSON_UTF8_VALUE,
-                produces = APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping("properties")
 public interface PropertiesController {
 
     @RequestMapping(value = "{name}", method = GET)
-        // P1
     String getProperties(@PathVariable("name") String definitionName);
 
-    /** Validate **/
-    // P1
+    /** Validate the coherence of a set of properties for a specific component. **/
     @RequestMapping(value = "{definitionName}/validate", method = POST)
     ResponseEntity<PropertiesValidationResponse> validateProperties(@PathVariable("definitionName") String definitionName,
                                                                     @RequestBody FormDataContainer formData);
 
     /** Validate one field. */
-    // P1
     @RequestMapping(value = "{definitionName}/validate/{propName}", method = POST)
-    void validateProperty(@PathVariable("definitionName") String definitionName, @PathVariable("propName") String propName);
-
-    /**  **/
-    // P2
-    @RequestMapping(value = "{definitionName}/beforeRender/{propName}", method = POST)
-    void beforeRenderProperty(@PathVariable("definitionName") String definitionName, @PathVariable("propName") String propName);
-
-    /** **/
-    // P2
-    @RequestMapping(value = "{definitionName}/after/{propName}", method = POST)
-    void afterProperty(@PathVariable("definitionName") String definitionName, @PathVariable("propName") String propName);
-
-    /** **/
-    // P2
-    @RequestMapping(value = "{definitionName}/beforeActivate/{propName}", method = POST)
-    void beforeActivateProperty(@PathVariable("definitionName") String definitionName, @PathVariable("propName") String propName);
+    ResponseEntity<PropertyValidationResponse> validateProperty(@PathVariable("definitionName") String definitionName,
+                                                                @RequestBody FormDataContainer formData,
+                                                                @PathVariable("propName") String propName);
 
     /** Get dataset properties. Should it be GET? **/
-    // P1
     @RequestMapping(value = "{definitionName}/dataset", method = POST)
     String getDatasetProperties(@PathVariable("definitionName") String definitionName, @RequestBody FormDataContainer formData);
 

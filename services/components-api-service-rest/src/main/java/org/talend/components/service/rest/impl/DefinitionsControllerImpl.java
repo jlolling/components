@@ -18,6 +18,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,12 +93,17 @@ public class DefinitionsControllerImpl implements DefinitionsController {
      * @returnWrapped java.lang.Iterable<org.talend.components.service.rest.dto.DefinitionDTO>
      */
     @Override
-    public Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam("topology") TopologyDTO topology) {
+    public Iterable<DefinitionDTO> listComponentDefinitions(@RequestParam(value = "topology", required = false) TopologyDTO topology) {
         final Collection<ComponentDefinition> definitions = //
                 definitionServiceDelegate.getDefinitionsMapByType(ComponentDefinition.class).values();
 
-        final List<DefinitionDTO> result = definitions.stream() //
-                .filter(c -> c.getSupportedConnectorTopologies().contains(topology.getTopology())) //
+        Stream<ComponentDefinition> stream = definitions.stream();
+
+        if (topology != null) {
+            stream = stream.filter(c -> c.getSupportedConnectorTopologies().contains(topology.getTopology()));
+        }
+
+        final List<DefinitionDTO> result = stream //
                 .map(DefinitionDTO::new) //
                 .collect(Collectors.toList());
 

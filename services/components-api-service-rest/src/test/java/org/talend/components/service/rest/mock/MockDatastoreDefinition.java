@@ -13,13 +13,13 @@ public class MockDatastoreDefinition extends SimpleNamedThing implements Datasto
     private String name;
 
     public MockDatastoreDefinition(String name) {
-        super("mock "+ name);
+        super("mock " + name);
         this.name = name;
     }
 
     @Override
-    public MockDatastoreProperties createProperties() {
-        return (MockDatastoreProperties) new MockDatastoreProperties("mock "+ name).init();
+    public Class<MockDatastoreProperties> getPropertiesClass() {
+        return MockDatastoreProperties.class;
     }
 
     @Override
@@ -44,17 +44,17 @@ public class MockDatastoreDefinition extends SimpleNamedThing implements Datasto
 
     @Override
     public String getDisplayName() {
-        return "mock "+ name +" datastore";
+        return "mock " + name + " datastore";
     }
 
     @Override
     public String getTitle() {
-        return "mock "+ name;
+        return "mock " + name;
     }
 
     @Override
     public String getImagePath() {
-        return "/org/talend/components/mock/mock_"+ name +"_icon32.png";
+        return "/org/talend/components/mock/mock_" + name + "_icon32.png";
     }
 
 }
