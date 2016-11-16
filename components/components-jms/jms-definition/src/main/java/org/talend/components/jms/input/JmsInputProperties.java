@@ -29,8 +29,6 @@ public class JmsInputProperties extends ComponentPropertiesImpl implements IOPro
         super(name);
     }
 
-    public Property<String> from = PropertyFactory.newString("from", "");
-
     public Property<Integer> timeout = PropertyFactory.newInteger("timeout", -1);
 
     public Property<Integer> max_msg = PropertyFactory.newInteger("max_msg", -1);
@@ -44,7 +42,6 @@ public class JmsInputProperties extends ComponentPropertiesImpl implements IOPro
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(from);
         mainForm.addRow(timeout);
         mainForm.addRow(max_msg);
         mainForm.addRow(msg_selector);

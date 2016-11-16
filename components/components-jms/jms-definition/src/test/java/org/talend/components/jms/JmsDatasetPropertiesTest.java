@@ -15,8 +15,8 @@ package org.talend.components.jms;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.util.Collection;
@@ -35,6 +35,7 @@ public class JmsDatasetPropertiesTest {
         JmsDatasetProperties properties = new JmsDatasetProperties("test");
         assertNull(properties.msgType.getValue());
         assertNull(properties.processingMode.getValue());
+        assertEquals("", properties.queueTopicName.getValue());
     }
 
     /**
@@ -50,9 +51,12 @@ public class JmsDatasetPropertiesTest {
         assertThat(main, notNullValue());
 
         Collection<Widget> mainWidgets = main.getWidgets();
-        assertThat(mainWidgets, hasSize(2));
+        assertThat(mainWidgets, hasSize(3));
         Widget msgType = main.getWidget("msgType");
         assertThat(msgType, notNullValue());
+        Widget queueTopicName = main.getWidget("queueTopicName");
+        assertThat(queueTopicName, notNullValue());
+
         Widget processingMode = main.getWidget("processingMode");
         assertThat(processingMode, notNullValue());
     }
@@ -67,6 +71,7 @@ public class JmsDatasetPropertiesTest {
         properties.refreshLayout(properties.getForm(Form.MAIN));
 
         assertFalse(properties.getForm(Form.MAIN).getWidget("msgType").isHidden());
+        assertFalse(properties.getForm(Form.MAIN).getWidget("queueTopicName").isHidden());
         assertFalse(properties.getForm(Form.MAIN).getWidget("processingMode").isHidden());
     }
 }

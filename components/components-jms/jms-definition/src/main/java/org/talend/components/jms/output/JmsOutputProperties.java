@@ -36,8 +36,6 @@ public class JmsOutputProperties extends ComponentPropertiesImpl implements IOPr
         super(name);
     }
 
-    public Property<String> to = PropertyFactory.newString("to", "");
-
     public Property<JmsAdvancedDeliveryMode> delivery_mode = newEnum("delivery_mode", JmsAdvancedDeliveryMode.class)
             .setRequired();
 
@@ -74,7 +72,6 @@ public class JmsOutputProperties extends ComponentPropertiesImpl implements IOPr
     public void setupLayout() {
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
-        mainForm.addRow(to);
 
         Form advancedForm = new Form(this, Form.ADVANCED);
         advancedForm.addRow(delivery_mode);

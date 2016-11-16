@@ -55,16 +55,17 @@ public class JmsOutputPTransformRuntime extends PTransform<PCollection<Object>, 
             }
         }));
 
+        String topicQueuName = properties.datasetRef.getReference().queueTopicName.toString();
         if (messageType.equals(JmsMessageType.QUEUE)) {
             return jmsCollection.apply(JmsIO.write()
                     // .withConnectionFactory(properties.dataset.datastore.getConnectionFactory())
-                    .withQueue(properties.to.toString()));
+                    .withQueue(topicQueuName));
         } else if (messageType.equals(JmsMessageType.TOPIC)) {
             // TODO label comes from user
             return jmsCollection.apply("writeToJms",
                     JmsIO.write()
                             // .withConnectionFactory(properties.dataset.datastore.getConnectionFactory())
-                            .withTopic(properties.to.toString()));
+                            .withTopic(topicQueuName));
         } else {
             throw new TalendRuntimeException(CommonErrorCodes.UNEXPECTED_ARGUMENT);
         }

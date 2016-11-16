@@ -20,6 +20,7 @@ import org.talend.daikon.properties.PropertiesImpl;
 import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 
 /*
  * import javax.jms.ConnectionFactory;
@@ -38,6 +39,8 @@ public class JmsDatasetProperties extends PropertiesImpl implements DatasetPrope
     public final Property<JmsMessageType> msgType = newEnum("msgType", JmsMessageType.class).setRequired();
 
     public final Property<JmsProcessingMode> processingMode = newEnum("processingMode", JmsProcessingMode.class);
+
+    public final Property<String> queueTopicName = PropertyFactory.newString("queueTopicName", "");
 
     public final transient ReferenceProperties<JmsDatastoreProperties> datastoreRef = new ReferenceProperties<>("datastoreRef",
             JmsDatastoreDefinition.NAME);
@@ -66,6 +69,7 @@ public class JmsDatasetProperties extends PropertiesImpl implements DatasetPrope
         super.setupLayout();
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(msgType);
+        mainForm.addRow(queueTopicName);
         mainForm.addRow(processingMode);
     }
 
