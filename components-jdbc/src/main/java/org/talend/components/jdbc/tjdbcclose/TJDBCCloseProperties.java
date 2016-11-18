@@ -56,7 +56,7 @@ public class TJDBCCloseProperties extends ComponentPropertiesImpl
         AllSetting setting = new AllSetting();
 
         setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
-        setting.setReferencedComponentProperties(referencedComponent.componentProperties);
+        setting.setReferencedComponentProperties(referencedComponent.getReference());
 
         return setting;
     }

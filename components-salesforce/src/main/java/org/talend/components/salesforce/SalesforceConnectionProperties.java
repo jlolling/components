@@ -86,7 +86,8 @@ public class SalesforceConnectionProperties extends ComponentPropertiesImpl
 
     public ProxyProperties proxy = new ProxyProperties("proxy");
 
-    public ComponentReferenceProperties referencedConnection = new ComponentReferenceProperties("referencedConnection", this);
+    public ComponentReferenceProperties<SalesforceConnectionProperties> referencedConnection = new ComponentReferenceProperties<>(
+            "referencedConnection", TSalesforceConnectionDefinition.COMPONENT_NAME);
 
     public SalesforceConnectionProperties(String name) {
         super(name);
@@ -133,7 +134,6 @@ public class SalesforceConnectionProperties extends ComponentPropertiesImpl
         // A form for a reference to a connection, used in a tSalesforceInput for example
         Form refForm = Form.create(this, Form.REFERENCE);
         Widget compListWidget = widget(referencedConnection).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
-        referencedConnection.componentType.setValue(TSalesforceConnectionDefinition.COMPONENT_NAME);
         refForm.addRow(compListWidget);
         refForm.addRow(mainForm);
     }
@@ -237,7 +237,7 @@ public class SalesforceConnectionProperties extends ComponentPropertiesImpl
     }
 
     public SalesforceConnectionProperties getReferencedConnectionProperties() {
-        SalesforceConnectionProperties refProps = (SalesforceConnectionProperties) referencedConnection.componentProperties;
+        SalesforceConnectionProperties refProps = referencedConnection.getReference();
         if (refProps != null) {
             return refProps;
         }

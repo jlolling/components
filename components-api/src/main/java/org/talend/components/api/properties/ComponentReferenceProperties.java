@@ -12,13 +12,10 @@
 // ============================================================================
 package org.talend.components.api.properties;
 
-import static org.talend.daikon.properties.property.Property.Flags.*;
 import static org.talend.daikon.properties.property.PropertyFactory.*;
 
-import java.lang.reflect.Field;
-import java.util.EnumSet;
-
 import org.talend.daikon.properties.Properties;
+import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.property.Property;
 
 /**
@@ -34,7 +31,7 @@ import org.talend.daikon.properties.property.Property;
  * The {@link org.talend.daikon.properties.presentation.WidgetType#COMPONENT_REFERENCE} uses this class as its
  * properties and the Widget will populate these values.
  */
-public class ComponentReferenceProperties<P extends Properties> extends ComponentPropertiesImpl {
+public class ComponentReferenceProperties<P extends Properties> extends ReferenceProperties<P> {
 
     public enum ReferenceType {
         THIS_COMPONENT,
@@ -47,37 +44,10 @@ public class ComponentReferenceProperties<P extends Properties> extends Componen
     //
     public Property<ReferenceType> referenceType = newEnum("referenceType", ReferenceType.class);
 
-    // type of the component to be used by the designer to provide a list of possible instances to ref to.s
-    public Property<String> componentType = newProperty("componentType").setFlags(EnumSet.of(DESIGN_TIME_ONLY)); //$NON-NLS-1$
-
     public Property<String> componentInstanceId = newString("componentInstanceId"); //$NON-NLS-1$
 
-    /**
-     * The properties associated with the referenced component. This can be used at design time. This is non-null only
-     * if there is a componentInstanceId specified.
-     */
-    public P componentProperties;
-
-    /**
-     * @deprecated please use the constructor {@link #ComponentReferenceProperties(String, String)}
-     */
-    @Deprecated
-    public ComponentReferenceProperties(String name, ComponentReferencePropertiesEnclosing enclosing) {
-        super(name);
-    }
-
     public ComponentReferenceProperties(String name, String propDefinitionName) {
-        super(name);
-        componentType.setValue(propDefinitionName);
-    }
-
-    @Override
-    protected boolean acceptUninitializedField(Field f) {
-        if (super.acceptUninitializedField(f)) {
-            return true;
-        }
-        // we accept that return field is not intialized after setupProperties.
-        return "componentProperties".equals(f.getName());
+        super(name, propDefinitionName);
     }
 
 }

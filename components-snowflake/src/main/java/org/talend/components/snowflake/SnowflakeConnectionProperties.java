@@ -1,5 +1,8 @@
 package org.talend.components.snowflake;
 
+import static org.talend.daikon.properties.presentation.Widget.*;
+import static org.talend.daikon.properties.property.PropertyFactory.*;
+
 import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.components.api.properties.ComponentReferenceProperties;
 import org.talend.components.api.properties.ComponentReferencePropertiesEnclosing;
@@ -11,10 +14,6 @@ import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
-
-import static org.talend.daikon.properties.presentation.Widget.widget;
-import static org.talend.daikon.properties.property.PropertyFactory.newEnum;
-import static org.talend.daikon.properties.property.PropertyFactory.newString;
 
 public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
         implements SnowflakeProvideConnectionProperties, ComponentReferencePropertiesEnclosing {
@@ -54,7 +53,6 @@ public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
 
     public Property<String> schemaName = newString("schemaName").setRequired(); //$NON-NLS-1$
 
-
     public Property<String> role = newString("role"); //$NON-NLS-1$
 
     public Property<Tracing> tracing = newEnum("tracing", Tracing.class); //$NON-NLS-1$
@@ -66,7 +64,8 @@ public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
 
     // protected transient PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
 
-    public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this);
+    public ComponentReferenceProperties<SnowflakeConnectionProperties> referencedComponent = new ComponentReferenceProperties<>(
+            "referencedComponent", TSnowflakeConnectionDefinition.COMPONENT_NAME);
 
     public SnowflakeConnectionProperties(String name) {
         super(name);
@@ -109,7 +108,6 @@ public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
         // A form for a reference to a connection, used in a tSnowflakeInput for example
         Form refForm = Form.create(this, Form.REFERENCE);
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
-        referencedComponent.componentType.setValue(TSnowflakeConnectionDefinition.COMPONENT_NAME);
         refForm.addRow(compListWidget);
         refForm.addRow(mainForm);
     }
@@ -176,7 +174,7 @@ public class SnowflakeConnectionProperties extends ComponentPropertiesImpl
     }
 
     public SnowflakeConnectionProperties getReferencedConnectionProperties() {
-        SnowflakeConnectionProperties refProps = (SnowflakeConnectionProperties) referencedComponent.componentProperties;
+        SnowflakeConnectionProperties refProps = referencedComponent.getReference();
         if (refProps != null) {
             return refProps;
         }

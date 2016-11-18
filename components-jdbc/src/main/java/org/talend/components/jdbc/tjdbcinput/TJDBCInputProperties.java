@@ -205,7 +205,7 @@ public class TJDBCInputProperties extends FixedConnectorsComponentProperties
         AllSetting setting = new AllSetting();
 
         setting.setReferencedComponentId(referencedComponent.componentInstanceId.getValue());
-        setting.setReferencedComponentProperties(referencedComponent.componentProperties);
+        setting.setReferencedComponentProperties(referencedComponent.getReference());
 
         setting.setDriverPaths(this.connection.driverTable.drivers.getValue());
         setting.setDriverClass(this.connection.driverClass.getValue());
