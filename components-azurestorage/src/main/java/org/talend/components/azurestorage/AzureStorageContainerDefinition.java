@@ -1,15 +1,30 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage;
 
 import java.util.EnumSet;
 import java.util.Set;
 
 import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.runtime.AzureStorageSource;
-import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
-public class AzureStorageContainerDefinition extends AzureStorageDefinition {
+/**
+ * Class AzureStorageContainerDefinition.
+ */
+public abstract class AzureStorageContainerDefinition extends AzureStorageDefinition {
 
     public AzureStorageContainerDefinition(String componentName) {
         super(componentName);
@@ -22,9 +37,8 @@ public class AzureStorageContainerDefinition extends AzureStorageDefinition {
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(Properties properties, ConnectorTopology connectorTopology) {
-        RuntimeInfo runtimeinfo = getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSource.class);
-        return runtimeinfo;
+    public RuntimeInfo getRuntimeInfo(ComponentProperties properties, ConnectorTopology connectorTopology) {
+        return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSource.class);
     }
 
     @Override

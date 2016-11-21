@@ -1,4 +1,15 @@
-
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage;
 
 import org.talend.components.api.AbstractComponentFamilyDefinition;
@@ -22,10 +33,7 @@ import aQute.bnd.annotation.component.Component;
 @Component(name = Constants.COMPONENT_INSTALLER_PREFIX + AzureStorageFamilyDefinition.NAME, provide = ComponentInstaller.class)
 public class AzureStorageFamilyDefinition extends AbstractComponentFamilyDefinition implements ComponentInstaller {
 
-    /**
-     * FIXME - Remove "DEV" suffix when OK.
-     */
-    public static final String NAME = "Azure Storage DEV"; //$NON-NLS-1$
+    public static final String NAME = "Azure Storage"; //$NON-NLS-1$
 
     public AzureStorageFamilyDefinition() {
         super(NAME, new TAzureStorageConnectionDefinition(), new TAzureStorageContainerExistDefinition(),

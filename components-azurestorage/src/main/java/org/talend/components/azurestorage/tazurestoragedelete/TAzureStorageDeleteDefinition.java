@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.tazurestoragedelete;
 
 import java.util.EnumSet;
@@ -10,10 +22,7 @@ import org.talend.daikon.properties.property.Property;
 
 public class TAzureStorageDeleteDefinition extends AzureStorageBlobDefinition {
 
-    /**
-     * FIXME - Remove "DEV" prefix when OK.
-     */
-    public static final String COMPONENT_NAME = "DEVtAzureStorageDelete"; //$NON-NLS-1$
+    public static final String COMPONENT_NAME = "tAzureStorageDelete"; //$NON-NLS-1$
 
     public TAzureStorageDeleteDefinition() {
         super(COMPONENT_NAME);
@@ -28,6 +37,11 @@ public class TAzureStorageDeleteDefinition extends AzureStorageBlobDefinition {
 
     @Override
     public Class<? extends ComponentProperties> getPropertyClass() {
+        return TAzureStorageDeleteProperties.class;
+    }
+
+    @Override
+    public Class getPropertiesClass() {
         return TAzureStorageDeleteProperties.class;
     }
 

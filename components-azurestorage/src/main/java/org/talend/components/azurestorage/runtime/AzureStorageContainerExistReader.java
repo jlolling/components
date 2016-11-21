@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
@@ -39,7 +51,9 @@ public class AzureStorageContainerExistReader extends AzureStorageReader<Boolean
             return result;
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
-            throw new ComponentException(e);
+            if (properties.dieOnError.getValue())
+                throw new ComponentException(e);
+            return false;
         }
     }
 
@@ -58,7 +72,7 @@ public class AzureStorageContainerExistReader extends AzureStorageReader<Boolean
         Map<String, Object> resultMap = super.getReturnValues();
         resultMap.put(TAzureStorageContainerExistDefinition.RETURN_CONTAINER, properties.container.getValue());
         resultMap.put(TAzureStorageContainerExistDefinition.RETURN_CONTAINER_EXIST, new Boolean(result));
-        
+
         return resultMap;
     }
 }

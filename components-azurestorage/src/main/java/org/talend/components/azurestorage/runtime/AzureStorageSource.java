@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.File;
@@ -8,6 +20,8 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
@@ -46,6 +60,8 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
 
     private transient Schema schema;
 
+    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageSource.class);
+
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
         this.properties = (AzureStorageProperties) properties;
@@ -53,6 +69,7 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
         return ValidationResult.OK;
     }
 
+    @Override
     @SuppressWarnings("rawtypes")
     public BoundedReader createReader(RuntimeContainer container) {
         //
@@ -102,6 +119,7 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
         return null;
     }
 
+    @Override
     public ValidationResult validate(RuntimeContainer container) {
         // checks that account name and key are not empty
         ValidationResult superRes = super.validate(container);
@@ -121,6 +139,13 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
                 vr.setStatus(ValidationResult.Result.ERROR);
                 return vr;
             }
+            // valid characters 0-9 a-z and -
+            if (!StringUtils.isAlphanumeric(cnt.replaceAll("-", ""))) {
+                ValidationResult vr = new ValidationResult();
+                vr.setMessage("The container name must contain only alphanumeric chars and dash(-)."); //$NON-NLS-1$
+                vr.setStatus(ValidationResult.Result.ERROR);
+                return vr;
+            }
             // all lowercase
             if (!StringUtils.isAllLowerCase(cnt.replaceAll("-", ""))) {
                 ValidationResult vr = new ValidationResult();
@@ -130,16 +155,9 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
             }
             // length range : 3-63
             int cntl = cnt.length();
-            if (3 >= cntl && cntl <= 63) {
+            if ((cntl < 3) || (cntl > 63)) {
                 ValidationResult vr = new ValidationResult();
                 vr.setMessage("The container name length must be between 3 and 63 characters."); //$NON-NLS-1$
-                vr.setStatus(ValidationResult.Result.ERROR);
-                return vr;
-            }
-            // valid characters 0-9 a-z and -
-            if (!StringUtils.isAlphanumeric(cnt.replaceAll("-", ""))) {
-                ValidationResult vr = new ValidationResult();
-                vr.setMessage("The container name must contain only alphanumeric chars and dash(-)."); //$NON-NLS-1$
                 vr.setStatus(ValidationResult.Result.ERROR);
                 return vr;
             }
@@ -231,10 +249,12 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
         return remoteBlobs;
     }
 
+    @Override
     public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
         return null;
     }
 
+    @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
         return null;
     }
@@ -247,15 +267,18 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
         return schema;
     }
 
+    @Override
     public List<? extends BoundedSource> splitIntoBundles(long desiredBundleSizeBytes, RuntimeContainer container)
             throws Exception {
         return Arrays.asList(this);
     }
 
+    @Override
     public long getEstimatedSizeBytes(RuntimeContainer container) {
         return 0;
     }
 
+    @Override
     public boolean producesSortedKeys(RuntimeContainer container) {
         return false;
     }

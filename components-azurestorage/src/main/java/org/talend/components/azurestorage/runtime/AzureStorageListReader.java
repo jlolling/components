@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
@@ -22,9 +34,9 @@ import com.microsoft.azure.storage.blob.ListBlobItem;
 
 public class AzureStorageListReader extends AzureStorageReader<String> {
 
-    private transient TAzureStorageListProperties properties;
+    private TAzureStorageListProperties properties;
 
-    private List<CloudBlob> blobs = new ArrayList<CloudBlob>();
+    private List<CloudBlob> blobs = new ArrayList<>();
 
     private int blobIndex;
 
@@ -41,13 +53,14 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
 
     @Override
     public boolean start() throws IOException {
+        Boolean startable = false;
         String mycontainer = properties.container.getValue();
         // build a list with remote blobs to fetch
         List<RemoteBlob> remoteBlobs = ((AzureStorageSource) getCurrentSource()).getRemoteBlobs();
         try {
             CloudBlobContainer container = ((AzureStorageSource) getCurrentSource()).getStorageContainerReference(runtime,
                     mycontainer);
-            blobs = new ArrayList<CloudBlob>();
+            blobs = new ArrayList<>();
             for (RemoteBlob rmtb : remoteBlobs) {
                 for (ListBlobItem blob : container.listBlobs(rmtb.prefix, rmtb.include)) {
                     if (blob instanceof CloudBlob) {
@@ -56,16 +69,19 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
                 }
             }
             blobSize = blobs.size();
-            if (blobSize > 0) {
-                dataCount++;
-                blobIndex = 0;
-                return true;
-            } else
-                return false;
-        } catch (Exception e) {
+            startable = (blobSize > 0);
+        } catch (
+
+        Exception e) {
             LOGGER.error(e.getLocalizedMessage());
-            throw new ComponentException(e);
+            if (properties.dieOnError.getValue())
+                throw new ComponentException(e);
         }
+        if (startable) {
+            dataCount++;
+            blobIndex = 0;
+        }
+        return startable;
     }
 
     @Override
@@ -81,8 +97,9 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
     @Override
     public String getCurrent() throws NoSuchElementException {
         currentBlob = blobs.get(blobIndex);
-        runtime.setComponentData(runtime.getCurrentComponentId(), AzureStorageBlobDefinition.RETURN_CURRENT_BLOB,
-                currentBlob.getName());
+        if (runtime != null)
+            runtime.setComponentData(runtime.getCurrentComponentId(), AzureStorageBlobDefinition.RETURN_CURRENT_BLOB,
+                    currentBlob.getName());
         return currentBlob.getName();
     }
 

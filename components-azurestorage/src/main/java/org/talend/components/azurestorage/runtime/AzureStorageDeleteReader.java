@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
@@ -42,6 +54,7 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
             for (RemoteBlob rmtb : remoteBlobs) {
                 for (ListBlobItem blob : container.listBlobs(rmtb.prefix, rmtb.include)) {
                     if (blob instanceof CloudBlockBlob) {
+                        LOGGER.debug("--> Going to delete `{}`.", ((CloudBlockBlob) blob).getName());
                         // FIXME - problem with blobs with space in name...
                         if (((CloudBlockBlob) blob).deleteIfExists()) {
                             dataCount++;
@@ -52,7 +65,8 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
             }
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
-            throw new ComponentException(e);
+            if (properties.dieOnError.getValue())
+                throw new ComponentException(e);
         }
         result = (dataCount > 0);
         return result;

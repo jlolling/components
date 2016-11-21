@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.tazurestoragecontainercreate;
 
 import org.talend.components.azurestorage.AzureStorageProperties;
@@ -11,7 +23,7 @@ public class TAzureStorageContainerCreateProperties extends AzureStorageProperti
         Private,
         Public
     }
-        
+
     public Property<AccessControl> accessControl = PropertyFactory.newEnum("accessControl", AccessControl.class); //$NON-NLS-1$
 
     public TAzureStorageContainerCreateProperties(String name) {
@@ -30,11 +42,12 @@ public class TAzureStorageContainerCreateProperties extends AzureStorageProperti
         mainForm.addRow(container);
         mainForm.addRow(accessControl);
         mainForm.addRow(dieOnError);
-    }   
-    
+    }
+
     @Override
     public void setupProperties() {
         super.setupProperties();
+        container.setRequired(true);
         accessControl.setValue(AccessControl.Private);
     }
 }

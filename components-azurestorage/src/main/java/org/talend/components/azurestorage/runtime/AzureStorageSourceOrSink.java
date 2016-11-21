@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
@@ -25,7 +37,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 public class AzureStorageSourceOrSink implements SourceOrSink {
 
-    public final static String KEY_CONNECTION_PROPERTIES = "connection";
+    public static final String KEY_CONNECTION_PROPERTIES = "connection";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageSourceOrSink.class);
 
@@ -33,18 +45,16 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
 
     protected AzureStorageProvideConnectionProperties properties;
 
-    private Schema schema;
+    private transient Schema schema;
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
-        LOGGER.debug("initialize");
         this.properties = (AzureStorageProvideConnectionProperties) properties;
         return ValidationResult.OK;
     }
 
     @Override
     public ValidationResult validate(RuntimeContainer container) {
-        LOGGER.debug("validate");
         TAzureStorageConnectionProperties conn = validateConnection(container);
         // checks connection's account and key
         if (StringUtils.isEmpty(conn.accountName.getStringValue()) || StringUtils.isEmpty(conn.accountKey.getStringValue())) {
@@ -73,11 +83,10 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
         return Collections.emptyList();
     }
 
-    protected TAzureStorageConnectionProperties validateConnection(RuntimeContainer container) {
-        LOGGER.debug("connect");
+    public TAzureStorageConnectionProperties validateConnection(RuntimeContainer container) {
         TAzureStorageConnectionProperties connProps = getConnectionProperties();
         String refComponentId = connProps.getReferencedComponentId();
-        TAzureStorageConnectionProperties sharedConn = null;
+        TAzureStorageConnectionProperties sharedConn;
         // Using another component's connection
         if (refComponentId != null) {
             // In a runtime container
@@ -98,15 +107,18 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
     }
 
     public TAzureStorageConnectionProperties getConnectionProperties() {
-        LOGGER.debug("getConnectionProperties");
         return properties.getConnectionProperties();
     }
 
     /**
-     * @return
+     * getServiceClient.
+     *
+     * @param container {@link RuntimeContainer} container
+     * @return {@link CloudBlobClient} cloud blob client
+     * @throws InvalidKeyException the invalid key exception
+     * @throws URISyntaxException the URI syntax exception
      */
     public CloudBlobClient getServiceClient(RuntimeContainer container) throws InvalidKeyException, URISyntaxException {
-        LOGGER.debug("getServiceClient");
         TAzureStorageConnectionProperties conn = validateConnection(container);
         String account = conn.accountName.getValue();
         String key = conn.accountKey.getValue();
@@ -118,11 +130,17 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
     }
 
     /**
-     * @return
+     * getStorageContainerReference.
+     *
+     * @param container {@link RuntimeContainer} container
+     * @param storageContainer {@link String} storage container
+     * @return {@link CloudBlobContainer} cloud blob container
+     * @throws InvalidKeyException the invalid key exception
+     * @throws URISyntaxException the URI syntax exception
+     * @throws StorageException the storage exception
      */
     public CloudBlobContainer getStorageContainerReference(RuntimeContainer container, String storageContainer)
             throws InvalidKeyException, URISyntaxException, StorageException {
-        LOGGER.debug("getStorageContainerReference");
         return getServiceClient(container).getContainerReference(storageContainer);
     }
 }

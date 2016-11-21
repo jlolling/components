@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.azurestorage.runtime;
 
 import java.io.File;
@@ -54,7 +66,7 @@ public class AzureStoragePutReader extends AzureStorageReader<Boolean> {
             throw new ComponentException(e);
         }
         AzureStorageUtils utils = new AzureStorageUtils();
-        List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> list = new ArrayList<>();
         // process files list
         if (useFileList && files != null && files.size() > 0) {
             for (int idx = 0; idx < files.fileMask.getValue().size(); idx++) {
@@ -76,11 +88,13 @@ public class AzureStoragePutReader extends AzureStorageReader<Boolean> {
                 CloudBlockBlob blob = storageContainer.getBlockBlobReference(entry.getValue());
                 File source = new File(entry.getKey());
                 FileInputStream stream = new FileInputStream(source);
+                // TODO Any Action ??? if remoteFolder doesn't exist it will fail...
                 blob.upload(stream, source.length());
                 stream.close();
                 dataCount++;
             } catch (Exception e) {
                 if (properties.dieOnError.getValue()) {
+                    LOGGER.error(e.getLocalizedMessage());
                     throw new ComponentException(e);
                 } else {
                     LOGGER.error(e.getLocalizedMessage());
