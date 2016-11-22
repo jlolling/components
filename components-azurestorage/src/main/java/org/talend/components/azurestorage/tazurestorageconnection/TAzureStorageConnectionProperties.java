@@ -36,10 +36,14 @@ public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
     }
 
     /** accountKey - The Azure Storage Account Key. */
-    public Property<String> accountKey = PropertyFactory.newString("accountKey").setRequired(); //$NON-NLS-1$
+    public Property<String> accountKey = PropertyFactory.newString("accountKey"); //$NON-NLS-1$
 
     /** accountName - The Azure Storage Account Name. */
-    public Property<String> accountName = PropertyFactory.newString("accountName").setRequired(); //$NON-NLS-1$
+    public Property<String> accountName = PropertyFactory.newString("accountName"); //$NON-NLS-1$
+
+    public Property<Boolean> useSharedAccessSignature = PropertyFactory.newBoolean("useSharedAccessSignature");
+
+    public Property<String> sharedAccessSignature = PropertyFactory.newString("sharedAccessSignature");//$NON-NLS-1$
 
     public Property<Boolean> dieOnError = PropertyFactory.newBoolean("dieOnError");
 
@@ -47,59 +51,17 @@ public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
 
     public ComponentReferenceProperties referencedComponent = new ComponentReferenceProperties("referencedComponent", this); //$NON-NLS-1$
 
-    /**
-     * Instantiates a new TAzureStorageConnectionProperties(String name).
-     *
-     * @param name {@link String} name
-     */
     public TAzureStorageConnectionProperties(String name) {
         super(name);
     }
 
     @Override
-    public void afterReferencedComponent() {
-        refreshLayout(getForm(Form.MAIN));
-        refreshLayout(getForm(Form.REFERENCE));
-    }
-
-    @Override
-    public TAzureStorageConnectionProperties getConnectionProperties() {
-        return this;
-    }
-
-    /**
-     * getReferencedComponentId.
-     *
-     * @return {@link String} string
-     */
-    public String getReferencedComponentId() {
-        return referencedComponent.componentInstanceId.getValue();
-    }
-
-    /**
-     * getReferencedConnectionProperties.
-     *
-     * @return {@link TAzureStorageConnectionProperties} t azure storage connection properties
-     */
-    public TAzureStorageConnectionProperties getReferencedConnectionProperties() {
-        TAzureStorageConnectionProperties refProps = (TAzureStorageConnectionProperties) referencedComponent.componentProperties;
-        if (refProps != null) {
-            return refProps;
-        }
-        return null;
-    }
-
-    @Override
-    public void refreshLayout(Form form) {
-        super.refreshLayout(form);
-        String refComponentIdValue = getReferencedComponentId();
-        boolean useOtherConnection = refComponentIdValue != null
-                && refComponentIdValue.startsWith(TAzureStorageConnectionDefinition.COMPONENT_NAME);
-        if (form.getName().equals(Form.MAIN)) {
-            form.getWidget(accountName).setHidden(useOtherConnection);
-            form.getWidget(accountKey).setHidden(useOtherConnection);
-            form.getWidget(protocol).setHidden(useOtherConnection);
-        }
+    public void setupProperties() {
+        super.setupProperties();
+        protocol.setValue(Protocol.HTTPS);
+        accountName.setValue("");
+        accountKey.setValue("");
+        useSharedAccessSignature.setValue(false);
     }
 
     @Override
@@ -109,6 +71,8 @@ public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
         mainForm.addRow(accountName);
         mainForm.addColumn(accountKey);
         mainForm.addRow(protocol);
+        mainForm.addRow(useSharedAccessSignature);
+        mainForm.addRow(sharedAccessSignature);
 
         Form refForm = Form.create(this, Form.REFERENCE);
         Widget compListWidget = widget(referencedComponent).setWidgetType(Widget.COMPONENT_REFERENCE_WIDGET_TYPE);
@@ -118,10 +82,53 @@ public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
     }
 
     @Override
-    public void setupProperties() {
-        super.setupProperties();
-        protocol.setValue(Protocol.HTTPS);
-        accountName.setValue("");
-        accountKey.setValue("");
+    public void refreshLayout(Form form) {
+        super.refreshLayout(form);
+
+        String refComponentIdValue = getReferencedComponentId();
+        boolean useOtherConnection = refComponentIdValue != null
+                && refComponentIdValue.startsWith(TAzureStorageConnectionDefinition.COMPONENT_NAME);
+        if (form.getName().equals(Form.MAIN)) {
+            form.getWidget(accountName).setHidden(useOtherConnection);
+            form.getWidget(accountKey).setHidden(useOtherConnection);
+            form.getWidget(protocol).setHidden(useOtherConnection);
+            form.getWidget(useSharedAccessSignature.getName()).setHidden(useOtherConnection);
+            form.getWidget(sharedAccessSignature.getName()).setHidden(useOtherConnection);
+            boolean useSAS = useSharedAccessSignature.getValue();
+            if (!useOtherConnection) {
+                form.getWidget(accountName).setHidden(!useSAS);
+                form.getWidget(accountKey).setHidden(!useSAS);
+                form.getWidget(protocol).setHidden(!useSAS);
+                form.getWidget(sharedAccessSignature.getName()).setHidden(useSAS);
+            }
+        }
+    }
+
+    @Override
+    public void afterReferencedComponent() {
+        refreshLayout(getForm(Form.MAIN));
+        refreshLayout(getForm(Form.REFERENCE));
+    }
+
+    public void afterUseSharedAccessSignature() {
+        refreshLayout(getForm(Form.MAIN));
+        refreshLayout(getForm(Form.REFERENCE));
+    }
+
+    @Override
+    public TAzureStorageConnectionProperties getConnectionProperties() {
+        return this;
+    }
+
+    public String getReferencedComponentId() {
+        return referencedComponent.componentInstanceId.getValue();
+    }
+
+    public TAzureStorageConnectionProperties getReferencedConnectionProperties() {
+        TAzureStorageConnectionProperties refProps = (TAzureStorageConnectionProperties) referencedComponent.componentProperties;
+        if (refProps != null) {
+            return refProps;
+        }
+        return null;
     }
 }

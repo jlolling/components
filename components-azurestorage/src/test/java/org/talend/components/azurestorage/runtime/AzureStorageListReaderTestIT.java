@@ -50,7 +50,7 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
         CONTAINER = getNamedThingForTest(TEST_CONTAINER_1);
         properties = new TAzureStorageListProperties("tests");
         properties.container.setValue(CONTAINER);
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         remoteBlobs = new RemoteBlobsTable("tests");
         blobs = new ArrayList<>();
         prefixes = new ArrayList<>();

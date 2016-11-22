@@ -39,7 +39,7 @@ public class AzureStoragePutReaderTestIT extends AzureStorageBaseTestIT {
         CONTAINER = getNamedThingForTest(TEST_CONTAINER_1);
         properties = new TAzureStoragePutProperties("tests");
         properties.container.setValue(CONTAINER);
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         properties.localFolder.setValue(FOLDER_PATH_PUT);
         properties.remoteFolder.setValue("");
     }

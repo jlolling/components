@@ -166,9 +166,9 @@ public class AzureStorageComponentsTest extends AbstractComponentTest {
         ComponentTestUtils.checkSerialize(props, errorCollector);
         assertEquals(Form.MAIN, f.getName());
 
-        assertTrue(props.accountName.isRequired());
-        assertTrue(props.accountKey.isRequired());
-        assertTrue(props.protocol.isRequired());
+        // assertTrue(props.accountName.));
+        // assertTrue(props.accountKey.isRequired());
+        // assertTrue(props.protocol.isRequired());
     }
 
     /**
@@ -183,8 +183,6 @@ public class AzureStorageComponentsTest extends AbstractComponentTest {
         LOGGER.debug(f.toString());
         LOGGER.debug(props.toString());
         assertEquals(Form.MAIN, f.getName());
-        assertTrue(props.connection.accountName.isRequired());
-        assertTrue(props.connection.accountKey.isRequired());
         assertTrue(props.container.isRequired());
     }
 

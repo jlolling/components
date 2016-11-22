@@ -52,7 +52,7 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
         CONTAINER = getNamedThingForTest(TEST_CONTAINER_1);
         properties = new TAzureStorageGetProperties("tests");
         properties.container.setValue(CONTAINER);
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         properties.localFolder.setValue(FOLDER_PATH_GET);
         remoteBlobsGet = new RemoteBlobsGetTable("tests");
         prefixes = new ArrayList<>();

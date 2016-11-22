@@ -56,7 +56,7 @@ public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseTestIT {
         LOGGER.info("testBlobDelete: Deleting top-level blobs.");
         TAzureStorageDeleteProperties props = new TAzureStorageDeleteProperties("tests");
         props.container.setValue(CONTAINER);
-        setupContainerProperties(props);
+        setupConnectionProperties(props);
         RemoteBlobsTable rmt = new RemoteBlobsTable("tests");
         List<String> pfx = new ArrayList<>();
         List<Boolean> inc = new ArrayList<>();

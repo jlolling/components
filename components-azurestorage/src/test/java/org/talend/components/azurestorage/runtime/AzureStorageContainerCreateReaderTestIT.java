@@ -19,20 +19,25 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.azurestorage.AzureStorageBaseTestIT;
 import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
 import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties.AccessControl;
 
+import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTestIT {
 
     BoundedReader reader;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageContainerCreateReaderTestIT.class);
+
     public AzureStorageContainerCreateReaderTestIT() {
         super("container-create-" + getRandomTestUID());
-        // TEST_NAME = ;
     }
 
     @Before
@@ -48,26 +53,31 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTes
         TAzureStorageContainerCreateProperties properties = new TAzureStorageContainerCreateProperties("tests");
         ((TAzureStorageContainerCreateProperties) properties).setupProperties();
         properties.container.setValue(container);
+        setupConnectionProperties(properties);
         properties.accessControl.setValue(access);
-        setupContainerProperties(properties);
         reader = createBoundedReader(properties);
         result = reader.start();
         assertFalse(reader.advance());
         Object row = reader.getCurrent();
         assertNotNull(row);
-
-        BlobContainerPublicAccessType cAccess = ((AzureStorageSource) reader.getCurrentSource())
-                .getStorageContainerReference(runtime, container).downloadPermissions().getPublicAccess();
+        CloudBlobContainer cont = ((AzureStorageSource) reader.getCurrentSource()).getStorageContainerReference(runtime,
+                container);
+        System.out.println(cont);
+        LOGGER.debug(cont.toString());
+        BlobContainerPermissions perms = cont.downloadPermissions();
+        LOGGER.debug(perms.toString());
+        BlobContainerPublicAccessType cAccess = perms.getPublicAccess();
+        LOGGER.debug(cAccess.toString());
         if (access == AccessControl.Public)
             assertEquals(BlobContainerPublicAccessType.CONTAINER, cAccess);
         else
             assertEquals(BlobContainerPublicAccessType.OFF, cAccess);
-
         return result;
     }
 
     @Test
     public void testCreateContainer() throws Exception {
+        // FIXME Find why this fails when auth is SAS ans not KEY !!!
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
         assertFalse(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_2), AccessControl.Private));

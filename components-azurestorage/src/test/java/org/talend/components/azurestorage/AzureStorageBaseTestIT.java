@@ -56,6 +56,10 @@ public abstract class AzureStorageBaseTestIT {
 
     static public final String accountName = System.getProperty("azurestorage.account.name");
 
+    static public final String sharedAccessSignature = System.getProperty("azurestorage.sharedaccesssignature");
+
+    static public final String useSAS = System.getProperty("azurestorage.usesas");
+
     public static final String TEST_CONTAINER_PREFIX = "tests-azurestorage-";
 
     public static final String TEST_CONTAINER_1 = TEST_CONTAINER_PREFIX + "01-";
@@ -211,10 +215,15 @@ public abstract class AzureStorageBaseTestIT {
      * @param properties {@link AzureStorageProperties} properties
      * @return <code>AzureStorageProperties</code> {@link AzureStorageProperties} azure storage properties
      */
-    public AzureStorageProperties setupContainerProperties(AzureStorageProperties properties) {
+    public AzureStorageProperties setupConnectionProperties(AzureStorageProperties properties) {
         properties.connection.setupProperties();
         properties.connection.accountName.setValue(accountName);
         properties.connection.accountKey.setValue(accountKey);
+        properties.connection.sharedAccessSignature.setValue(sharedAccessSignature);
+        boolean sas = Boolean.parseBoolean(useSAS);
+        if (sas) {
+            properties.connection.useSharedAccessSignature.setValue(sas);
+        }
         return properties;
     }
 
@@ -231,7 +240,7 @@ public abstract class AzureStorageBaseTestIT {
             throws Exception {
         LOGGER.info("Creating container {}", container);
         TAzureStorageContainerCreateProperties properties = new TAzureStorageContainerCreateProperties("tests");
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         properties.container.setValue(container);
         properties.accessControl.setValue(access);
         BoundedReader reader = createBoundedReader(properties);
@@ -249,7 +258,7 @@ public abstract class AzureStorageBaseTestIT {
     public Boolean doContainerDelete(String container) throws Exception {
         LOGGER.info("Deleting container {}", container);
         TAzureStorageContainerDeleteProperties properties = new TAzureStorageContainerDeleteProperties("tests");
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         properties.container.setValue(container);
         BoundedReader reader = createBoundedReader(properties);
         return reader.start();
@@ -266,7 +275,7 @@ public abstract class AzureStorageBaseTestIT {
     public Boolean doContainerExist(String container) throws Exception {
         LOGGER.info("Does container {} exists ?", container);
         TAzureStorageContainerExistProperties properties = new TAzureStorageContainerExistProperties("tests");
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         properties.container.setValue(container);
         BoundedReader reader = createBoundedReader(properties);
         return reader.start();
@@ -281,7 +290,7 @@ public abstract class AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     public BoundedReader createContainerListReader() throws Exception {
         TAzureStorageContainerListProperties properties = new TAzureStorageContainerListProperties("tests");
-        setupContainerProperties(properties);
+        setupConnectionProperties(properties);
         return createBoundedReader(properties);
     }
 
@@ -296,7 +305,7 @@ public abstract class AzureStorageBaseTestIT {
         assertTrue(doContainerCreate(container, AccessControl.Private));
         TAzureStoragePutProperties props = new TAzureStoragePutProperties("tests");
         props.container.setValue(container);
-        setupContainerProperties(props);
+        setupConnectionProperties(props);
         props.localFolder.setValue(FOLDER_PATH_PUT);
         props.remoteFolder.setValue("");
         assertTrue(createBoundedReader(props).start());
@@ -321,7 +330,7 @@ public abstract class AzureStorageBaseTestIT {
         List<String> blobs = new ArrayList<>();
         TAzureStorageListProperties props = new TAzureStorageListProperties("tests");
         props.container.setValue(container);
-        setupContainerProperties(props);
+        setupConnectionProperties(props);
         RemoteBlobsTable rmt = new RemoteBlobsTable("tests");
         List<String> pfx = new ArrayList<>();
         List<Boolean> inc = new ArrayList<>();

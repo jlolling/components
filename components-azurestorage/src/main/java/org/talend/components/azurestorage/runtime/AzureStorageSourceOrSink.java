@@ -27,10 +27,13 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
+import org.talend.components.azurestorage.utils.SharedAccessSignatureUtils;
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageCredentials;
+import com.microsoft.azure.storage.StorageCredentialsSharedAccessSignature;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -56,12 +59,22 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
     @Override
     public ValidationResult validate(RuntimeContainer container) {
         TAzureStorageConnectionProperties conn = validateConnection(container);
-        // checks connection's account and key
-        if (StringUtils.isEmpty(conn.accountName.getStringValue()) || StringUtils.isEmpty(conn.accountKey.getStringValue())) {
-            ValidationResult vr = new ValidationResult();
-            vr.setMessage("The account name or key cannot be empty."); //$NON-NLS-1$
-            vr.setStatus(ValidationResult.Result.ERROR);
-            return vr;
+        if (conn.useSharedAccessSignature.getValue()) {
+            // checks SAS
+            if (StringUtils.isEmpty(conn.sharedAccessSignature.getStringValue())) {
+                ValidationResult vr = new ValidationResult();
+                vr.setMessage("The Shared Access Signature (SAS) cannot be empty."); //$NON-NLS-1$
+                vr.setStatus(ValidationResult.Result.ERROR);
+                return vr;
+            }
+        } else {
+            // checks connection's account and key
+            if (StringUtils.isEmpty(conn.accountName.getStringValue()) || StringUtils.isEmpty(conn.accountKey.getStringValue())) {
+                ValidationResult vr = new ValidationResult();
+                vr.setMessage("The account name or key cannot be empty."); //$NON-NLS-1$
+                vr.setStatus(ValidationResult.Result.ERROR);
+                return vr;
+            }
         }
         return ValidationResult.OK;
     }
@@ -110,6 +123,27 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
         return properties.getConnectionProperties();
     }
 
+    public CloudStorageAccount getStorageAccount(RuntimeContainer container) throws InvalidKeyException, URISyntaxException {
+        TAzureStorageConnectionProperties conn = validateConnection(container);
+        CloudStorageAccount account;
+        if (conn.useSharedAccessSignature.getValue()) {
+            SharedAccessSignatureUtils sas = SharedAccessSignatureUtils
+                    .getSharedAccessSignatureUtils(conn.sharedAccessSignature.getValue());
+            StorageCredentials credentials = new StorageCredentialsSharedAccessSignature(sas.getSharedAccessSignature());
+            account = new CloudStorageAccount(credentials, true, null, sas.getAccount());
+
+        } else {
+            String acct = conn.accountName.getValue();
+            String key = conn.accountKey.getValue();
+            String protocol = conn.protocol.getValue().toString().toLowerCase();
+            String storageConnectionString = "DefaultEndpointsProtocol=" + protocol + ";" + "AccountName=" + acct + ";"
+                    + "AccountKey=" + key;
+            account = CloudStorageAccount.parse(storageConnectionString);
+        }
+
+        return account;
+    }
+
     /**
      * getServiceClient.
      *
@@ -119,14 +153,7 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
      * @throws URISyntaxException the URI syntax exception
      */
     public CloudBlobClient getServiceClient(RuntimeContainer container) throws InvalidKeyException, URISyntaxException {
-        TAzureStorageConnectionProperties conn = validateConnection(container);
-        String account = conn.accountName.getValue();
-        String key = conn.accountKey.getValue();
-        String protocol = conn.protocol.getValue().toString().toLowerCase();
-        String storageConnectionString = "DefaultEndpointsProtocol=" + protocol + ";" + "AccountName=" + account + ";"
-                + "AccountKey=" + key;
-        CloudStorageAccount cloudAccount = CloudStorageAccount.parse(storageConnectionString);
-        return cloudAccount.createCloudBlobClient();
+        return getStorageAccount(container).createCloudBlobClient();
     }
 
     /**
