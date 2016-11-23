@@ -17,6 +17,7 @@ import static org.talend.daikon.properties.property.PropertyFactory.*;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.serialize.DeserializeDeletedFieldHandler;
 
 /**
  * A reference to another component. This could be in one of the following states:
@@ -31,7 +32,8 @@ import org.talend.daikon.properties.property.Property;
  * The {@link org.talend.daikon.properties.presentation.WidgetType#COMPONENT_REFERENCE} uses this class as its
  * properties and the Widget will populate these values.
  */
-public class ComponentReferenceProperties<P extends Properties> extends ReferenceProperties<P> {
+public class ComponentReferenceProperties<P extends Properties> extends ReferenceProperties<P>
+        implements DeserializeDeletedFieldHandler {
 
     public enum ReferenceType {
         THIS_COMPONENT,
@@ -48,6 +50,23 @@ public class ComponentReferenceProperties<P extends Properties> extends Referenc
 
     public ComponentReferenceProperties(String name, String propDefinitionName) {
         super(name, propDefinitionName);
+    }
+
+    @Override
+    public boolean deletedField(String fieldName, Object value) {
+        boolean modified = false;
+        if ("componentType".equals(fieldName)) {
+            @SuppressWarnings("unchecked")
+            Property<String> compTypeProp = (Property<String>) value;
+            referenceDefinitionName.setValue(compTypeProp.getValue());
+            modified = true;
+        } else if ("componentProperties".equals(fieldName)) {
+            Properties oldRef = (Properties) value;
+            setReference(oldRef);
+            modified = true;
+        }
+
+        return modified;
     }
 
 }
