@@ -12,7 +12,11 @@
 // ============================================================================
 package org.talend.components.azurestorage;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.talend.components.api.component.AbstractComponentDefinition;
+import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
 import org.talend.components.api.component.runtime.SourceOrSink;
@@ -96,6 +100,11 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
 
     public String getMavenArtifactId() {
         return "components-azurestorage";
+    }
+
+    @Override
+    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
+        return EnumSet.of(ConnectorTopology.NONE);
     }
 
     @Override

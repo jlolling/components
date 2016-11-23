@@ -62,12 +62,9 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTes
         assertNotNull(row);
         CloudBlobContainer cont = ((AzureStorageSource) reader.getCurrentSource()).getStorageContainerReference(runtime,
                 container);
-        System.out.println(cont);
-        LOGGER.debug(cont.toString());
         BlobContainerPermissions perms = cont.downloadPermissions();
-        LOGGER.debug(perms.toString());
         BlobContainerPublicAccessType cAccess = perms.getPublicAccess();
-        LOGGER.debug(cAccess.toString());
+        LOGGER.debug("Container {} access is :{}.", container, cAccess.toString());
         if (access == AccessControl.Public)
             assertEquals(BlobContainerPublicAccessType.CONTAINER, cAccess);
         else
@@ -77,7 +74,7 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTes
 
     @Test
     public void testCreateContainer() throws Exception {
-        // FIXME Find why this fails when auth is SAS ans not KEY !!!
+        // FIXME Find why this fails when auth is SAS and not KEY !!!
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
         assertFalse(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_2), AccessControl.Private));

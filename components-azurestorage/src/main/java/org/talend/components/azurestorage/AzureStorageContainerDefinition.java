@@ -12,9 +12,6 @@
 // ============================================================================
 package org.talend.components.azurestorage;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.runtime.AzureStorageSource;
@@ -41,8 +38,4 @@ public abstract class AzureStorageContainerDefinition extends AzureStorageDefini
         return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSource.class);
     }
 
-    @Override
-    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return EnumSet.of(ConnectorTopology.OUTGOING);
-    }
 }

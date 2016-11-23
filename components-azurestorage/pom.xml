@@ -31,11 +31,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.talend.components</groupId>
-			<artifactId>components-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>biz.aQute.bnd</groupId>
 			<artifactId>annotation</artifactId>
 		</dependency>
@@ -43,16 +38,13 @@
 			<groupId>org.talend.components</groupId>
 			<artifactId>components-api</artifactId>
 			<version>${project.version}</version>
-			<type>bundle</type>
 		</dependency>
 
 
 		<dependency>
 			<groupId>org.talend.components</groupId>
 			<artifactId>components-common</artifactId>
-			<version>${project.version}</version>
-			<classifier>bundle</classifier>
-			<scope>test</scope>
+			<version>0.16.0-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Jar containing Test utils methods -->
@@ -106,13 +98,8 @@
 		<dependency>
 			<groupId>org.talend.components</groupId>
 			<artifactId>components-osgitest</artifactId>
-			<version>${project.version}</version>
+			<version>0.16.0-SNAPSHOT</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-core</artifactId>
-			<version>2.8.0</version>
 		</dependency>
 	</dependencies>
 

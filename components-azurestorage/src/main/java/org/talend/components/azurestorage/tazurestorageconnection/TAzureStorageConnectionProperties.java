@@ -96,10 +96,10 @@ public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
             form.getWidget(sharedAccessSignature.getName()).setHidden(useOtherConnection);
             boolean useSAS = useSharedAccessSignature.getValue();
             if (!useOtherConnection) {
-                form.getWidget(accountName).setHidden(!useSAS);
-                form.getWidget(accountKey).setHidden(!useSAS);
-                form.getWidget(protocol).setHidden(!useSAS);
-                form.getWidget(sharedAccessSignature.getName()).setHidden(useSAS);
+                form.getWidget(accountName).setHidden(useSAS);
+                form.getWidget(accountKey).setHidden(useSAS);
+                form.getWidget(protocol).setHidden(useSAS);
+                form.getWidget(sharedAccessSignature.getName()).setHidden(!useSAS);
             }
         }
     }

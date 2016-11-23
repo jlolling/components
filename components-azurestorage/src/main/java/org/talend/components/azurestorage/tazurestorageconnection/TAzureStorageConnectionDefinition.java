@@ -12,9 +12,6 @@
 // ============================================================================
 package org.talend.components.azurestorage.tazurestorageconnection;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageDefinition;
@@ -62,15 +59,4 @@ public class TAzureStorageConnectionDefinition extends AzureStorageDefinition {
             return null;
         }
     }
-
-    @Override
-    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return EnumSet.of(ConnectorTopology.NONE);
-    }
-
-    @Override
-    public boolean isStartable() {
-        return true;
-    }
-
 }
