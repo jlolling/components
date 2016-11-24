@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.jdbc.datastore;
 
 import java.io.FileInputStream;
@@ -16,21 +28,15 @@ import org.json.simple.parser.ParseException;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.UserPasswordProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
-import org.talend.components.common.datastore.runtime.DatastoreRuntime;
 import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.dataprep.DBType;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
-import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.PropertiesImpl;
-import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
-import org.talend.daikon.runtime.RuntimeInfo;
-import org.talend.daikon.runtime.RuntimeUtil;
-import org.talend.daikon.sandbox.SandboxedInstance;
 
 public class JDBCDatastoreProperties extends PropertiesImpl implements DatastoreProperties, RuntimeSettingProvider {
 
@@ -76,11 +82,7 @@ public class JDBCDatastoreProperties extends PropertiesImpl implements Datastore
 
     public Property<String> jdbcUrl = PropertyFactory.newProperty("jdbcUrl").setRequired();
 
-    public Property<String> driverClass = PropertyFactory.newProperty("driverClass").setRequired();
-
     public UserPasswordProperties userPassword = new UserPasswordProperties("userPassword");
-
-    public PresentationItem testConnection = new PresentationItem("testConnection", "Test connection");
 
     @Override
     public void setupProperties() {
@@ -96,8 +98,7 @@ public class JDBCDatastoreProperties extends PropertiesImpl implements Datastore
         dbTypes.setPossibleValues(dbTypesId);
         dbTypes.setValue(defaultDBType.id);
 
-        jdbcUrl.setValue("\"" + defaultDBType.url + "\"");
-        driverClass.setValue("\"" + defaultDBType.clazz + "\"");
+        jdbcUrl.setValue(defaultDBType.url);
     }
 
     @Override
@@ -108,35 +109,13 @@ public class JDBCDatastoreProperties extends PropertiesImpl implements Datastore
 
         mainForm.addRow(Widget.widget(dbTypes).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addRow(jdbcUrl);
-        mainForm.addRow(driverClass);
 
         mainForm.addRow(userPassword.getForm(Form.MAIN));
-
-        mainForm.addRow(Widget.widget(testConnection).setWidgetType(Widget.BUTTON_WIDGET_TYPE));
     }
 
     public void afterDbTypes() {
         DBType currentDBType = this.getCurrentDBType();
-        jdbcUrl.setValue("\"" + currentDBType.url + "\"");
-        driverClass.setValue("\"" + currentDBType.clazz + "\"");
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public ValidationResult validateTestConnection() {
-        JDBCDatastoreDefinition definition = new JDBCDatastoreDefinition();
-        RuntimeInfo runtimeInfo = definition.getRuntimeInfo(this, null);
-        try (SandboxedInstance sandboxedInstance = RuntimeUtil.createRuntimeClass(runtimeInfo, getClass().getClassLoader())) {
-            DatastoreRuntime runtime = (DatastoreRuntime) sandboxedInstance.getInstance();
-            runtime.initialize(null, this);
-            Iterable<ValidationResult> iterables = runtime.doHealthChecks(null);
-            for (ValidationResult validationResult : iterables) {
-                if (validationResult.getStatus() == ValidationResult.Result.ERROR) {
-                    return validationResult;
-                }
-            }
-        }
-
-        return ValidationResult.OK;
+        jdbcUrl.setValue(currentDBType.url);
     }
 
     @Override
@@ -144,7 +123,7 @@ public class JDBCDatastoreProperties extends PropertiesImpl implements Datastore
         AllSetting setting = new AllSetting();
 
         setting.setDriverPaths(getCurrentDriverPaths());
-        setting.setDriverClass(driverClass.getValue());
+        setting.setDriverClass(getCurrentDriverClass());
         setting.setJdbcUrl(jdbcUrl.getValue());
 
         setting.setUsername(userPassword.userId.getValue());
@@ -164,6 +143,11 @@ public class JDBCDatastoreProperties extends PropertiesImpl implements Datastore
         mavenPaths.addAll(currentDBType.paths);
 
         return mavenPaths;
+    }
+
+    public String getCurrentDriverClass() {
+        DBType currentDBType = dyTypesInfo.get(dbTypes.getValue());
+        return currentDBType.clazz;
     }
 
 }

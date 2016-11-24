@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -192,7 +192,6 @@ public class TDataPrepDBInputTestIT {
 
         properties.dbTypes.setValue("DERBY");
         properties.jdbcUrl.setValue(allSetting.getJdbcUrl());
-        properties.driverClass.setValue(allSetting.getDriverClass());
 
         properties.userPassword.userId.setValue(allSetting.getUsername());
         properties.userPassword.password.setValue(allSetting.getPassword());

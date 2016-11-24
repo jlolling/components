@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.jdbc.dataprep.di;
 
 import java.io.FileInputStream;
@@ -88,8 +100,6 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
 
     public Property<String> jdbcUrl = PropertyFactory.newProperty("jdbcUrl").setRequired();
 
-    public Property<String> driverClass = PropertyFactory.newProperty("driverClass").setRequired();
-
     public UserPasswordProperties userPassword = new UserPasswordProperties("userPassword");
 
     public Property<String> sql = PropertyFactory.newString("sql").setRequired(true);
@@ -102,7 +112,6 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
 
         mainForm.addRow(Widget.widget(dbTypes).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addRow(jdbcUrl);
-        mainForm.addRow(driverClass);
 
         mainForm.addRow(userPassword.getForm(Form.MAIN));
 
@@ -114,7 +123,6 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
     public void afterDbTypes() {
         DBType currentDBType = this.getCurrentDBType();
         jdbcUrl.setValue("\"" + currentDBType.url + "\"");
-        driverClass.setValue("\"" + currentDBType.clazz + "\"");
     }
 
     private DBType getCurrentDBType() {
@@ -136,7 +144,6 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
         dbTypes.setValue(defaultDBType.id);
 
         jdbcUrl.setValue("\"" + defaultDBType.url + "\"");
-        driverClass.setValue("\"" + defaultDBType.clazz + "\"");
     }
 
     @Override
@@ -144,7 +151,7 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
         AllSetting setting = new AllSetting();
 
         setting.setDriverPaths(getCurrentDriverPaths());
-        setting.setDriverClass(driverClass.getValue());
+        setting.setDriverClass(getCurrentDriverClass());
         setting.setJdbcUrl(jdbcUrl.getValue());
 
         setting.setUsername(userPassword.userId.getValue());
@@ -164,6 +171,11 @@ public class TDataPrepDBInputProperties extends FixedConnectorsComponentProperti
         mavenPaths.addAll(currentDBType.paths);
 
         return mavenPaths;
+    }
+
+    public String getCurrentDriverClass() {
+        DBType currentDBType = dyTypesInfo.get(dbTypes.getValue());
+        return currentDBType.clazz;
     }
 
 }

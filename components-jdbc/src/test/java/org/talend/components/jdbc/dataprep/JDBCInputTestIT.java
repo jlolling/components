@@ -1,6 +1,6 @@
 // ============================================================================
 //
-// Copyright (C) 2006-2015 Talend Inc. - www.talend.com
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
 //
 // This source code is available under agreement available at
 // %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -142,7 +142,6 @@ public class JDBCInputTestIT {
         datastore_props.dbTypes.setValue("DERBY");
         datastore_props.afterDbTypes();
 
-        datastore_props.driverClass.setValue(allSetting.getDriverClass());
         datastore_props.jdbcUrl.setValue(allSetting.getJdbcUrl());
         datastore_props.userPassword.userId.setValue(allSetting.getUsername());
         datastore_props.userPassword.password.setValue(allSetting.getPassword());

@@ -1,3 +1,15 @@
+// ============================================================================
+//
+// Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.components.jdbc.dataset;
 
 import org.apache.avro.Schema;
@@ -81,7 +93,7 @@ public class JDBCDatasetProperties extends PropertiesImpl
 
         JDBCDatastoreProperties datastoreProperties = this.getDatastoreProperties();
         setting.setDriverPaths(datastoreProperties.getCurrentDriverPaths());
-        setting.setDriverClass(datastoreProperties.driverClass.getValue());
+        setting.setDriverClass(datastoreProperties.getCurrentDriverClass());
         setting.setJdbcUrl(datastoreProperties.jdbcUrl.getValue());
 
         setting.setUsername(datastoreProperties.userPassword.userId.getValue());
