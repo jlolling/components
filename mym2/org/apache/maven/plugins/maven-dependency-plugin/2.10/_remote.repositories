@@ -1,0 +1,4 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Nov 24 15:46:15 CET 2016
+maven-dependency-plugin-2.10.jar>spring-releases=
+maven-dependency-plugin-2.10.pom>spring-releases=

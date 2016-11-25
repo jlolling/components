@@ -1,0 +1,4 @@
+#NOTE: This is an Aether internal implementation file, its format can be changed without prior notice.
+#Thu Nov 24 15:48:08 CET 2016
+org.apache.servicemix.bundles.hamcrest-1.3_1.jar>spring-releases=
+org.apache.servicemix.bundles.hamcrest-1.3_1.pom>spring-releases=

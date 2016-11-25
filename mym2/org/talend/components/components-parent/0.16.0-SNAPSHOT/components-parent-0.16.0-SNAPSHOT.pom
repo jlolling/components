@@ -1,0 +1,308 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.talend.components</groupId>
+	<artifactId>components-parent</artifactId>
+	<packaging>pom</packaging>
+	<version>0.16.0-SNAPSHOT</version>
+
+	<name>Component Parent POM</name>
+	<properties>
+		<java.version>1.7</java.version>
+		<maven.compiler.source>1.7</maven.compiler.source>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<spring.boot.version>1.4.1.RELEASE</spring.boot.version>
+		<daikon.version>0.14.0-SNAPSHOT</daikon.version>
+		<hamcrest.version>1.3</hamcrest.version>
+		<log4j.rootLogger>DEBUG, stdout</log4j.rootLogger>
+		<log4j.appender.stdout>org.apache.log4j.ConsoleAppender</log4j.appender.stdout>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<docker.removeVolumes>true</docker.removeVolumes>
+        <talend_snapshots_deployment>http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceSnapshot/</talend_snapshots_deployment>
+	</properties>
+
+	<scm>
+		<connection>scm:git:https://github.com/Talend/components.git</connection>
+	</scm>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>talend_nexus_deployment</id>
+			<url>${talend_snapshots_deployment}</url>
+		</snapshotRepository>
+		<repository>
+			<id>talend_nexus_deployment</id>
+			<url>http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceRelease/</url>
+		</repository>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.talend.daikon</groupId>
+			<artifactId>daikon</artifactId>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.talend.daikon</groupId>
+			<artifactId>daikon-spring</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-test</artifactId>
+				<version>${spring.boot.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>biz.aQute.bnd</groupId>
+				<artifactId>annotation</artifactId>
+				<version>2.4.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.inject</groupId>
+				<artifactId>javax.inject</artifactId>
+				<version>1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.talend.daikon</groupId>
+				<artifactId>daikon-spring</artifactId>
+				<version>${daikon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.talend.daikon</groupId>
+				<artifactId>daikon</artifactId>
+				<version>${daikon.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.talend.daikon</groupId>
+				<artifactId>daikon</artifactId>
+				<version>${daikon.version}</version>
+				<classifier>tests</classifier>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.avro</groupId>
+				<artifactId>avro</artifactId>
+				<version>1.8.0</version>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
+	<repositories>
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</repository>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>Central Repository</name>
+			<url>http://repo.maven.apache.org/maven2</url>
+		</repository>
+		<repository>
+			<id>releases</id>
+			<url>http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceRelease/</url>
+		</repository>
+		<repository>
+			<id>talend_nexus</id>
+			<name>snapshots</name>
+			<url>http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceSnapshot/</url>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>releases</id>
+			<url>http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceRelease/</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-maven-plugin</artifactId>
+				</plugin>
+				<plugin>
+					<artifactId>maven-scm-plugin</artifactId>
+					<version>1.9.4</version>
+					<configuration>
+						<connectionUrl>scm:git:https://github.com/Talend/components.git</connectionUrl>
+						<tag>${project.artifactId}-${project.version}</tag>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>3.0.1</version>
+					<extensions>true</extensions>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.4</version>
+				<configuration>
+					<failOnError>false</failOnError>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadoc</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- used for generating the dependencies.properties file located in 
+					the META-INF -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.10</version>
+				<executions>
+					<execution>
+						<id>generate-depends-file</id>
+						<phase>generate-resources</phase>
+						<goals>
+							<goal>list</goal>
+						</goals>
+						<configuration>
+							<outputFile>target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt</outputFile>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.8</version>
+				<executions>
+					<execution>
+						<id>append-self-artifact-to-deps</id>
+						<phase>process-resources</phase>
+						<configuration>
+							<tasks>
+								<echo
+									file="target/classes/META-INF/maven/${project.groupId}/${project.artifactId}/dependencies.txt"
+									message="${project.groupId}:${project.artifactId}:jar:${project.version}:runtime"
+									append="true" encoding="UTF-8" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+					<!-- Workaround maven not being able to set a property conditionally 
+						based on the current version being SNAPSHOT or not -->
+					<execution>
+						<id>compute-docker-version</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<exportAntProperties>true</exportAntProperties>
+							<tasks>
+								<echo message="computing docker version" />
+								<condition property="docker.version"
+									value="${project.version}-${maven.build.timestamp}" else="${project.version}">
+									<contains string="${project.version}" substring="SNAPSHOT" />
+								</condition>
+								<echo message="the docker version is ${docker.version}" />
+							</tasks>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.18</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>2.18</version>
+				<configuration>
+					<systemProperties>
+					<!-- settings.xml and repo are used for pax tests on branch build that mirror the talend_nexus repo -->
+						<org.ops4j.pax.url.mvn.repositories>+http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceSnapshot@snapshots@noreleases@id=talend_nexus,http://newbuild.talend.com:8081/nexus/content/repositories/TalendOpenSourceRelease@id=talrelease</org.ops4j.pax.url.mvn.repositories>
+						<org.ops4j.pax.url.mvn.settings>${project.basedir}/settings.xml</org.ops4j.pax.url.mvn.settings>
+					</systemProperties>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.7.201606060606</version>
+				<executions>
+					<execution>
+						<id>default-prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>default-report</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- this was supposed to deploy only when all the modules are succesfully 
+				build -->
+			<!-- but it seems not to be working on jenkins -->
+			<!-- <plugin> -->
+			<!-- <groupId>org.apache.maven.plugins</groupId> -->
+			<!-- <artifactId>maven-deploy-plugin</artifactId> -->
+			<!-- <version>2.8.2</version> -->
+			<!-- <configuration> -->
+			<!-- <deployAtEnd>true</deployAtEnd> -->
+			<!-- </configuration> -->
+			<!-- </plugin> -->
+		</plugins>
+	</build>
+</project>
