@@ -12,10 +12,6 @@
 // ============================================================================
 package org.talend.components.azurestorage.tazurestoragedelete;
 
-import java.util.EnumSet;
-import java.util.Set;
-
-import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageBlobDefinition;
 import org.talend.daikon.properties.property.Property;
@@ -43,11 +39,6 @@ public class TAzureStorageDeleteDefinition extends AzureStorageBlobDefinition {
     @Override
     public Class getPropertiesClass() {
         return TAzureStorageDeleteProperties.class;
-    }
-
-    @Override
-    public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return EnumSet.of(ConnectorTopology.OUTGOING);
     }
 
 }

@@ -13,6 +13,8 @@
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -24,12 +26,13 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.tazurestoragecontainerexist.TAzureStorageContainerExistDefinition;
 import org.talend.components.azurestorage.tazurestoragecontainerexist.TAzureStorageContainerExistProperties;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 public class AzureStorageContainerExistReader extends AzureStorageReader<Boolean> {
 
-    private transient Boolean result;
+    private transient Boolean result = Boolean.FALSE;;
 
     protected TAzureStorageContainerExistProperties properties;
 
@@ -49,7 +52,7 @@ public class AzureStorageContainerExistReader extends AzureStorageReader<Boolean
             CloudBlobContainer container = clientService.getContainerReference(mycontainer);
             result = container.exists();
             return result;
-        } catch (Exception e) {
+        } catch (StorageException | URISyntaxException | InvalidKeyException e) {
             LOGGER.error(e.getLocalizedMessage());
             if (properties.dieOnError.getValue())
                 throw new ComponentException(e);

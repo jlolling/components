@@ -16,6 +16,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +27,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.AzureStorageBaseTestIT;
 import org.talend.components.azurestorage.helpers.RemoteBlobsGetTable;
 import org.talend.components.azurestorage.tazurestorageget.TAzureStorageGetProperties;
@@ -112,7 +112,7 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     }
 
     @SuppressWarnings("rawtypes")
-    @Test(expected = ComponentException.class)
+    @Test(expected = FileNotFoundException.class)
     public void testBlobGetAllMakeParentDirectoriesFailure() throws Exception {
         LOGGER.info("[`{}`] Getting all blobs.", CONTAINER);
         cleanupLists();

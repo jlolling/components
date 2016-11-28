@@ -13,6 +13,8 @@
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -51,7 +53,7 @@ public class AzureStorageContainerListReader extends AzureStorageReader<String> 
             CloudBlobClient clientService = ((AzureStorageSource) getCurrentSource()).getServiceClient(runtime);
             containers = clientService.listContainers().iterator();
             startable = containers.hasNext();
-        } catch (Exception e) {
+        } catch (InvalidKeyException | URISyntaxException e) {
             LOGGER.error(e.getLocalizedMessage());
             if (properties.dieOnError.getValue())
                 throw new ComponentException(e);
@@ -65,16 +67,7 @@ public class AzureStorageContainerListReader extends AzureStorageReader<String> 
 
     @Override
     public boolean advance() throws IOException {
-        Boolean advanceable = false;
-        try {
-            advanceable = containers.hasNext();
-        } catch (Exception e) {
-            LOGGER.error(e.getLocalizedMessage());
-            if (properties.dieOnError.getValue())
-                throw (e);
-            else
-                advanceable = false;
-        }
+        Boolean advanceable = containers.hasNext();
         if (advanceable)
             dataCount++;
         return advanceable;

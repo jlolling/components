@@ -48,7 +48,7 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
 
     protected AzureStorageProvideConnectionProperties properties;
 
-    private transient Schema schema;
+    protected transient Schema schema;
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
@@ -85,11 +85,6 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
         return null;
     }
 
-    public Schema getSchema() {
-        LOGGER.debug("getSchema");
-        return schema;
-    }
-
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
         LOGGER.debug("getSchemaNames");
@@ -123,7 +118,7 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
         return properties.getConnectionProperties();
     }
 
-    public CloudStorageAccount getStorageAccount(RuntimeContainer container) throws InvalidKeyException, URISyntaxException {
+    public CloudStorageAccount getStorageAccount(RuntimeContainer container) throws URISyntaxException, InvalidKeyException {
         TAzureStorageConnectionProperties conn = validateConnection(container);
         CloudStorageAccount account;
         if (conn.useSharedAccessSignature.getValue()) {
@@ -149,8 +144,6 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
      *
      * @param container {@link RuntimeContainer} container
      * @return {@link CloudBlobClient} cloud blob client
-     * @throws InvalidKeyException the invalid key exception
-     * @throws URISyntaxException the URI syntax exception
      */
     public CloudBlobClient getServiceClient(RuntimeContainer container) throws InvalidKeyException, URISyntaxException {
         return getStorageAccount(container).createCloudBlobClient();
@@ -162,9 +155,9 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
      * @param container {@link RuntimeContainer} container
      * @param storageContainer {@link String} storage container
      * @return {@link CloudBlobContainer} cloud blob container
-     * @throws InvalidKeyException the invalid key exception
-     * @throws URISyntaxException the URI syntax exception
-     * @throws StorageException the storage exception
+     * @throws StorageException
+     * @throws URISyntaxException
+     * @throws InvalidKeyException
      */
     public CloudBlobContainer getStorageContainerReference(RuntimeContainer container, String storageContainer)
             throws InvalidKeyException, URISyntaxException, StorageException {

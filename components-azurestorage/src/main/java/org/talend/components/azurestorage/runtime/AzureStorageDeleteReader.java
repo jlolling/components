@@ -13,6 +13,8 @@
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -26,6 +28,7 @@ import org.talend.components.azurestorage.AzureStorageDefinition;
 import org.talend.components.azurestorage.helpers.RemoteBlob;
 import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDeleteProperties;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
@@ -35,7 +38,7 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
 
     private TAzureStorageDeleteProperties properties;
 
-    private Boolean result;
+    private Boolean result = Boolean.FALSE;;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageDeleteReader.class);
 
@@ -63,7 +66,7 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (StorageException | InvalidKeyException | URISyntaxException e) {
             LOGGER.error(e.getLocalizedMessage());
             if (properties.dieOnError.getValue())
                 throw new ComponentException(e);

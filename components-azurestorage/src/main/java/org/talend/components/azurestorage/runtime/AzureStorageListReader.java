@@ -13,6 +13,8 @@
 package org.talend.components.azurestorage.runtime;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,7 @@ import org.talend.components.azurestorage.AzureStorageDefinition;
 import org.talend.components.azurestorage.helpers.RemoteBlob;
 import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListProperties;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlob;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
@@ -70,9 +73,7 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
             }
             blobSize = blobs.size();
             startable = (blobSize > 0);
-        } catch (
-
-        Exception e) {
+        } catch (StorageException | InvalidKeyException | URISyntaxException e) {
             LOGGER.error(e.getLocalizedMessage());
             if (properties.dieOnError.getValue())
                 throw new ComponentException(e);

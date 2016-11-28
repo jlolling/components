@@ -15,6 +15,8 @@ package org.talend.components.azurestorage.runtime;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +34,7 @@ import org.talend.components.azurestorage.helpers.FileMaskTable;
 import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutProperties;
 import org.talend.components.azurestorage.utils.AzureStorageUtils;
 
+import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudBlockBlob;
 
@@ -42,7 +45,7 @@ public class AzureStoragePutReader extends AzureStorageReader<Boolean> {
 
     private TAzureStoragePutProperties properties;
 
-    private Boolean result;
+    private Boolean result = Boolean.FALSE;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStoragePutReader.class);
 
@@ -61,8 +64,9 @@ public class AzureStoragePutReader extends AzureStorageReader<Boolean> {
         CloudBlobContainer storageContainer;
         try {
             storageContainer = ((AzureStorageSource) getCurrentSource()).getStorageContainerReference(runtime, mycontainer);
-        } catch (Exception e) {
+        } catch (StorageException | InvalidKeyException | URISyntaxException e) {
             // we cannot continue if storageContainer is invalid...
+            LOGGER.error(e.getLocalizedMessage());
             throw new ComponentException(e);
         }
         AzureStorageUtils utils = new AzureStorageUtils();
@@ -92,13 +96,10 @@ public class AzureStoragePutReader extends AzureStorageReader<Boolean> {
                 blob.upload(stream, source.length());
                 stream.close();
                 dataCount++;
-            } catch (Exception e) {
-                if (properties.dieOnError.getValue()) {
-                    LOGGER.error(e.getLocalizedMessage());
+            } catch (StorageException | URISyntaxException e) {
+                LOGGER.error(e.getLocalizedMessage());
+                if (properties.dieOnError.getValue())
                     throw new ComponentException(e);
-                } else {
-                    LOGGER.error(e.getLocalizedMessage());
-                }
             }
         }
         result = true;

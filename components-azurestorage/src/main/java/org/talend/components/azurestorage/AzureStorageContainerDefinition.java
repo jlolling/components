@@ -35,7 +35,11 @@ public abstract class AzureStorageContainerDefinition extends AzureStorageDefini
 
     @Override
     public RuntimeInfo getRuntimeInfo(ComponentProperties properties, ConnectorTopology connectorTopology) {
-        return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSource.class);
+        if (connectorTopology == ConnectorTopology.OUTGOING || connectorTopology == ConnectorTopology.NONE) {
+            return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSource.class);
+        } else {
+            return null;
+        }
     }
 
 }

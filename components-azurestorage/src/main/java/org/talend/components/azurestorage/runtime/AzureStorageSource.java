@@ -13,12 +13,10 @@
 package org.talend.components.azurestorage.runtime;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.avro.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +36,6 @@ import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDelet
 import org.talend.components.azurestorage.tazurestorageget.TAzureStorageGetProperties;
 import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListProperties;
 import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutProperties;
-import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
 /**
@@ -58,14 +55,11 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
 
     private static final long serialVersionUID = 8358040916857157407L;
 
-    private transient Schema schema;
-
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageSource.class);
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(AzureStorageSource.class);
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
         this.properties = (AzureStorageProperties) properties;
-        // schema = new Schema.Parser().parse(this.properties.schema.schema.getStringValue());
         return ValidationResult.OK;
     }
 
@@ -247,24 +241,6 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
             remoteBlobs.add(new RemoteBlobGet(prefix, include, create));
         }
         return remoteBlobs;
-    }
-
-    @Override
-    public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
-        return null;
-    }
-
-    @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        return null;
-    }
-
-    public Schema getSchemaFromProperties(RuntimeContainer container) throws IOException {
-        return schema;
-    }
-
-    public Schema getPossibleSchemaFromProperties(RuntimeContainer container) throws IOException {
-        return schema;
     }
 
     @Override
