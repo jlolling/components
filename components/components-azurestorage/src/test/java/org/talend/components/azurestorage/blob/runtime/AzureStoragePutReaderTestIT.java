@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertTrue;
 
@@ -19,20 +19,15 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties.AccessControl;
-import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties.AccessControl;
+import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePutProperties;
 
-public class AzureStoragePutReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStoragePutReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     private String CONTAINER;
 
     private TAzureStoragePutProperties properties;
-
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageGetReaderTestIT.class);
 
     public AzureStoragePutReaderTestIT() {
         super("put-" + getRandomTestUID());
@@ -51,7 +46,7 @@ public class AzureStoragePutReaderTestIT extends AzureStorageBaseTestIT {
 
     @After
     public void cleanupTestBlobs() throws Exception {
-        // doContainerDelete(CONTAINER);
+        doContainerDelete(CONTAINER);
     }
 
     @SuppressWarnings({ "unused", "rawtypes" })

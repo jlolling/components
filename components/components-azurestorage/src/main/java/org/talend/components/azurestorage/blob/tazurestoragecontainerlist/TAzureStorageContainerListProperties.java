@@ -17,7 +17,6 @@ import org.apache.avro.SchemaBuilder;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.azurestorage.AzureStorageProperties;
-import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.presentation.Form;
@@ -30,8 +29,6 @@ import org.talend.daikon.properties.presentation.Form;
 public class TAzureStorageContainerListProperties extends AzureStorageProperties {
 
     protected transient PropertyPathConnector MAIN_NAME = new PropertyPathConnector(Connector.MAIN_NAME, "schema");//$NON-NLS-1$
-
-    public SchemaProperties schema = new SchemaProperties("schema"); //$NON-NLS-1$
 
     public TAzureStorageContainerListProperties(String name) {
         super(name);

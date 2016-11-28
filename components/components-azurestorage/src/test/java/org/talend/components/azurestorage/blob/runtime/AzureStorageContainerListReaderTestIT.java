@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,16 +20,16 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 
-public class AzureStorageContainerListReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageContainerListReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     Schema s = SchemaBuilder.record("Main").fields().name("ContainerName").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "50")// $NON-NLS-3$
             .type(AvroUtils._string()).noDefault().endRecord();
@@ -78,7 +78,7 @@ public class AzureStorageContainerListReaderTestIT extends AzureStorageBaseTestI
         assertTrue(rows);
         //
         while (rows) {
-            row = reader.getCurrent();
+            row = ((IndexedRecord) reader.getCurrent()).get(0);
             assertNotNull(row);
             assertTrue(row instanceof String);
             containers.add(row.toString());

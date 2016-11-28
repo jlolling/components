@@ -10,11 +10,12 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.talend.components.azurestorage.AzureStorageBaseTestIT;
+import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 
 /**

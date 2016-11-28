@@ -10,20 +10,20 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
 
-public class AzureStorageContainerDeleteReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageContainerExistReaderTestIT extends AzureStorageBaseBlobTestIT {
 
-    public AzureStorageContainerDeleteReaderTestIT() {
-        super("container-delete-" + getRandomTestUID());
+    public AzureStorageContainerExistReaderTestIT() {
+        super("container-exist-" + getRandomTestUID());
     }
 
     @Before
@@ -33,11 +33,18 @@ public class AzureStorageContainerDeleteReaderTestIT extends AzureStorageBaseTes
         }
     }
 
-    @Test
-    public void testContainerDelete() throws Exception {
+    @After
+    public void deleteTestContainers() throws Exception {
         for (String c : TEST_CONTAINERS) {
-            assertTrue(doContainerDelete(getNamedThingForTest(c)));
+            doContainerDelete(getNamedThingForTest(c));
         }
-        assertFalse(doContainerDelete("non-existent-container-1234567890"));
+    }
+
+    @Test
+    public void testContainerExist() throws Exception {
+        for (String c : TEST_CONTAINERS) {
+            assertTrue(doContainerExist(getNamedThingForTest(c)));
+        }
+        assertFalse(doContainerExist("non-existent-container-1234567890"));
     }
 }

@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -24,14 +24,11 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.helpers.RemoteBlobsGetTable;
-import org.talend.components.azurestorage.tazurestorageget.TAzureStorageGetProperties;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobsGetTable;
+import org.talend.components.azurestorage.blob.tazurestorageget.TAzureStorageGetProperties;
 
-public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageGetReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     private String CONTAINER;
 
@@ -44,8 +41,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     private List<Boolean> includes;
 
     private List<Boolean> creates;
-
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageGetReaderTestIT.class);
 
     public AzureStorageGetReaderTestIT() {
         super("get-" + getRandomTestUID());
@@ -88,9 +83,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     }
 
     public Boolean fileExistsAndHasTheGoodSize(String file) throws Exception {
-        LOGGER.debug("Checking `{}` file existance and size.", file);
-        // String downloaded = FOLDER_PATH_GET + "/" + file;
-        // String original = FOLDER_PATH_PUT + "/" + file;
         File dl = new File(FOLDER_PATH_GET + "/" + file);
         File or = new File(FOLDER_PATH_PUT + "/" + file);
         return (dl.exists() && FileUtils.contentEquals(dl, or));
@@ -99,7 +91,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testBlobGetAll() throws Exception {
-        LOGGER.info("[`{}`] Getting all blobs.", CONTAINER);
         cleanupLists();
         prefixes.add("");
         includes.add(true);
@@ -114,7 +105,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test(expected = FileNotFoundException.class)
     public void testBlobGetAllMakeParentDirectoriesFailure() throws Exception {
-        LOGGER.info("[`{}`] Getting all blobs.", CONTAINER);
         cleanupLists();
         prefixes.add("");
         includes.add(true);
@@ -127,7 +117,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testBlobGetAllInvalidPrefixFailure() throws Exception {
-        LOGGER.info("[`{}`] Getting all blobs.", CONTAINER);
         cleanupLists();
         prefixes.add("bizarre-bizarre/");
         includes.add(true);
@@ -140,7 +129,6 @@ public class AzureStorageGetReaderTestIT extends AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testBlobGetSub1() throws Exception {
-        LOGGER.info("[`{}`] Getting all sub1 blobs.", CONTAINER);
         cleanupLists();
         prefixes.add("sub1/");
         includes.add(true);

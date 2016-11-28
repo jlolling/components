@@ -14,7 +14,7 @@ package org.talend.components.azurestorage;
 
 import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.tazurestoragecontainerlist.TAzureStorageContainerListProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerlist.TAzureStorageContainerListProperties;
 
 public class TAzureStorageConnectionTestIT extends AzureStorageBaseTestIT {
 

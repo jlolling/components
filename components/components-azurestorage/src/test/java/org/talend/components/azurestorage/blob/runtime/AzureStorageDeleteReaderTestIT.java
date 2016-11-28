@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -21,18 +21,13 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.helpers.RemoteBlobsTable;
-import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDeleteProperties;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobsTable;
+import org.talend.components.azurestorage.blob.tazurestoragedelete.TAzureStorageDeleteProperties;
 
-public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     private String CONTAINER;
-
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageDeleteReaderTestIT.class);
 
     public AzureStorageDeleteReaderTestIT() {
         super("delete-" + getRandomTestUID());
@@ -52,8 +47,6 @@ public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testBlobDelete() throws Exception {
-        LOGGER.info("testBlobDelete in `{}`", CONTAINER);
-        LOGGER.info("testBlobDelete: Deleting top-level blobs.");
         TAzureStorageDeleteProperties props = new TAzureStorageDeleteProperties("tests");
         props.container.setValue(CONTAINER);
         setupConnectionProperties(props);
@@ -77,7 +70,6 @@ public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseTestIT {
         //
         // delete sub1 and sub3
         //
-        LOGGER.info("testBlobDelete: Deleting sub1 and sub3.");
         pfx.clear();
         pfx.add("sub1/");
         pfx.add("sub3/");
@@ -102,7 +94,6 @@ public class AzureStorageDeleteReaderTestIT extends AzureStorageBaseTestIT {
         //
         // finally delete everything
         //
-        LOGGER.info("testBlobDelete: Deleting everything.");
         pfx.clear();
         pfx.add("");
         inc.clear();

@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -19,23 +19,18 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties.AccessControl;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties.AccessControl;
 
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
-public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     @SuppressWarnings("rawtypes")
     BoundedReader reader;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageContainerCreateReaderTestIT.class);
 
     public AzureStorageContainerCreateReaderTestIT() {
         super("container-create-" + getRandomTestUID());
@@ -65,7 +60,6 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTes
                 container);
         BlobContainerPermissions perms = cont.downloadPermissions();
         BlobContainerPublicAccessType cAccess = perms.getPublicAccess();
-        LOGGER.debug("Container {} access is :{}.", container, cAccess.toString());
         if (access == AccessControl.Public)
             assertEquals(BlobContainerPublicAccessType.CONTAINER, cAccess);
         else

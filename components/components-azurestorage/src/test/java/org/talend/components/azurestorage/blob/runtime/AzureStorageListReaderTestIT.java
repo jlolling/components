@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -19,17 +19,15 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.avro.generic.IndexedRecord;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
-import org.talend.components.azurestorage.AzureStorageBaseTestIT;
-import org.talend.components.azurestorage.helpers.RemoteBlobsTable;
-import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListProperties;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobsTable;
+import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListProperties;
 
-public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
+public class AzureStorageListReaderTestIT extends AzureStorageBaseBlobTestIT {
 
     private String CONTAINER;
 
@@ -42,8 +40,6 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
     private List<String> prefixes;
 
     private List<Boolean> includes;
-
-    private transient static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageListReaderTestIT.class);
 
     public AzureStorageListReaderTestIT() {
         super("list-" + getRandomTestUID());
@@ -71,15 +67,15 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
     public void listBlobs() throws Exception {
         blobs.clear();
         properties.remoteBlobs = remoteBlobs;
+        properties.schema.schema.setValue(schemaForBlobList);
         BoundedReader reader = createBoundedReader(properties);
         Object row;
         Boolean rows = reader.start();
         while (rows) {
-            row = reader.getCurrent();
+            row = ((IndexedRecord) reader.getCurrent()).get(0);
             assertNotNull(row);
             assertTrue(row instanceof String);
             blobs.add(row.toString());
-            LOGGER.debug("`{}` => {}", CONTAINER, row);
             rows = reader.advance();
         }
         reader.close();
@@ -87,7 +83,6 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
 
     @Test
     public void testBlobListAll() throws Exception {
-        LOGGER.info("[`{}`] Listing all blobs.", CONTAINER);
         prefixes.clear();
         includes.clear();
         prefixes.add("");
@@ -101,7 +96,6 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
 
     @Test
     public void testBlobListRootOnly() throws Exception {
-        LOGGER.info("[`{}`] Listing all root container blobs.", CONTAINER);
         prefixes.clear();
         includes.clear();
         prefixes.add("");
@@ -118,7 +112,6 @@ public class AzureStorageListReaderTestIT extends AzureStorageBaseTestIT {
 
     @Test
     public void testBlobListSub1() throws Exception {
-        LOGGER.info("[`{}`] Listing sub1 prefixed blobs.", CONTAINER);
         prefixes.clear();
         includes.clear();
         prefixes.add("sub1/");
