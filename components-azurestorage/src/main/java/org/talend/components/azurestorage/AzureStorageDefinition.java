@@ -43,11 +43,6 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
     /** RETURN_ACCOUNT_NAME_PROP. */
     public static final Property<String> RETURN_ACCOUNT_NAME_PROP = PropertyFactory.newString(RETURN_ACCOUNT_NAME);
 
-    /** Azure storage container */
-    public static final String RETURN_CONTAINER = "container"; //$NON-NLS-1$
-
-    public static final Property<String> RETURN_CONTAINER_PROP = PropertyFactory.newString(RETURN_CONTAINER);
-
     /**
      * Instantiates a new AzureStorageDefinition(String componentName).
      *
@@ -55,8 +50,7 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
      */
     public AzureStorageDefinition(String componentName) {
         super(componentName);
-        setupI18N(new Property<?>[] { RETURN_ERROR_MESSAGE_PROP, RETURN_ACCOUNT_KEY_PROP, RETURN_ACCOUNT_NAME_PROP,
-                RETURN_CONTAINER_PROP });
+        setupI18N(new Property<?>[] { RETURN_ERROR_MESSAGE_PROP, RETURN_ACCOUNT_KEY_PROP, RETURN_ACCOUNT_NAME_PROP });
     }
 
     @Override

@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.azurestorage.AzureStorageDefinition;
+import org.talend.components.azurestorage.AzureStorageContainerDefinition;
 import org.talend.components.azurestorage.tazurestoragecontainerdelete.TAzureStorageContainerDeleteProperties;
 
 import com.microsoft.azure.storage.StorageException;
@@ -76,7 +76,7 @@ public class AzureStorageContainerDeleteReader extends AzureStorageReader<Boolea
     @Override
     public Map<String, Object> getReturnValues() {
         Map<String, Object> resultMap = super.getReturnValues();
-        resultMap.put(AzureStorageDefinition.RETURN_CONTAINER, properties.container.getValue());
+        resultMap.put(AzureStorageContainerDefinition.RETURN_CONTAINER, properties.container.getValue());
 
         return resultMap;
     }

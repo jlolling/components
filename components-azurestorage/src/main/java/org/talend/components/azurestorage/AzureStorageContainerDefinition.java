@@ -16,6 +16,7 @@ import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.runtime.AzureStorageSource;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.runtime.RuntimeInfo;
 
 /**
@@ -23,8 +24,15 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public abstract class AzureStorageContainerDefinition extends AzureStorageDefinition {
 
+    /** Azure storage container */
+    public static final String RETURN_CONTAINER = "container"; //$NON-NLS-1$
+
+    public static final Property<String> RETURN_CONTAINER_PROP = PropertyFactory.newString(RETURN_CONTAINER);
+
     public AzureStorageContainerDefinition(String componentName) {
         super(componentName);
+        setupI18N(new Property<?>[] { RETURN_CONTAINER_PROP });
+
     }
 
     @SuppressWarnings("rawtypes")
