@@ -40,7 +40,7 @@ public class AzureStorageGetReader extends AzureStorageReader<Boolean> {
 
     private TAzureStorageGetProperties properties;
 
-    private Boolean result = Boolean.FALSE;;
+    private Boolean result = Boolean.FALSE;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageGetReader.class);
 

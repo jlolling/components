@@ -32,7 +32,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 public class AzureStorageContainerExistReader extends AzureStorageReader<Boolean> {
 
-    private transient Boolean result = Boolean.FALSE;;
+    private transient Boolean result = Boolean.FALSE;
 
     protected TAzureStorageContainerExistProperties properties;
 

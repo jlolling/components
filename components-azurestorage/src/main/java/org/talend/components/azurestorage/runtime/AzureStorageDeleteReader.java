@@ -38,7 +38,7 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
 
     private TAzureStorageDeleteProperties properties;
 
-    private Boolean result = Boolean.FALSE;;
+    private Boolean result = Boolean.FALSE;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageDeleteReader.class);
 

@@ -32,6 +32,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
 public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseTestIT {
 
+    @SuppressWarnings("rawtypes")
     BoundedReader reader;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageContainerCreateReaderTestIT.class);
