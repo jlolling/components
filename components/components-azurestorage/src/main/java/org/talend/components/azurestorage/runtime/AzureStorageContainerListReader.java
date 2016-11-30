@@ -19,6 +19,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
@@ -30,9 +32,9 @@ import org.talend.components.azurestorage.tazurestoragecontainerlist.TAzureStora
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 
-public class AzureStorageContainerListReader extends AzureStorageReader<String> {
+public class AzureStorageContainerListReader extends AzureStorageReader<IndexedRecord> {
 
-    private String result;
+    private IndexedRecord currentRecord;
 
     private TAzureStorageContainerListProperties properties;
 
@@ -60,23 +62,28 @@ public class AzureStorageContainerListReader extends AzureStorageReader<String> 
             else
                 startable = false;
         }
-        if (startable)
+        if (startable) {
             dataCount++;
+            currentRecord = new GenericData.Record(properties.schema.schema.getValue());
+            currentRecord.put(0, containers.next().getName());
+        }
         return startable;
     }
 
     @Override
     public boolean advance() throws IOException {
         Boolean advanceable = containers.hasNext();
-        if (advanceable)
+        if (advanceable) {
             dataCount++;
+            currentRecord = new GenericData.Record(properties.schema.schema.getValue());
+            currentRecord.put(0, containers.next().getName());
+        }
         return advanceable;
     }
 
     @Override
-    public String getCurrent() throws NoSuchElementException {
-        result = containers.next().getName();
-        return result;
+    public IndexedRecord getCurrent() throws NoSuchElementException {
+        return currentRecord;
     }
 
     @Override

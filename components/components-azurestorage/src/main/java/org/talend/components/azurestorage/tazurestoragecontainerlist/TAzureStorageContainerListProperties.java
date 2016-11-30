@@ -40,7 +40,11 @@ public class TAzureStorageContainerListProperties extends AzureStorageProperties
     @Override
     public void setupProperties() {
         super.setupProperties();
-        Schema s = SchemaBuilder.record("Main").fields().name("ContainerName").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "50")// $NON-NLS-3$
+        Schema s = SchemaBuilder.record("Main").fields()
+                //
+                .name("ContainerName").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "50")// $NON-NLS-3$
+                .prop(SchemaConstants.TALEND_IS_LOCKED, "true")//$NON-NLS-1$
+                //
                 .type(AvroUtils._string()).noDefault().endRecord();
         schema.schema.setValue(s);
     }

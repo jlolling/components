@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
@@ -35,7 +37,7 @@ import com.microsoft.azure.storage.blob.CloudBlob;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 
-public class AzureStorageListReader extends AzureStorageReader<String> {
+public class AzureStorageListReader extends AzureStorageReader<IndexedRecord> {
 
     private TAzureStorageListProperties properties;
 
@@ -46,6 +48,8 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
     private int blobSize;
 
     private CloudBlob currentBlob;
+
+    private IndexedRecord currentRecord;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageListReader.class);
 
@@ -81,6 +85,8 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
         if (startable) {
             dataCount++;
             blobIndex = 0;
+            currentRecord = new GenericData.Record(properties.schema.schema.getValue());
+            currentRecord.put(0, blobs.get(blobIndex).getName());
         }
         return startable;
     }
@@ -90,18 +96,19 @@ public class AzureStorageListReader extends AzureStorageReader<String> {
         blobIndex++;
         if (blobIndex < blobSize) {
             dataCount++;
+            currentRecord = new GenericData.Record(properties.schema.schema.getValue());
+            currentRecord.put(0, blobs.get(blobIndex).getName());
             return true;
         }
         return false;
     }
 
     @Override
-    public String getCurrent() throws NoSuchElementException {
-        currentBlob = blobs.get(blobIndex);
+    public IndexedRecord getCurrent() throws NoSuchElementException {
         if (runtime != null)
             runtime.setComponentData(runtime.getCurrentComponentId(), AzureStorageBlobDefinition.RETURN_CURRENT_BLOB,
-                    currentBlob.getName());
-        return currentBlob.getName();
+                    currentRecord.get(0));
+        return currentRecord;
     }
 
     @Override
