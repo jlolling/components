@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~  ============================================================================
+  ~
+  ~  Copyright (C) 2006-2016 Talend Inc. - www.talend.com
+  ~
+  ~  This source code is available under agreement available at
+  ~  https://github.com/Talend/data-prep/blob/master/LICENSE
+  ~
+  ~  You should have received a copy of the agreement
+  ~  along with this program; if not, write to Talend SA
+  ~  9 rue Pages 92150 Suresnes, France
+  ~
+  ~  ============================================================================
+  -->
+
+<Configuration monitorInterval="30">
+
+    <Properties>
+        <Property name="logFolder">data/logs</Property>
+        <Property name="logFile">${logFolder}/app.log</Property>
+        <Property name="logFilePattern">${logFolder}/$${date:yyyy-MM}/dataprep-%d{MM-dd-yyyy}-%i.log.zip</Property>
+        <Property name="messagePattern">%d{yyyy-MM-dd HH:mm:ss.SSS} %-6.-6t [user %X{user}] %marker %-5level %-30logger{1.} %m%n</Property>
+        <Property name="coloredMessagePattern">%d{HH:mm:ss.SSS} %-6.-6t [user %X{user}] %marker %highlight{%-5level}{STYLE=Logback} %style{%-30logger{1.}}{Cyan} %m%n
+        </Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="logFile" fileName="${logFile}" filePattern="${logFilePattern}">
+            <PatternLayout pattern="${messagePattern}"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="100"/>
+        </RollingFile>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${coloredMessagePattern}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- Start up log -->
+        <Logger name="org.talend.dataprep.application" level="info">
+            <Appender-ref ref="console"/>
+        </Logger>
+        <!-- Start up log -->
+        <Root level="info" includeLocation="true">
+            <appender-ref ref="logFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
