@@ -29,6 +29,7 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.avro.JDBCAvroRegistry;
+import org.talend.components.common.avro.JDBCTableMetadata;
 import org.talend.components.common.dataset.DatasetProperties;
 import org.talend.components.common.datastore.DatastoreProperties;
 import org.talend.components.jdbc.ComponentConstants;
@@ -119,9 +120,10 @@ public class JDBCSourceOrSink implements SourceOrSink {
 
     @Override
     public Schema getEndpointSchema(RuntimeContainer runtime, String tableName) throws IOException {
-        try (Connection conn = connect(runtime);
-                ResultSet resultset = conn.getMetaData().getColumns(null, null, tableName, null)) {
-            return JDBCAvroRegistry.get().inferSchema(resultset);
+        try (Connection conn = connect(runtime)) {
+            JDBCTableMetadata tableMetadata = new JDBCTableMetadata();
+            tableMetadata.setDatabaseMetaData(conn.getMetaData()).setTablename(tableName);
+            return JDBCAvroRegistry.get().inferSchema(tableMetadata);
         } catch (Exception e) {
             throw new ComponentException(e);
         }

@@ -45,6 +45,7 @@ public class SnowflakeSourceOrSink implements SourceOrSink {
     protected SnowflakeProvideConnectionProperties properties;
 
     protected static final String KEY_CONNECTION = "Connection";
+
     protected static final String KEY_CONNECTION_PROPERTIES = "ConnectionProperties";
 
     @Override
@@ -204,7 +205,7 @@ public class SnowflakeSourceOrSink implements SourceOrSink {
             DatabaseMetaData metaData = connection.getMetaData();
 
             // Fetch all tables in the db and schema provided
-            String[] types = {"TABLE"};
+            String[] types = { "TABLE" };
             ResultSet resultIter = metaData.getTables(getCatalog(connProps), getDbSchema(connProps), null, types);
             String tableName = null;
             while (resultIter.next()) {
@@ -212,7 +213,8 @@ public class SnowflakeSourceOrSink implements SourceOrSink {
                 returnList.add(new SimpleNamedThing(tableName, tableName));
             }
         } catch (SQLException se) {
-            throw new IOException("Error when searching for tables in: " + getCatalog(connProps) + "." + getDbSchema(connProps) + ": " + se.getMessage(), se);
+            throw new IOException("Error when searching for tables in: " + getCatalog(connProps) + "." + getDbSchema(connProps)
+                    + ": " + se.getMessage(), se);
         }
         return returnList;
     }
@@ -244,6 +246,8 @@ public class SnowflakeSourceOrSink implements SourceOrSink {
 
             // Update the schema with Primary Key details
             // FIXME - move this into the inferSchema stuff
+            // we have fixed the inferSchema method in JDBCAvroRegistry, but not sure if we need to remove this call here as
+            // no database(catalog) and database schema information in the setting of common JDBC component
             ResultSet keysIter = metaData.getPrimaryKeys(getCatalog(connProps), getDbSchema(connProps), tableName);
 
             List<String> pkColumns = new ArrayList<>(); // List of Primary Key columns for this table

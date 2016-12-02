@@ -12,6 +12,15 @@
 // ============================================================================
 package org.talend.components.common.avro;
 
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.SchemaBuilder;
@@ -23,13 +32,6 @@ import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter.UnmodifiableAdapterException;
 import org.talend.daikon.java8.SerializableFunction;
 
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class JDBCAvroRegistry extends AvroRegistry {
 
     private static final JDBCAvroRegistry sInstance = new JDBCAvroRegistry();
@@ -40,13 +42,13 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
     protected JDBCAvroRegistry() {
 
-        registerSchemaInferrer(ResultSet.class, new SerializableFunction<ResultSet, Schema>() {
+        registerSchemaInferrer(JDBCTableMetadata.class, new SerializableFunction<JDBCTableMetadata, Schema>() {
 
             /** Default serial version UID. */
             private static final long serialVersionUID = 1L;
 
             @Override
-            public Schema apply(ResultSet t) {
+            public Schema apply(JDBCTableMetadata t) {
                 try {
                     return inferSchemaResultSet(t);
                 } catch (SQLException e) {
@@ -89,125 +91,150 @@ public class JDBCAvroRegistry extends AvroRegistry {
             String fieldName = metadata.getColumnLabel(i);
             String dbColumnName = metadata.getColumnName(i);
 
-            Field field = sqlType2Avro(size, scale, dbtype, nullable, fieldName, dbColumnName, null);
+            // not necessary for the result schema from the query statement
+            boolean isKey = false;
+
+            Field field = sqlType2Avro(size, scale, dbtype, nullable, fieldName, dbColumnName, null, isKey);
 
             fields.add(field);
         }
         return Schema.createRecord(tableName, null, null, false, fields);
     }
 
-    protected Schema inferSchemaResultSet(ResultSet metadata) throws SQLException {
-        if (!metadata.next()) {
-            return null;
+    protected Schema inferSchemaResultSet(JDBCTableMetadata tableMetadata) throws SQLException {
+        DatabaseMetaData databaseMetdata = tableMetadata.getDatabaseMetaData();
+
+        Set<String> keys = getPrimaryKeys(databaseMetdata, null, null, tableMetadata.getTablename());
+
+        try (ResultSet metadata = databaseMetdata.getColumns(null, null, tableMetadata.getTablename(), null)) {
+            if (!metadata.next()) {
+                return null;
+            }
+
+            List<Field> fields = new ArrayList<>();
+            String tablename = metadata.getString("TABLE_NAME");
+
+            do {
+                int size = metadata.getInt("COLUMN_SIZE");
+                int scale = metadata.getInt("DECIMAL_DIGITS");
+                int dbtype = metadata.getInt("DATA_TYPE");
+                boolean nullable = DatabaseMetaData.columnNullable == metadata.getInt("NULLABLE");
+
+                String columnName = metadata.getString("COLUMN_NAME");
+                boolean isKey = keys.contains(columnName);
+
+                String defaultValue = metadata.getString("COLUMN_DEF");
+
+                Field field = sqlType2Avro(size, scale, dbtype, nullable, columnName, columnName, defaultValue, isKey);
+
+                fields.add(field);
+            } while (metadata.next());
+
+            return Schema.createRecord(tablename, null, null, false, fields);
+        }
+    }
+
+    private Set<String> getPrimaryKeys(DatabaseMetaData databaseMetdata, String catalogName, String schemaName, String tableName)
+            throws SQLException {
+        Set<String> result = new HashSet<>();
+
+        try (ResultSet resultSet = databaseMetdata.getPrimaryKeys(catalogName, schemaName, tableName)) {
+            while (resultSet.next()) {
+                result.add(resultSet.getString("COLUMN_NAME"));
+            }
         }
 
-        List<Field> fields = new ArrayList<>();
-        String tablename = metadata.getString("TABLE_NAME");
-
-        do {
-            int size = metadata.getInt("COLUMN_SIZE");
-            int scale = metadata.getInt("DECIMAL_DIGITS");
-            int dbtype = metadata.getInt("DATA_TYPE");
-            boolean nullable = DatabaseMetaData.columnNullable == metadata.getInt("NULLABLE");
-            String columnName = metadata.getString("COLUMN_NAME");
-            String defaultValue = metadata.getString("COLUMN_DEF");
-
-            Field field = sqlType2Avro(size, scale, dbtype, nullable, columnName, columnName, defaultValue);
-
-            fields.add(field);
-        } while (metadata.next());
-
-        return Schema.createRecord(tablename, null, null, false, fields);
+        return result;
     }
 
     protected Field sqlType2Avro(int size, int scale, int dbtype, boolean nullable, String name, String dbColumnName,
-                                 Object defaultValue) {
+            Object defaultValue, boolean isKey) {
         Field field = null;
         Schema schema = null;
 
         switch (dbtype) {
-            case java.sql.Types.VARCHAR:
-                schema = AvroUtils._string();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
-                break;
-            case java.sql.Types.INTEGER:
-                schema = AvroUtils._int();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.DECIMAL:
-                schema = AvroUtils._decimal();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
-                break;
-            case java.sql.Types.BIGINT:
-                schema = AvroUtils._long();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.NUMERIC:
-                schema = AvroUtils._decimal();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
-                break;
-            case java.sql.Types.TINYINT:
-                schema = AvroUtils._byte();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.DOUBLE:
-                schema = AvroUtils._double();
-                field = wrap(nullable, schema, name);
-                break;
-            case java.sql.Types.FLOAT:
-                schema = AvroUtils._float();
-                field = wrap(nullable, schema, name);
-                break;
-            case java.sql.Types.DATE:
-                schema = AvroUtils._date();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd");
-                break;
-            case java.sql.Types.TIME:
-                schema = AvroUtils._date();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss");
-                break;
-            case java.sql.Types.TIMESTAMP:
-                schema = AvroUtils._date();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS");
-                break;
-            case java.sql.Types.BOOLEAN:
-                schema = AvroUtils._boolean();
-                field = wrap(nullable, schema, name);
-                break;
-            case java.sql.Types.REAL:
-                schema = AvroUtils._float();
-                field = wrap(nullable, schema, name);
-                break;
-            case java.sql.Types.SMALLINT:
-                schema = AvroUtils._short();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
-                break;
-            case java.sql.Types.LONGVARCHAR:
-                schema = AvroUtils._string();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
-                break;
-            case java.sql.Types.CHAR:
-                schema = AvroUtils._string();
-                field = wrap(nullable, schema, name);
-                field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
-                break;
-            default:
-                schema = AvroUtils._string();
-                field = wrap(nullable, schema, name);
-                break;
+        case java.sql.Types.VARCHAR:
+            schema = AvroUtils._string();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            break;
+        case java.sql.Types.INTEGER:
+            schema = AvroUtils._int();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.DECIMAL:
+            schema = AvroUtils._decimal();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            break;
+        case java.sql.Types.BIGINT:
+            schema = AvroUtils._long();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.NUMERIC:
+            schema = AvroUtils._decimal();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            field.addProp(SchemaConstants.TALEND_COLUMN_SCALE, scale);
+            break;
+        case java.sql.Types.TINYINT:
+            schema = AvroUtils._byte();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.DOUBLE:
+            schema = AvroUtils._double();
+            field = wrap(nullable, schema, name);
+            break;
+        case java.sql.Types.FLOAT:
+            schema = AvroUtils._float();
+            field = wrap(nullable, schema, name);
+            break;
+        case java.sql.Types.DATE:
+            schema = AvroUtils._date();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd");
+            break;
+        case java.sql.Types.TIME:
+            schema = AvroUtils._date();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "HH:mm:ss");
+            break;
+        case java.sql.Types.TIMESTAMP:
+            schema = AvroUtils._date();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd HH:mm:ss.SSS");
+            break;
+        case java.sql.Types.BOOLEAN:
+            schema = AvroUtils._boolean();
+            field = wrap(nullable, schema, name);
+            break;
+        case java.sql.Types.REAL:
+            schema = AvroUtils._float();
+            field = wrap(nullable, schema, name);
+            break;
+        case java.sql.Types.SMALLINT:
+            schema = AvroUtils._short();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_PRECISION, size);
+            break;
+        case java.sql.Types.LONGVARCHAR:
+            schema = AvroUtils._string();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            break;
+        case java.sql.Types.CHAR:
+            schema = AvroUtils._string();
+            field = wrap(nullable, schema, name);
+            field.addProp(SchemaConstants.TALEND_COLUMN_DB_LENGTH, size);
+            break;
+        default:
+            schema = AvroUtils._string();
+            field = wrap(nullable, schema, name);
+            break;
         }
 
         field.addProp(SchemaConstants.TALEND_COLUMN_DB_TYPE, dbtype);
@@ -215,6 +242,10 @@ public class JDBCAvroRegistry extends AvroRegistry {
 
         if (defaultValue != null) {
             field.addProp(SchemaConstants.TALEND_COLUMN_DEFAULT, defaultValue);
+        }
+
+        if (isKey) {
+            field.addProp(SchemaConstants.TALEND_COLUMN_IS_KEY, "true");
         }
 
         return field;
@@ -296,8 +327,8 @@ public class JDBCAvroRegistry extends AvroRegistry {
         } else if (AvroUtils.isSameType(basicSchema, AvroUtils._decimal()))
 
         {// TODO why we use big decimal type though AVRO types
-            // don't contain it? No need to consider the
-            // serialization? But we do it for date type above
+         // don't contain it? No need to consider the
+         // serialization? But we do it for date type above
             return new JDBCConverter() {
 
                 @Override
