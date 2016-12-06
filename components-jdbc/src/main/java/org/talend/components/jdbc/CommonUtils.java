@@ -45,7 +45,7 @@ public class CommonUtils {
      * @param schema
      * @return
      */
-    public static boolean IsSchemaValid(Schema schema) {
+    public static boolean isSchemaValid(Schema schema) {
         if (schema == null) {
             return false;
         }

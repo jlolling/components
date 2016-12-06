@@ -76,7 +76,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             // querySchema = CommonUtils.getMainSchemaFromOutputConnector((ComponentProperties) properties);
             querySchema = setting.getSchema();
 
-            if (!CommonUtils.IsSchemaValid(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
+            if (!CommonUtils.isSchemaValid(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
                 /**
                  * the code above make the action different with the usage in studio,
                  * as in studio, we only use the design schema if no dynamic column exists.
