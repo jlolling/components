@@ -19,6 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.avro.Schema;
+import org.apache.avro.SchemaBuilder;
+import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.IndexedRecord;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
@@ -95,6 +98,10 @@ public abstract class JiraReader implements Reader<IndexedRecord> {
      * Return result
      */
     private Result result;
+    
+    private Schema outOfBandSchema;
+    
+    private Schema topLevelSchema;
 
     /**
      * Constructor sets required properties for http connection
@@ -118,6 +125,16 @@ public abstract class JiraReader implements Reader<IndexedRecord> {
 
         factory = new IssueAdapterFactory();
         factory.setSchema(source.getSchema());
+        
+        outOfBandSchema = SchemaBuilder.record("OutOfBand").fields().name("entityIndex").type().intType().noDefault().endRecord();
+        
+        Schema dataSchema = source.getSchema();
+        
+        topLevelSchema = SchemaBuilder.record("TopLevel").fields()
+                .name("Data").type(dataSchema).noDefault()
+                .name("OutOfBand").type(outOfBandSchema).noDefault()
+                .endRecord();
+        
     }
 
     /**
@@ -175,7 +192,20 @@ public abstract class JiraReader implements Reader<IndexedRecord> {
 
         Entity entity = entities.get(entityIndex);
         String json = entity.getJson();
-        return factory.convertToAvro(json);
+        IndexedRecord dataRecord = factory.convertToAvro(json);
+        IndexedRecord topLevelRecord = wrapInTopLevel(dataRecord);
+        return topLevelRecord;
+    }
+    
+    public IndexedRecord wrapInTopLevel(IndexedRecord dataRecord) {
+        IndexedRecord outOfBandRecord = new GenericData.Record(outOfBandSchema);
+        outOfBandRecord.put(0, entityIndex);
+        
+        IndexedRecord topLevelRecord = new GenericData.Record(topLevelSchema);
+        topLevelRecord.put(0, dataRecord);
+        topLevelRecord.put(1, outOfBandRecord);
+        
+        return topLevelRecord;
     }
 
     /**

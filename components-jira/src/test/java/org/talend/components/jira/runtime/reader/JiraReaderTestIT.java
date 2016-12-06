@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.apache.avro.generic.GenericData;
+import org.apache.avro.generic.IndexedRecord;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -42,8 +44,8 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.service.ComponentService;
-import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.service.common.ComponentServiceImpl;
+import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.jira.runtime.JiraSource;
 import org.talend.components.jira.tjirainput.TJiraInputDefinition;
 import org.talend.components.jira.tjirainput.TJiraInputProperties;
@@ -111,6 +113,16 @@ public class JiraReaderTestIT {
     private void changeJqlTo(String jql) {
         properties.jql.setValue(jql);
         setupSource();
+    }
+    
+    @Test
+    public void testWrapInTopLevel() throws IOException {
+        IndexedRecord dataRecord = new GenericData.Record(source.getSchema());
+        dataRecord.put(0, "test");
+        
+        JiraProjectsReader jiraReader = new JiraProjectsReader(source);
+        IndexedRecord topLevel = jiraReader.wrapInTopLevel(dataRecord);
+        jiraReader.close();
     }
 
     /**
