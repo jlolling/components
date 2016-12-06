@@ -28,6 +28,7 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
+import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -75,7 +76,18 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             // querySchema = CommonUtils.getMainSchemaFromOutputConnector((ComponentProperties) properties);
             querySchema = setting.getSchema();
 
-            if (AvroUtils.isIncludeAllFields(querySchema)) {
+            if (!CommonUtils.IsSchemaValid(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
+                /**
+                 * the code above make the action different with the usage in studio,
+                 * as in studio, we only use the design schema if no dynamic column exists.
+                 * Here, we will use the runtime schema too when no valid design schema found,
+                 * it work for data set topic.
+                 * 
+                 * And another thing, the reader or other runtime execution object should be common,
+                 * and not depend on the platform, so should use the same action, so we use the same
+                 * reader for studio and dataprep(now for data store and set) execution platform. And
+                 * need more thinking about it.
+                 */
                 querySchema = JDBCAvroRegistry.get().inferSchema(resultSet.getMetaData());
             }
         }

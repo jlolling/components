@@ -23,6 +23,7 @@ import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.SchemaProperties;
 import org.talend.components.jdbc.module.JDBCConnectionModule;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
+import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
 
@@ -36,6 +37,26 @@ public class CommonUtils {
      */
     public static Schema getSchema(SchemaProperties schema) {
         return schema.schema.getValue();
+    }
+
+    /**
+     * check if schema is valid before using it. If valid, return true, if not, return false.
+     * 
+     * @param schema
+     * @return
+     */
+    public static boolean IsSchemaValid(Schema schema) {
+        if (schema == null) {
+            return false;
+        }
+
+        if (AvroUtils.isIncludeAllFields(schema)) {
+            return true;
+        }
+
+        List<Schema.Field> fields = schema.getFields();
+
+        return fields != null && !fields.isEmpty();
     }
 
     /**
