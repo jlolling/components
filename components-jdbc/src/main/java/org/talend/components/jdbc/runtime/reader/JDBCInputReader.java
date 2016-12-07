@@ -28,7 +28,6 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.common.avro.JDBCAvroRegistry;
 import org.talend.components.common.avro.JDBCResultSetIndexedRecordConverter;
-import org.talend.components.jdbc.CommonUtils;
 import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -76,7 +75,7 @@ public class JDBCInputReader extends AbstractBoundedReader<IndexedRecord> {
             // querySchema = CommonUtils.getMainSchemaFromOutputConnector((ComponentProperties) properties);
             querySchema = setting.getSchema();
 
-            if (!CommonUtils.isSchemaValid(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
+            if (AvroUtils.isSchemaEmpty(querySchema) || AvroUtils.isIncludeAllFields(querySchema)) {
                 /**
                  * the code above make the action different with the usage in studio,
                  * as in studio, we only use the design schema if no dynamic column exists.
