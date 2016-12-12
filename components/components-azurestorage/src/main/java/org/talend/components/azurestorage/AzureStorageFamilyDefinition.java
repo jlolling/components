@@ -23,6 +23,14 @@ import org.talend.components.azurestorage.blob.tazurestoragedelete.TAzureStorage
 import org.talend.components.azurestorage.blob.tazurestorageget.TAzureStorageGetDefinition;
 import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListDefinition;
 import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePutDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeuedelete.TAzureStorageQueueDeleteDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeueoutput.TAzureStorageQueueOutputDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeuepurge.TAzureStorageQueuePurgeDefinition;
+import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableDefinition;
+import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureStorageOutputTableDefinition;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionDefinition;
 
 import aQute.bnd.annotation.component.Component;
@@ -41,13 +49,13 @@ public class AzureStorageFamilyDefinition extends AbstractComponentFamilyDefinit
                 new TAzureStorageContainerExistDefinition(), new TAzureStorageContainerCreateDefinition(),
                 new TAzureStorageContainerDeleteDefinition(), new TAzureStorageContainerListDefinition(),
                 new TAzureStorageListDefinition(), new TAzureStorageDeleteDefinition(), new TAzureStorageGetDefinition(),
-                new TAzureStoragePutDefinition()
-        // tables
-        // , new TAzureStorageInputTableDefinition(), new TAzureStorageOutputTableDefinition(),
-        // queues
-        // new TAzureStorageQueueCreateDefinition(), new TAzureStorageQueueDeleteDefinition(),
-        // new TAzureStorageQueueListDefinition(), new TAzureStorageQueueInputDefinition(),
-        // new TAzureStorageQueueOutputDefinition(), new TAzureStorageQueuePurgeDefinition()
+                new TAzureStoragePutDefinition(),
+                // tables
+                new TAzureStorageInputTableDefinition(), new TAzureStorageOutputTableDefinition(),
+                // queues
+                new TAzureStorageQueueCreateDefinition(), new TAzureStorageQueueDeleteDefinition(),
+                new TAzureStorageQueueListDefinition(), new TAzureStorageQueueInputDefinition(),
+                new TAzureStorageQueueOutputDefinition(), new TAzureStorageQueuePurgeDefinition()
         //
         );
     }
