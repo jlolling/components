@@ -10,14 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragecontainerlist;
+package org.talend.components.azurestorage.blob.tazurestoragecontainerlist;
 
 import java.util.EnumSet;
 import java.util.Set;
 
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.azurestorage.AzureStorageContainerDefinition;
+import org.talend.components.azurestorage.blob.AzureStorageContainerDefinition;
 import org.talend.daikon.properties.property.Property;
 
 /**
@@ -44,6 +44,7 @@ public class TAzureStorageContainerListDefinition extends AzureStorageContainerD
         return TAzureStorageContainerListProperties.class;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Class getPropertiesClass() {
         return TAzureStorageContainerListProperties.class;

@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.util.Map;
 
@@ -35,6 +35,7 @@ public abstract class AzureStorageReader<T> extends AbstractBoundedReader<T> imp
         this.runtime = container;
     }
 
+    @Override
     public TAzureStorageConnectionProperties getConnectionProperties() {
         if (connection == null) {
             connection = ((AzureStorageSourceOrSink) getCurrentSource()).validateConnection(runtime);

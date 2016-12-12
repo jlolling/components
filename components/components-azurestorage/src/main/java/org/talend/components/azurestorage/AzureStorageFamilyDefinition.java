@@ -15,15 +15,15 @@ package org.talend.components.azurestorage;
 import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateDefinition;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerdelete.TAzureStorageContainerDeleteDefinition;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerexist.TAzureStorageContainerExistDefinition;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerlist.TAzureStorageContainerListDefinition;
+import org.talend.components.azurestorage.blob.tazurestoragedelete.TAzureStorageDeleteDefinition;
+import org.talend.components.azurestorage.blob.tazurestorageget.TAzureStorageGetDefinition;
+import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListDefinition;
+import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePutDefinition;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionDefinition;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateDefinition;
-import org.talend.components.azurestorage.tazurestoragecontainerdelete.TAzureStorageContainerDeleteDefinition;
-import org.talend.components.azurestorage.tazurestoragecontainerexist.TAzureStorageContainerExistDefinition;
-import org.talend.components.azurestorage.tazurestoragecontainerlist.TAzureStorageContainerListDefinition;
-import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDeleteDefinition;
-import org.talend.components.azurestorage.tazurestorageget.TAzureStorageGetDefinition;
-import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListDefinition;
-import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutDefinition;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -36,10 +36,20 @@ public class AzureStorageFamilyDefinition extends AbstractComponentFamilyDefinit
     public static final String NAME = "Azure Storage"; //$NON-NLS-1$
 
     public AzureStorageFamilyDefinition() {
-        super(NAME, new TAzureStorageConnectionDefinition(), new TAzureStorageContainerExistDefinition(),
-                new TAzureStorageContainerCreateDefinition(), new TAzureStorageContainerDeleteDefinition(),
-                new TAzureStorageContainerListDefinition(), new TAzureStorageListDefinition(),
-                new TAzureStorageDeleteDefinition(), new TAzureStorageGetDefinition(), new TAzureStoragePutDefinition());
+        super(NAME, new TAzureStorageConnectionDefinition(),
+                // containers and blobs
+                new TAzureStorageContainerExistDefinition(), new TAzureStorageContainerCreateDefinition(),
+                new TAzureStorageContainerDeleteDefinition(), new TAzureStorageContainerListDefinition(),
+                new TAzureStorageListDefinition(), new TAzureStorageDeleteDefinition(), new TAzureStorageGetDefinition(),
+                new TAzureStoragePutDefinition()
+        // tables
+        // , new TAzureStorageInputTableDefinition(), new TAzureStorageOutputTableDefinition(),
+        // queues
+        // new TAzureStorageQueueCreateDefinition(), new TAzureStorageQueueDeleteDefinition(),
+        // new TAzureStorageQueueListDefinition(), new TAzureStorageQueueInputDefinition(),
+        // new TAzureStorageQueueOutputDefinition(), new TAzureStorageQueuePurgeDefinition()
+        //
+        );
     }
 
     @Override

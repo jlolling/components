@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,8 +20,6 @@ import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
@@ -42,11 +40,9 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
 
     public static final String KEY_CONNECTION_PROPERTIES = "connection";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageSourceOrSink.class);
-
     private static final long serialVersionUID = 1589394346101991075L;
 
-    protected AzureStorageProvideConnectionProperties properties;
+    public AzureStorageProvideConnectionProperties properties;
 
     protected transient Schema schema;
 
@@ -81,13 +77,11 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
 
     @Override
     public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
-        LOGGER.debug("getEndpointSchema");
         return null;
     }
 
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        LOGGER.debug("getSchemaNames");
         return Collections.emptyList();
     }
 

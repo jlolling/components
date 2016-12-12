@@ -10,10 +10,10 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestorageget;
+package org.talend.components.azurestorage.blob.tazurestorageget;
 
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.azurestorage.AzureStorageBlobDefinition;
+import org.talend.components.azurestorage.blob.AzureStorageBlobDefinition;
 import org.talend.daikon.properties.property.Property;
 
 public class TAzureStorageGetDefinition extends AzureStorageBlobDefinition {
@@ -36,6 +36,7 @@ public class TAzureStorageGetDefinition extends AzureStorageBlobDefinition {
         return TAzureStorageGetProperties.class;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Class getPropertiesClass() {
         return TAzureStorageGetProperties.class;

@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.azurestorage.AzureStorageBlobDefinition;
-import org.talend.components.azurestorage.AzureStorageContainerDefinition;
-import org.talend.components.azurestorage.helpers.RemoteBlob;
-import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListProperties;
+import org.talend.components.azurestorage.blob.AzureStorageBlobDefinition;
+import org.talend.components.azurestorage.blob.AzureStorageContainerDefinition;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlob;
+import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListProperties;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlob;

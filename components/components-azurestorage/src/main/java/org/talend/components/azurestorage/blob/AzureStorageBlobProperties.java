@@ -10,15 +10,16 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage;
+package org.talend.components.azurestorage.blob;
 
-import org.talend.components.azurestorage.helpers.RemoteBlobsTable;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobsTable;
 
-public class AzureStorageBlobProperties extends AzureStorageProperties {
+public class AzureStorageBlobProperties extends AzureStorageContainerProperties {
 
     public RemoteBlobsTable remoteBlobs = new RemoteBlobsTable("remoteBlobs"); //$NON-NLS-1$
 
     public AzureStorageBlobProperties(String name) {
         super(name);
     }
+
 }

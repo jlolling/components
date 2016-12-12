@@ -10,14 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.io.File;
 
 import org.talend.components.api.component.runtime.Sink;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
-import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutProperties;
+import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePutProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 public class AzureStoragePutSink extends AzureStorageSourceOrSink implements Sink {

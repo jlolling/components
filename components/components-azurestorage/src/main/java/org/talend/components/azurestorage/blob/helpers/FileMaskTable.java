@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.helpers;
+package org.talend.components.azurestorage.blob.helpers;
 
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 

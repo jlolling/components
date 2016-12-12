@@ -15,7 +15,7 @@ package org.talend.components.azurestorage.tazurestorageconnection;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageDefinition;
-import org.talend.components.azurestorage.runtime.AzureStorageSourceOrSink;
+import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -36,7 +36,7 @@ public class TAzureStorageConnectionDefinition extends AzureStorageDefinition {
         return TAzureStorageConnectionProperties.class;
     }
 
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public Class getPropertiesClass() {
         return TAzureStorageConnectionProperties.class;

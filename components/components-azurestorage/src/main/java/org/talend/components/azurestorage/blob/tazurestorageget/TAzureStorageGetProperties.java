@@ -10,12 +10,12 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestorageget;
+package org.talend.components.azurestorage.blob.tazurestorageget;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-import org.talend.components.azurestorage.AzureStorageBlobProperties;
-import org.talend.components.azurestorage.helpers.RemoteBlobsGetTable;
+import org.talend.components.azurestorage.blob.AzureStorageBlobProperties;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobsGetTable;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -34,6 +34,7 @@ public class TAzureStorageGetProperties extends AzureStorageBlobProperties {
     @Override
     public void setupLayout() {
         super.setupLayout();
+
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(localFolder);
         mainForm.addRow(widget(remoteBlobsGet).setWidgetType(Widget.TABLE_WIDGET_TYPE));
@@ -43,6 +44,7 @@ public class TAzureStorageGetProperties extends AzureStorageBlobProperties {
     @Override
     public void setupProperties() {
         super.setupProperties();
+
         localFolder.setValue("");
     }
 }

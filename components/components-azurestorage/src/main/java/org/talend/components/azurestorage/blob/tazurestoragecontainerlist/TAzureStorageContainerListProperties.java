@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragecontainerlist;
+package org.talend.components.azurestorage.blob.tazurestoragecontainerlist;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -37,6 +37,7 @@ public class TAzureStorageContainerListProperties extends AzureStorageProperties
     @Override
     public void setupProperties() {
         super.setupProperties();
+
         Schema s = SchemaBuilder.record("Main").fields()
                 //
                 .name("ContainerName").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "50")// $NON-NLS-3$
@@ -48,6 +49,8 @@ public class TAzureStorageContainerListProperties extends AzureStorageProperties
 
     @Override
     public void setupLayout() {
+        super.setupLayout();
+
         Form main = new Form(this, Form.MAIN);
         main.addRow(connection.getForm(Form.REFERENCE));
         main.addRow(schema.getForm(Form.REFERENCE));

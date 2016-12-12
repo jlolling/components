@@ -10,12 +10,12 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestorageput;
+package org.talend.components.azurestorage.blob.tazurestorageput;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
-import org.talend.components.azurestorage.AzureStorageBlobProperties;
-import org.talend.components.azurestorage.helpers.FileMaskTable;
+import org.talend.components.azurestorage.blob.AzureStorageBlobProperties;
+import org.talend.components.azurestorage.blob.helpers.FileMaskTable;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -36,8 +36,18 @@ public class TAzureStoragePutProperties extends AzureStorageBlobProperties {
     }
 
     @Override
+    public void setupProperties() {
+        super.setupProperties();
+
+        localFolder.setValue("");
+        remoteFolder.setValue("");
+        useFileList.setValue(false);
+    }
+
+    @Override
     public void setupLayout() {
         super.setupLayout();
+
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(localFolder);
         mainForm.addRow(remoteFolder);
@@ -47,18 +57,13 @@ public class TAzureStoragePutProperties extends AzureStorageBlobProperties {
     }
 
     @Override
-    public void setupProperties() {
-        super.setupProperties();
-        localFolder.setValue("");
-        remoteFolder.setValue("");
-        useFileList.setValue(false);
-    }
-
-    @Override
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
-        Boolean useFileLst = useFileList.getValue();
-        form.getWidget(files.getName()).setHidden(!useFileLst);
+
+        if (form.getName() == Form.MAIN) {
+            Boolean useFileLst = useFileList.getValue();
+            form.getWidget(files.getName()).setHidden(!useFileLst);
+        }
     }
 
     public void afterUseFileList() {

@@ -10,10 +10,10 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragedelete;
+package org.talend.components.azurestorage.blob.tazurestoragedelete;
 
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.azurestorage.AzureStorageBlobDefinition;
+import org.talend.components.azurestorage.blob.AzureStorageBlobDefinition;
 import org.talend.daikon.properties.property.Property;
 
 public class TAzureStorageDeleteDefinition extends AzureStorageBlobDefinition {
@@ -36,6 +36,7 @@ public class TAzureStorageDeleteDefinition extends AzureStorageBlobDefinition {
         return TAzureStorageDeleteProperties.class;
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Class getPropertiesClass() {
         return TAzureStorageDeleteProperties.class;

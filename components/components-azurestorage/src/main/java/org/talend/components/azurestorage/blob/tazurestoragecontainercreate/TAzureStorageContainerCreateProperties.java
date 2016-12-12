@@ -10,14 +10,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragecontainercreate;
+package org.talend.components.azurestorage.blob.tazurestoragecontainercreate;
 
-import org.talend.components.azurestorage.AzureStorageProperties;
+import org.talend.components.azurestorage.blob.AzureStorageContainerProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class TAzureStorageContainerCreateProperties extends AzureStorageProperties {
+public class TAzureStorageContainerCreateProperties extends AzureStorageContainerProperties {
 
     public enum AccessControl {
         Private,
@@ -37,6 +37,8 @@ public class TAzureStorageContainerCreateProperties extends AzureStorageProperti
 
     @Override
     public void setupLayout() {
+        super.setupLayout();
+
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(connection.getForm(Form.REFERENCE));
         mainForm.addRow(container);
@@ -47,6 +49,7 @@ public class TAzureStorageContainerCreateProperties extends AzureStorageProperti
     @Override
     public void setupProperties() {
         super.setupProperties();
+
         container.setRequired(true);
         accessControl.setValue(AccessControl.Private);
     }

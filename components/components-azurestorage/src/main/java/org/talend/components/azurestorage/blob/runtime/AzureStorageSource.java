@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,24 +18,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.components.azurestorage.AzureStorageBlobProperties;
 import org.talend.components.azurestorage.AzureStorageProperties;
-import org.talend.components.azurestorage.helpers.RemoteBlob;
-import org.talend.components.azurestorage.helpers.RemoteBlobGet;
-import org.talend.components.azurestorage.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
-import org.talend.components.azurestorage.tazurestoragecontainerdelete.TAzureStorageContainerDeleteProperties;
-import org.talend.components.azurestorage.tazurestoragecontainerexist.TAzureStorageContainerExistProperties;
-import org.talend.components.azurestorage.tazurestoragecontainerlist.TAzureStorageContainerListProperties;
-import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDeleteProperties;
-import org.talend.components.azurestorage.tazurestorageget.TAzureStorageGetProperties;
-import org.talend.components.azurestorage.tazurestoragelist.TAzureStorageListProperties;
-import org.talend.components.azurestorage.tazurestorageput.TAzureStoragePutProperties;
+import org.talend.components.azurestorage.blob.AzureStorageBlobProperties;
+import org.talend.components.azurestorage.blob.AzureStorageContainerProperties;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlob;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlobGet;
+import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerdelete.TAzureStorageContainerDeleteProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerexist.TAzureStorageContainerExistProperties;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerlist.TAzureStorageContainerListProperties;
+import org.talend.components.azurestorage.blob.tazurestoragedelete.TAzureStorageDeleteProperties;
+import org.talend.components.azurestorage.blob.tazurestorageget.TAzureStorageGetProperties;
+import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListProperties;
+import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePutProperties;
 import org.talend.daikon.properties.ValidationResult;
 
 /**
@@ -54,8 +53,6 @@ import org.talend.daikon.properties.ValidationResult;
 public class AzureStorageSource extends AzureStorageSourceOrSink implements BoundedSource {
 
     private static final long serialVersionUID = 8358040916857157407L;
-
-    private static final transient Logger LOGGER = LoggerFactory.getLogger(AzureStorageSource.class);
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
@@ -124,8 +121,8 @@ public class AzureStorageSource extends AzureStorageSourceOrSink implements Boun
             return ValidationResult.OK;
         }
         // Checks that container name follows MS naming rules
-        if (this.properties instanceof AzureStorageProperties) {
-            String cnt = ((AzureStorageProperties) this.properties).container.getValue();
+        if (this.properties instanceof AzureStorageContainerProperties) {
+            String cnt = ((AzureStorageContainerProperties) this.properties).container.getValue();
             // not empty
             if (StringUtils.isEmpty(cnt)) {
                 ValidationResult vr = new ValidationResult();

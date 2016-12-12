@@ -10,12 +10,12 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragecontainerdelete;
+package org.talend.components.azurestorage.blob.tazurestoragecontainerdelete;
 
-import org.talend.components.azurestorage.AzureStorageProperties;
+import org.talend.components.azurestorage.blob.AzureStorageContainerProperties;
 import org.talend.daikon.properties.presentation.Form;
 
-public class TAzureStorageContainerDeleteProperties extends AzureStorageProperties {
+public class TAzureStorageContainerDeleteProperties extends AzureStorageContainerProperties {
 
     public TAzureStorageContainerDeleteProperties(String name) {
         super(name);
@@ -24,6 +24,7 @@ public class TAzureStorageContainerDeleteProperties extends AzureStorageProperti
     @Override
     public void setupLayout() {
         super.setupLayout();
+
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addRow(dieOnError);
     }
@@ -31,6 +32,7 @@ public class TAzureStorageContainerDeleteProperties extends AzureStorageProperti
     @Override
     public void setupProperties() {
         super.setupProperties();
+
         container.setRequired(true);
     }
 }

@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.runtime;
+package org.talend.components.azurestorage.blob.runtime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -24,9 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.exception.ComponentException;
-import org.talend.components.azurestorage.AzureStorageContainerDefinition;
-import org.talend.components.azurestorage.helpers.RemoteBlob;
-import org.talend.components.azurestorage.tazurestoragedelete.TAzureStorageDeleteProperties;
+import org.talend.components.azurestorage.blob.AzureStorageContainerDefinition;
+import org.talend.components.azurestorage.blob.helpers.RemoteBlob;
+import org.talend.components.azurestorage.blob.tazurestoragedelete.TAzureStorageDeleteProperties;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
@@ -57,7 +57,6 @@ public class AzureStorageDeleteReader extends AzureStorageReader<Boolean> {
             for (RemoteBlob rmtb : remoteBlobs) {
                 for (ListBlobItem blob : container.listBlobs(rmtb.prefix, rmtb.include)) {
                     if (blob instanceof CloudBlockBlob) {
-                        LOGGER.debug("--> Going to delete `{}`.", ((CloudBlockBlob) blob).getName());
                         // FIXME - problem with blobs with space in name...
                         if (((CloudBlockBlob) blob).deleteIfExists()) {
                             dataCount++;

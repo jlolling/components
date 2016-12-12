@@ -10,7 +10,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package org.talend.components.azurestorage.tazurestoragelist;
+package org.talend.components.azurestorage.blob.tazurestoragelist;
 
 import static org.talend.daikon.properties.presentation.Widget.widget;
 
@@ -18,8 +18,7 @@ import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.azurestorage.AzureStorageBlobProperties;
-import org.talend.components.common.SchemaProperties;
+import org.talend.components.azurestorage.blob.AzureStorageBlobProperties;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.presentation.Form;
@@ -29,8 +28,6 @@ public class TAzureStorageListProperties extends AzureStorageBlobProperties {
 
     protected transient PropertyPathConnector MAIN_NAME = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
 
-    public SchemaProperties schema = new SchemaProperties("schema"); //$NON-NLS-1$
-
     public TAzureStorageListProperties(String name) {
         super(name);
     }
@@ -38,6 +35,7 @@ public class TAzureStorageListProperties extends AzureStorageBlobProperties {
     @Override
     public void setupLayout() {
         super.setupLayout();
+
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(widget(remoteBlobs).setWidgetType(Widget.TABLE_WIDGET_TYPE));
         mainForm.addRow(schema.getForm(Form.REFERENCE));
@@ -47,9 +45,11 @@ public class TAzureStorageListProperties extends AzureStorageBlobProperties {
     @Override
     public void setupProperties() {
         super.setupProperties();
+
         Schema s = SchemaBuilder.record("Main").fields().name("BlobName").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "300")// $NON-NLS-3$
                 .prop(SchemaConstants.TALEND_IS_LOCKED, "true")//$NON-NLS-1$
                 .type(AvroUtils._string()).noDefault().endRecord();
         schema.schema.setValue(s);
     }
+
 }

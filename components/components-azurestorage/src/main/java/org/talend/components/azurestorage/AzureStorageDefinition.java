@@ -98,7 +98,7 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
 
     @Override
     public Set<ConnectorTopology> getSupportedConnectorTopologies() {
-        return EnumSet.of(ConnectorTopology.NONE);
+        return EnumSet.of(ConnectorTopology.OUTGOING);
     }
 
     @Override
