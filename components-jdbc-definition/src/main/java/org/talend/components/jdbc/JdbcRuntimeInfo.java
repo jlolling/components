@@ -36,6 +36,7 @@ public class JdbcRuntimeInfo extends JarRuntimeInfo {
      * @param props
      */
     public JdbcRuntimeInfo(RuntimeSettingProvider props, String runtimeClassName) {
+        // no need the version information for the maven path? now it will look up for the lastest one.
         super("mvn:org.talend.components/components-jdbc-runtime",
                 DependenciesReader.computeDependenciesFilePath("org.talend.components", "components-jdbc-runtime"),
                 runtimeClassName);
