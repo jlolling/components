@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.talend.components</groupId>
             <artifactId>components-api-service-common</artifactId>
-            <version>0.16.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
