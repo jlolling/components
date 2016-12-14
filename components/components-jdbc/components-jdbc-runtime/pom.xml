@@ -6,14 +6,14 @@
         <groupId>org.talend.components</groupId>
         <artifactId>components-parent</artifactId>
         <version>0.17.0-SNAPSHOT</version>
-        <relativePath>../components-parent/pom.xml</relativePath>
+        <relativePath>../../../components-parent/pom.xml</relativePath>
     </parent>
 
     <properties>
         <beam.version>0.3.0-incubating</beam.version>
     </properties>
 
-    <name>Components - JDBC - runtime</name>
+    <name>Components - JDBC - Runtime</name>
     <artifactId>components-jdbc-runtime</artifactId>
     <version>0.17.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
