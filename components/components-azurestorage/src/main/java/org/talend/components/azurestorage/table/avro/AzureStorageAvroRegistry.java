@@ -84,7 +84,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
         fields.add(new Field("RowKey", AvroUtils._string(), null, (Object) null));
         fields.add(new Field("Timestamp", AvroUtils._date(), null, (Object) null));
 
-        // FIXME set tableName properly
+        // FIXME set tableName properly and manage nameMappings
         String tableName = "schemaInfered";
         for (Entry<String, EntityProperty> f : entity.getProperties().entrySet()) {
             String fieldName = f.getKey();
@@ -189,7 +189,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
         return field;
     }
 
-    public DTEConverter getConverter(final Field f) {
+    public DTEConverter getConverter(final Field f, final String mappedName) {
         Schema basicSchema = AvroUtils.unwrapIfNullable(f.schema());
 
         if (AvroUtils.isSameType(basicSchema, AvroUtils._string())) {
@@ -198,18 +198,19 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        if (f.name().equals(COL_PARITION_KEY))
+                        if (f.name().equals(COL_PARITION_KEY) || mappedName.equals(COL_PARITION_KEY))
                             return value.getPartitionKey();
-                        if (f.name().equals(COL_ROW_KEY))
+                        if (f.name().equals(COL_ROW_KEY) || mappedName.equals(COL_ROW_KEY))
                             return value.getRowKey();
-                        if (f.name().equals(COL_TIMESTAMP)) { // should be set to DT but...
+                        if (f.name().equals(COL_TIMESTAMP) || mappedName.equals(COL_TIMESTAMP)) { // should be set to DT
+                                                                                                  // but...
                             String pattern = f.getProp(SchemaConstants.TALEND_COLUMN_PATTERN);
                             if (pattern != null && !pattern.isEmpty())
                                 return new SimpleDateFormat(pattern).format(value.getTimestamp());
                             else
                                 return value.getTimestamp();
                         }
-                        return value.getProperties().get(f.name()).getValueAsString();
+                        return value.getProperties().get(mappedName).getValueAsString();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -223,7 +224,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsInteger();
+                        return value.getProperties().get(mappedName).getValueAsInteger();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -236,9 +237,9 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        if (f.name().equals(COL_TIMESTAMP))
+                        if (f.name().equals(COL_TIMESTAMP) || mappedName.equals(COL_TIMESTAMP))
                             return value.getTimestamp();
-                        return value.getProperties().get(f.name()).getValueAsDate();
+                        return value.getProperties().get(mappedName).getValueAsDate();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -253,7 +254,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsDouble();
+                        return value.getProperties().get(mappedName).getValueAsDouble();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -266,9 +267,9 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        if (f.name().equals(COL_TIMESTAMP))
+                        if (f.name().equals(COL_TIMESTAMP) || mappedName.equals(COL_TIMESTAMP))
                             return value.getTimestamp();
-                        return value.getProperties().get(f.name()).getValueAsLong();
+                        return value.getProperties().get(mappedName).getValueAsLong();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -281,7 +282,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsBoolean();
+                        return value.getProperties().get(mappedName).getValueAsBoolean();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -294,7 +295,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsString();
+                        return value.getProperties().get(mappedName).getValueAsString();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -307,7 +308,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsByteArray();
+                        return value.getProperties().get(mappedName).getValueAsByteArray();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);
@@ -320,7 +321,7 @@ public class AzureStorageAvroRegistry extends AvroRegistry {
                 @Override
                 public Object convertToAvro(DynamicTableEntity value) {
                     try {
-                        return value.getProperties().get(f.name()).getValueAsString();
+                        return value.getProperties().get(mappedName).getValueAsString();
                     } catch (Exception e) {
                         LOGGER.error("Conversion error: {}", e);
                         throw new ComponentException(e);

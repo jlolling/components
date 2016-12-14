@@ -53,6 +53,8 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
 
     private transient AzureStorageTableAdaptorFactory factory;
 
+    private transient Map<String, String> nameMappings;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageTableReader.class);
 
     public AzureStorageTableReader(RuntimeContainer container, BoundedSource source,
@@ -60,6 +62,7 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
         super(source);
         this.runtime = container;
         this.properties = properties;
+        this.nameMappings = properties.nameMapping.getNameMappings();
     }
 
     private Schema getSchema() throws IOException {
@@ -78,7 +81,7 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
 
     private AzureStorageTableAdaptorFactory getFactory() throws IOException {
         if (null == factory) {
-            factory = new AzureStorageTableAdaptorFactory();
+            factory = new AzureStorageTableAdaptorFactory(nameMappings);
             factory.setSchema(getSchema());
         }
         return factory;
@@ -132,10 +135,6 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
             LOGGER.error(e.getLocalizedMessage());
         }
         return null;
-    }
-
-    @Override
-    public void close() throws IOException {
     }
 
     @Override

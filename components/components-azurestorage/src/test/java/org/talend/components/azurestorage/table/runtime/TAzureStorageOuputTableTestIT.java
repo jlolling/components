@@ -20,9 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -35,7 +34,6 @@ import org.junit.After;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.Writer;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableProperties;
 import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureStorageOutputTableProperties;
@@ -44,8 +42,6 @@ import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureS
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.ValidationResult;
-
-import com.microsoft.azure.storage.table.CloudTableClient;
 
 public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
@@ -56,10 +52,6 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     private String currentTable;
 
     private Date testTimestamp;
-
-    private AzureStorageTableSink sink;
-
-    private CloudTableClient tableClient;
 
     private String filter = String.format("(PartitionKey eq '%s') or (PartitionKey eq '%s') or (PartitionKey eq '%s')", pk_test1,
             pk_test2, pk_test3);
@@ -76,14 +68,19 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         testTimestamp = new Date();
         testString = RandomStringUtils.random(50);
 
-        try {
-            sink = new AzureStorageTableSink();
-            sink.initialize(null, properties);
-            sink.validate(null);
-            tableClient = sink.getStorageTableClient(null);
-        } catch (InvalidKeyException | URISyntaxException e) {
-            e.printStackTrace();
-        }
+        schemaMappings.add("daty");
+        propertyMappings.add("datyMapped");
+        schemaMappings.add("inty");
+        propertyMappings.add("intyMapped");
+        schemaMappings.add("stringy");
+        propertyMappings.add("stringyMapped");
+        schemaMappings.add("longy");
+        propertyMappings.add("longyMapped");
+        schemaMappings.add("doubly");
+        propertyMappings.add("doublyMapped");
+        schemaMappings.add("bytys");
+        propertyMappings.add("bytysMapped");
+
     }
 
     @After
@@ -93,42 +90,28 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
     }
 
-    public Writer<?> createWriter(ComponentProperties properties) {
-        sink.initialize(null, properties);
-        sink.validate(null);
-        return sink.createWriteOperation().createWriter(null);
-    }
-
     @SuppressWarnings("rawtypes")
-    public BoundedReader createReader(String table, String combinedFilter) {
+    public BoundedReader createReader(String table, String combinedFilter, boolean useMappings) {
         TAzureStorageInputTableProperties props = new TAzureStorageInputTableProperties("tests");
         props = (TAzureStorageInputTableProperties) setupConnectionProperties((AzureStorageProvideConnectionProperties) props);
         props.tableName.setValue(table);
         props.useFilterExpression.setValue(true);
         props.combinedFilter.setValue(combinedFilter);
-        props.schema.schema.setValue(getDynamicSchema());
+
+        if (useMappings) {
+            props.schema.schema.setValue(getMappingSchema());
+            props.nameMapping.schemaColumnName.setValue(schemaMappings);
+            props.nameMapping.entityPropertyName.setValue(propertyMappings);
+
+        } else {
+            props.schema.schema.setValue(getDynamicSchema());
+            props.nameMapping.schemaColumnName.setValue(null);
+            props.nameMapping.entityPropertyName.setValue(null);
+        }
         AzureStorageTableSource source = new AzureStorageTableSource();
         source.initialize(null, props);
         source.validate(null);
         return source.createReader(null);
-    }
-
-    @Override
-    public Schema getSystemSchema() {
-        return SchemaBuilder.record("Main").fields()
-                //
-                .name("PartitionKey").prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255")// $NON-NLS-3$
-                .prop(SchemaConstants.TALEND_IS_LOCKED, "true").type(AvroUtils._string()).noDefault()
-                //
-                .name("RowKey").prop(SchemaConstants.TALEND_COLUMN_IS_KEY, "true")
-                .prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "255")// $NON-NLS-3$
-                .prop(SchemaConstants.TALEND_IS_LOCKED, "true").type(AvroUtils._string()).noDefault()
-                //
-                .name("Timestamp").prop(SchemaConstants.TALEND_COLUMN_PATTERN, "yyyy-MM-dd hh:mm:ss")// $NON-NLS-3$
-                .prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "20")// $NON-NLS-3$
-                .prop(SchemaConstants.TALEND_IS_LOCKED, "true").type(AvroUtils._date()).noDefault()
-                //
-                .endRecord();
     }
 
     public Schema getSimpleTestSchema() {
@@ -208,6 +191,23 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
                 .endRecord();
     }
 
+    public Schema getMappingSchema() {
+        return SchemaBuilder.record("mappingtest").fields()
+                //
+                .name("PartitionKey").type(AvroUtils._string()).noDefault()//
+                .name("RowKey").type(AvroUtils._string()).noDefault()//
+                .name("Timestamp").type(AvroUtils._date()).noDefault() //
+                .name("daty").type(AvroUtils._date()).noDefault() //
+                .name("booly").type(AvroUtils._boolean()).noDefault()//
+                .name("inty").type(AvroUtils._int()).noDefault()//
+                .name("stringy").type(AvroUtils._string()).noDefault()//
+                .name("longy").type(AvroUtils._long()).noDefault()//
+                .name("doubly").type(AvroUtils._double()).noDefault()//
+                .name("bytys").type(AvroUtils._bytes()).noDefault()//
+                //
+                .endRecord();
+    }
+
     public void cleanupEntities(String table) throws Throwable {
 
         properties.dieOnError.setValue(false);
@@ -260,7 +260,40 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         currentTable = tbl_test + "Insert";
         insertTestValues(currentTable);
         // check results...
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
+        int counted = 0;
+        assertTrue(reader.start());
+        do {
+            counted++;
+            IndexedRecord current = (IndexedRecord) reader.getCurrent();
+            assertEquals(current.get(current.getSchema().getField("daty").pos()), testTimestamp);
+            assertEquals(current.get(current.getSchema().getField("inty").pos()), 1000);
+            assertEquals(current.get(current.getSchema().getField("stringy").pos()), testString);
+            assertEquals(current.get(current.getSchema().getField("longy").pos()), 1000000L);
+            assertEquals(current.get(current.getSchema().getField("doubly").pos()), 100.5562);
+            assertEquals(new String((byte[]) current.get(current.getSchema().getField("bytys").pos())), "ABCDEFGH");
+
+        } while (reader.advance());
+        reader.close();
+        // we should have read 9 rows...
+        assertEquals(9, counted);
+    }
+
+    @Test
+    @SuppressWarnings("rawtypes")
+    public void testNameMappings() throws Throwable {
+        currentTable = tbl_test + "InsertWithNameMappings";
+
+        properties.nameMapping.schemaColumnName.setValue(schemaMappings);
+        properties.nameMapping.entityPropertyName.setValue(propertyMappings);
+
+        insertTestValues(currentTable);
+
+        properties.nameMapping.schemaColumnName.setValue(new ArrayList<String>());
+        properties.nameMapping.entityPropertyName.setValue(new ArrayList<String>());
+
+        // check results...
+        BoundedReader reader = createReader(currentTable, filter, true);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -315,7 +348,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         writer.write(entity);
         writer.close();
         // check results
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -376,7 +409,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
         writer.close();
         // check results
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -419,7 +452,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
         writer.close();
         // check results...
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -462,7 +495,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
         writer.close();
         // check results...
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -484,7 +517,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         insertTestValues(currentTable);
         //
         cleanupEntities(currentTable);
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         assertFalse(reader.start());
         reader.close();
     }
@@ -516,12 +549,12 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
 
         // no record should exist we have less than 100 operations on the same PK...
-        BoundedReader reader = createReader(currentTable, filter);
+        BoundedReader reader = createReader(currentTable, filter, false);
         assertFalse(reader.start());
         reader.close();
         // close should trigger the batch
         writer.close();
-        reader = createReader(currentTable, filter);
+        reader = createReader(currentTable, filter, false);
         assertTrue(reader.start());
         reader.close();
 

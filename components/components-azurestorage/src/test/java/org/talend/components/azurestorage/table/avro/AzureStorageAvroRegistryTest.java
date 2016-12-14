@@ -30,7 +30,7 @@ public class AzureStorageAvroRegistryTest extends AzureStorageTableBaseTestIT {
 
     AzureStorageAvroRegistry registry = AzureStorageAvroRegistry.get();
 
-    AzureStorageTableAdaptorFactory recordConv = new AzureStorageTableAdaptorFactory();
+    AzureStorageTableAdaptorFactory recordConv = new AzureStorageTableAdaptorFactory(null);
 
     public AzureStorageAvroRegistryTest() {
         super("registry-test");
@@ -59,5 +59,7 @@ public class AzureStorageAvroRegistryTest extends AzureStorageTableBaseTestIT {
         assertEquals(true, record.get(s.getField("a_bool").pos()));
         assertEquals(1000, record.get(s.getField("a_int").pos()));
         assertTrue(record.get(s.getField("a_string").pos()) instanceof String);
+
+        // TODO Test the nameMappings
     }
 }

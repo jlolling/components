@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
@@ -89,17 +90,24 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
 
     private List<IndexedRecord> rejectedWrites = new ArrayList<>();
 
+    private Map<String, String> nameMappings;
+
+    private Boolean useNameMappings = Boolean.FALSE;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageTableWriter.class);
 
     public AzureStorageTableWriter(WriteOperation<Result> writeOperation, RuntimeContainer adaptor) {
-        this.runtime = adaptor;
+        runtime = adaptor;
         this.writeOperation = writeOperation;
-        this.sink = (AzureStorageTableSink) this.writeOperation.getSink();
-        this.properties = this.sink.getProperties();
+        sink = (AzureStorageTableSink) this.writeOperation.getSink();
+        properties = sink.getProperties();
         tableName = properties.tableName.getValue();
         actionData = properties.actionOnData.getValue();
         actionTable = properties.actionOnTable.getValue();
         processOperationInBatch = properties.processOperationInBatch.getValue();
+        nameMappings = properties.nameMapping.getNameMappings();
+        if (nameMappings != null)
+            useNameMappings = true;
     }
 
     @Override
@@ -151,35 +159,47 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
         DynamicTableEntity entity = new DynamicTableEntity();
         HashMap<String, EntityProperty> entityProps = new HashMap<>();
         for (Field f : writeSchema.getFields()) {
-            if (f.name().equals(AzureStorageTableProperties.TABLE_PARTITION_KEY)) {
+            String sName = f.name(); // schema name
+            String mName = sName; // mapped name
+            if (useNameMappings) {
+                if (nameMappings.containsKey(sName)) {
+                    mName = nameMappings.get(sName);
+                    // LOGGER.warn("Name mapping(S/P) {} <---> {}.", sName, mName);
+                }
+            }
+
+            if (sName.equals(AzureStorageTableProperties.TABLE_PARTITION_KEY)
+                    || mName.equals(AzureStorageTableProperties.TABLE_PARTITION_KEY)) {
                 entity.setPartitionKey((String) inputRecord.get(f.pos()));
-            } else if (f.name().equals(AzureStorageTableProperties.TABLE_ROW_KEY)) {
+            } else if (sName.equals(AzureStorageTableProperties.TABLE_ROW_KEY)
+                    || mName.equals(AzureStorageTableProperties.TABLE_ROW_KEY)) {
                 entity.setRowKey((String) inputRecord.get(f.pos()));
-            } else if (f.name().equals(AzureStorageTableProperties.TABLE_TIMESTAMP)) {
+            } else if (sName.equals(AzureStorageTableProperties.TABLE_TIMESTAMP)
+                    || mName.equals(AzureStorageTableProperties.TABLE_TIMESTAMP)) {
                 // nop : managed by server
             } else { // that's some properties !
                 if (f.schema().getType() == Schema.Type.BOOLEAN) {
-                    entityProps.put(f.name(), new EntityProperty((Boolean) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((Boolean) inputRecord.get(f.pos())));
                 } else if (f.schema().getType() == Schema.Type.DOUBLE) {
-                    entityProps.put(f.name(), new EntityProperty((Double) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((Double) inputRecord.get(f.pos())));
                 } else if (f.schema().getType() == Schema.Type.INT) {
-                    entityProps.put(f.name(), new EntityProperty((Integer) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((Integer) inputRecord.get(f.pos())));
                 } else if (f.schema().getType() == Schema.Type.BYTES) {
-                    entityProps.put(f.name(), new EntityProperty((byte[]) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((byte[]) inputRecord.get(f.pos())));
                 }
                 //
                 else if (f.schema().getType() == Schema.Type.LONG) {
                     String clazz = f.schema().getProp(SchemaConstants.JAVA_CLASS_FLAG);
                     if (clazz != null && clazz.equals(Date.class.getCanonicalName()))
-                        entityProps.put(f.name(), new EntityProperty((Date) inputRecord.get(f.pos())));
+                        entityProps.put(mName, new EntityProperty((Date) inputRecord.get(f.pos())));
                     else
-                        entityProps.put(f.name(), new EntityProperty((Long) inputRecord.get(f.pos())));
+                        entityProps.put(mName, new EntityProperty((Long) inputRecord.get(f.pos())));
                 }
                 //
                 else if (f.schema().getType() == Schema.Type.STRING) {
-                    entityProps.put(f.name(), new EntityProperty((String) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((String) inputRecord.get(f.pos())));
                 } else { // use string as default type...
-                    entityProps.put(f.name(), new EntityProperty((String) inputRecord.get(f.pos())));
+                    entityProps.put(mName, new EntityProperty((String) inputRecord.get(f.pos())));
                 }
             }
         }

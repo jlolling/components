@@ -12,12 +12,15 @@
 // ============================================================================
 package org.talend.components.azurestorage.table.avro;
 
+import java.util.Map;
+
 import org.apache.avro.Schema;
 import org.apache.avro.Schema.Field;
 import org.apache.avro.generic.IndexedRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.exception.ComponentException;
+import org.talend.components.azurestorage.table.avro.AzureStorageAvroRegistry.DTEConverter;
 import org.talend.daikon.avro.converter.AvroConverter;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
@@ -27,10 +30,16 @@ public class AzureStorageTableAdaptorFactory implements IndexedRecordConverter<D
 
     private Schema schema;
 
+    private Map<String, String> nameMappings;
+
     @SuppressWarnings("rawtypes")
     protected transient AvroConverter[] fieldConverter;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageTableAdaptorFactory.class);
+
+    public AzureStorageTableAdaptorFactory(Map<String, String> nameMappings) {
+        this.nameMappings = nameMappings;
+    }
 
     @Override
     public Class<DynamicTableEntity> getDatumClass() {
@@ -55,13 +64,19 @@ public class AzureStorageTableAdaptorFactory implements IndexedRecordConverter<D
     @Override
     public void setSchema(Schema schema) {
         this.schema = schema;
+        Boolean useNameMappings = (nameMappings != null);
         String[] names;
         names = new String[getSchema().getFields().size()];
         fieldConverter = new AvroConverter[names.length];
         for (int j = 0; j < names.length; j++) {
             Field f = getSchema().getFields().get(j);
+            String mappedName = f.name();
+            if (useNameMappings && nameMappings.containsKey(f.name())) {
+                mappedName = nameMappings.get(f.name());
+                // LOGGER.warn("AdaptorFactory: {} <---> {}.", f.name(), mappedName);
+            }
             names[j] = f.name();
-            AzureStorageAvroRegistry.DTEConverter converter = AzureStorageAvroRegistry.get().getConverter(f);
+            DTEConverter converter = AzureStorageAvroRegistry.get().getConverter(f, mappedName);
             fieldConverter[j] = converter;
         }
     }

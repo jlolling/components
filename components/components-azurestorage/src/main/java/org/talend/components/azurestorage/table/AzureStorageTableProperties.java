@@ -22,6 +22,7 @@ import org.talend.components.azurestorage.table.helpers.NameMappingTable;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
+import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
@@ -104,5 +105,9 @@ public abstract class AzureStorageTableProperties extends FixedConnectorsCompone
 
     public void setSchemaListener(ISchemaListener schemaListener) {
         this.schemaListener = schemaListener;
+    }
+
+    public ValidationResult validateNameMapping() {
+        return nameMapping.validateNameMappings();
     }
 }
