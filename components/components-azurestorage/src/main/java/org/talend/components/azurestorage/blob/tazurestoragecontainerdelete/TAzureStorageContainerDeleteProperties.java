@@ -17,6 +17,8 @@ import org.talend.daikon.properties.presentation.Form;
 
 public class TAzureStorageContainerDeleteProperties extends AzureStorageContainerProperties {
 
+    private static final long serialVersionUID = -8409678756536686919L;
+
     public TAzureStorageContainerDeleteProperties(String name) {
         super(name);
     }

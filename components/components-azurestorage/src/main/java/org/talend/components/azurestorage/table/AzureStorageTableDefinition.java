@@ -13,6 +13,7 @@
 package org.talend.components.azurestorage.table;
 
 import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageDefinition;
 import org.talend.components.azurestorage.table.runtime.AzureStorageTableSink;
@@ -56,7 +57,8 @@ public abstract class AzureStorageTableDefinition extends AzureStorageDefinition
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(ComponentProperties properties, ConnectorTopology connectorTopology) {
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties,
+            ConnectorTopology connectorTopology) {
         if (connectorTopology == ConnectorTopology.OUTGOING || connectorTopology == ConnectorTopology.NONE) {
             return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageTableSource.class);
         } else {

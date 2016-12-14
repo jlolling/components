@@ -17,6 +17,8 @@ import org.talend.daikon.properties.presentation.Form;
 
 public class TAzureStorageQueuePurgeProperties extends AzureStorageQueueProperties {
 
+    private static final long serialVersionUID = -1629227118426420176L;
+
     public TAzureStorageQueuePurgeProperties(String name) {
         super(name);
     }

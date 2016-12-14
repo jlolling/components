@@ -44,8 +44,6 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
 
     private CloudQueueMessage current;
 
-    private Boolean peek = Boolean.FALSE;
-
     private Boolean delete = Boolean.FALSE;
 
     private CloudQueue queue;
@@ -58,14 +56,13 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
         this.properties = properties;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean start() throws IOException {
         Boolean startable = false;
         String queueName = properties.queueName.getValue();
         int nbMsg = properties.numberOfMessages.getValue();
         int visibilityTimeout = properties.visibilityTimeoutInSeconds.getValue();
-        peek = properties.peekMessages.getValue();
+        Boolean peek = properties.peekMessages.getValue();
         delete = properties.deleteMessages.getValue();
         try {
             queue = ((AzureStorageQueueSource) getCurrentSource()).getCloudQueue(runtime, queueName);

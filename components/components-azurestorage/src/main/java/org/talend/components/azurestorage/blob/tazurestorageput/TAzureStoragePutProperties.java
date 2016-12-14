@@ -23,6 +23,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStoragePutProperties extends AzureStorageBlobProperties {
 
+    private static final long serialVersionUID = -8691101981326936311L;
+
     public Property<String> localFolder = PropertyFactory.newString("localFolder").setRequired(); //$NON-NLS-1$
 
     public Property<String> remoteFolder = PropertyFactory.newString("remoteFolder"); //$NON-NLS-1$
@@ -60,9 +62,8 @@ public class TAzureStoragePutProperties extends AzureStorageBlobProperties {
     public void refreshLayout(Form form) {
         super.refreshLayout(form);
 
-        if (form.getName() == Form.MAIN) {
-            Boolean useFileLst = useFileList.getValue();
-            form.getWidget(files.getName()).setHidden(!useFileLst);
+        if (Form.MAIN.equals(form.getName()) && form.getWidget(files.getName()) != null) {
+            form.getWidget(files.getName()).setHidden(!useFileList.getValue());
         }
     }
 

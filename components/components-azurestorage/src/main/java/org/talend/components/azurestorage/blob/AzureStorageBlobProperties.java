@@ -14,7 +14,9 @@ package org.talend.components.azurestorage.blob;
 
 import org.talend.components.azurestorage.blob.helpers.RemoteBlobsTable;
 
-public class AzureStorageBlobProperties extends AzureStorageContainerProperties {
+public abstract class AzureStorageBlobProperties extends AzureStorageContainerProperties {
+
+    private static final long serialVersionUID = 8943576970325194236L;
 
     public RemoteBlobsTable remoteBlobs = new RemoteBlobsTable("remoteBlobs"); //$NON-NLS-1$
 

@@ -40,7 +40,7 @@ public abstract class AzureStorageTableBaseTestIT extends AzureStorageBaseTestIT
 
     public String rk_test5 = "rowKey5";
 
-    public String tbl_test = "customers444";
+    public String tbl_test = "testTable";
 
     public String[] partitions = { pk_test1, pk_test2, pk_test3 };
 

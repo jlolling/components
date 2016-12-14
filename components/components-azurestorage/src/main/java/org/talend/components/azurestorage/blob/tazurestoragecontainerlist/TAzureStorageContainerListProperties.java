@@ -28,6 +28,8 @@ import org.talend.daikon.properties.presentation.Form;
  */
 public class TAzureStorageContainerListProperties extends AzureStorageProperties {
 
+    private static final long serialVersionUID = -5146548113930743503L;
+
     protected transient PropertyPathConnector MAIN_NAME = new PropertyPathConnector(Connector.MAIN_NAME, "schema");//$NON-NLS-1$
 
     public TAzureStorageContainerListProperties(String name) {

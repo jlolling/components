@@ -20,6 +20,8 @@ import org.talend.daikon.properties.presentation.Widget;
 
 public class TAzureStorageDeleteProperties extends AzureStorageBlobProperties {
 
+    private static final long serialVersionUID = 7196168162793040603L;
+
     public TAzureStorageDeleteProperties(String name) {
         super(name);
     }

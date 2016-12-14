@@ -19,6 +19,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStorageContainerCreateProperties extends AzureStorageContainerProperties {
 
+    private static final long serialVersionUID = -1508935428835723716L;
+
     public enum AccessControl {
         Private,
         Public

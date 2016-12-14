@@ -17,6 +17,8 @@ import org.talend.daikon.properties.presentation.Form;
 
 public class TAzureStorageContainerExistProperties extends AzureStorageContainerProperties {
 
+    private static final long serialVersionUID = -803847327028272736L;
+
     public TAzureStorageContainerExistProperties(String name) {
         super(name);
     }

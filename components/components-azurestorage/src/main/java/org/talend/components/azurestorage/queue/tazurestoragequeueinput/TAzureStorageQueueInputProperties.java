@@ -23,6 +23,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStorageQueueInputProperties extends AzureStorageQueueProperties {
 
+    private static final long serialVersionUID = 3741225803254131588L;
+
     /**
      * Just peek message. Don't change thevisibility (see visibilityTimeoutInSeconds) and don't increase dequeue count.
      */

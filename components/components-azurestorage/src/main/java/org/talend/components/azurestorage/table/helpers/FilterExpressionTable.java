@@ -31,6 +31,8 @@ import com.microsoft.azure.storage.table.TableQuery.QueryComparisons;
 
 public class FilterExpressionTable extends ComponentPropertiesImpl {
 
+    private static final long serialVersionUID = -5175064100089239187L;
+
     public enum Comparison {
         EQUAL,
         NOT_EQUAL,

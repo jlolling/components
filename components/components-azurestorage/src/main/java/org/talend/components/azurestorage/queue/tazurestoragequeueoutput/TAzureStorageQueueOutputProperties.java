@@ -28,6 +28,8 @@ import org.talend.daikon.properties.presentation.Form;
 
 public class TAzureStorageQueueOutputProperties extends AzureStorageQueueProperties {
 
+    private static final long serialVersionUID = 3427627996958495784L;
+
     protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
 
     public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow");

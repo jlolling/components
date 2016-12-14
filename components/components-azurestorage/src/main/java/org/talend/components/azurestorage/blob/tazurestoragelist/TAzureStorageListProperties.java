@@ -26,6 +26,8 @@ import org.talend.daikon.properties.presentation.Widget;
 
 public class TAzureStorageListProperties extends AzureStorageBlobProperties {
 
+    private static final long serialVersionUID = 8673604530837504643L;
+
     protected transient PropertyPathConnector MAIN_NAME = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
 
     public TAzureStorageListProperties(String name) {

@@ -31,6 +31,10 @@ import org.talend.daikon.runtime.RuntimeInfo;
  */
 public abstract class AzureStorageDefinition extends AbstractComponentDefinition {
 
+    private static final String MAVEN_ARTIFACT_ID = "components-azurestorage";
+
+    private static final String MAVEN_GROUP_ID = "org.talend.components";
+
     /** Azure storage account key. */
     public static final String RETURN_ACCOUNT_KEY = "accountKey"; //$NON-NLS-1$
 
@@ -49,7 +53,7 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
      * @param componentName {@link String} component name
      */
     public AzureStorageDefinition(String componentName) {
-        super(componentName);
+        super(componentName, true);
         setupI18N(new Property<?>[] { RETURN_ERROR_MESSAGE_PROP, RETURN_ACCOUNT_KEY_PROP, RETURN_ACCOUNT_NAME_PROP });
     }
 
@@ -84,16 +88,15 @@ public abstract class AzureStorageDefinition extends AbstractComponentDefinition
      */
     public static RuntimeInfo getCommonRuntimeInfo(ClassLoader classLoader, Class<? extends SourceOrSink> clazz) {
         return new SimpleRuntimeInfo(classLoader,
-                DependenciesReader.computeDependenciesFilePath("org.talend.components", "components-azurestorage"),
-                clazz.getCanonicalName());
+                DependenciesReader.computeDependenciesFilePath(MAVEN_GROUP_ID, MAVEN_ARTIFACT_ID), clazz.getCanonicalName());
     }
 
     public String getMavenGroupId() {
-        return "org.talend.components";
+        return MAVEN_GROUP_ID;
     }
 
     public String getMavenArtifactId() {
-        return "components-azurestorage";
+        return MAVEN_ARTIFACT_ID;
     }
 
     @Override

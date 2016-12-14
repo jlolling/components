@@ -32,6 +32,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStorageInputTableProperties extends AzureStorageTableProperties {
 
+    private static final long serialVersionUID = -6167192340391830059L;
+
     public Property<Boolean> useFilterExpression = PropertyFactory.newBoolean("useFilterExpression");
 
     public FilterExpressionTable filterExpression = new FilterExpressionTable("filterExpression");

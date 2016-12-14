@@ -23,6 +23,8 @@ import org.talend.daikon.properties.property.Property;
 
 public class NameMappingTable extends ComponentPropertiesImpl {
 
+    private static final long serialVersionUID = 1978667508342861384L;
+
     protected static final TypeLiteral<List<String>> LIST_STRING_TYPE = new TypeLiteral<List<String>>() {
     };
 

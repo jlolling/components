@@ -28,6 +28,8 @@ import org.talend.daikon.properties.property.Property;
  */
 public class RemoteBlobsTable extends ComponentPropertiesImpl {
 
+    private static final long serialVersionUID = 9146199487401036430L;
+
     public static final String ADD_QUOTES = "ADD_QUOTES"; //$NON-NLS-1$
 
     protected static final TypeLiteral<List<String>> LIST_STRING_TYPE = new TypeLiteral<List<String>>() {

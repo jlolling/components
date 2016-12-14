@@ -31,6 +31,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStorageOutputTableProperties extends AzureStorageTableProperties {
 
+    private static final long serialVersionUID = 3173788047463486011L;
+
     public enum ActionOnData {
         Insert,
         Insert_Or_Replace,

@@ -28,6 +28,8 @@ import org.talend.daikon.properties.property.Property;
  */
 public class FileMaskTable extends ComponentPropertiesImpl {
 
+    private static final long serialVersionUID = 703266556073143999L;
+
     /** LIST_STRING_TYPE. */
     protected static final TypeLiteral<List<String>> LIST_STRING_TYPE = new TypeLiteral<List<String>>() {
     };
@@ -62,4 +64,5 @@ public class FileMaskTable extends ComponentPropertiesImpl {
         mainForm.addColumn(fileMask);
         mainForm.addColumn(newName);
     }
+
 }

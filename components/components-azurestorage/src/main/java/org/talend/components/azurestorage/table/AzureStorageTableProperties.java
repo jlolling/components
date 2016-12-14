@@ -30,6 +30,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 public abstract class AzureStorageTableProperties extends FixedConnectorsComponentProperties
         implements AzureStorageProvideConnectionProperties {
 
+    private static final long serialVersionUID = -5089410955960231243L;
+
     public static final String TABLE_PARTITION_KEY = "PartitionKey";
 
     public static final String TABLE_ROW_KEY = "RowKey";
@@ -49,6 +51,8 @@ public abstract class AzureStorageTableProperties extends FixedConnectorsCompone
     public ISchemaListener schemaListener;
 
     public SchemaProperties schema = new SchemaProperties("schema") {
+
+        private static final long serialVersionUID = 4803323553282704087L;
 
         @SuppressWarnings("unused")
         public void afterSchema() {

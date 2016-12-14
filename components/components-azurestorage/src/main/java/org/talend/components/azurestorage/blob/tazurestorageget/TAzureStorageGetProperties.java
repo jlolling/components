@@ -23,6 +23,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 
 public class TAzureStorageGetProperties extends AzureStorageBlobProperties {
 
+    private static final long serialVersionUID = 7248936721419046950L;
+
     public Property<String> localFolder = PropertyFactory.newString("localFolder").setRequired(); //$NON-NLS-1$
 
     public RemoteBlobsGetTable remoteBlobsGet = new RemoteBlobsGetTable("remoteBlobsGet"); //$NON-NLS-1$

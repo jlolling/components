@@ -26,6 +26,8 @@ import org.talend.daikon.properties.property.Property;
  */
 public class RemoteBlobsGetTable extends RemoteBlobsTable {
 
+    private static final long serialVersionUID = -5346899079291825621L;
+
     /** create - Create parent directories. */
     public Property<List<Boolean>> create = newProperty(LIST_BOOLEAN_TYPE, "create"); //$NON-NLS-1$
 

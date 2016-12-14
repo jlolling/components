@@ -24,8 +24,10 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public class AzureStorageProperties extends FixedConnectorsComponentProperties
+public abstract class AzureStorageProperties extends FixedConnectorsComponentProperties
         implements AzureStorageProvideConnectionProperties {
+
+    private static final long serialVersionUID = 2866447516809265619L;
 
     public TAzureStorageConnectionProperties connection = new TAzureStorageConnectionProperties("connection"); //$NON-NLS-1$
 

@@ -30,6 +30,8 @@ import org.talend.daikon.properties.property.PropertyFactory;
 public class TAzureStorageConnectionProperties extends ComponentPropertiesImpl
         implements ComponentReferencePropertiesEnclosing, AzureStorageProvideConnectionProperties {
 
+    private static final long serialVersionUID = 5588521568261191377L;
+
     public enum Protocol {
         HTTP,
         HTTPS

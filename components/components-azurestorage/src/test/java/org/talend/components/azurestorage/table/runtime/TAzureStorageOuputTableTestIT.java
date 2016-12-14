@@ -20,7 +20,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 import java.util.Date;
 import java.util.List;
 
@@ -43,13 +45,21 @@ import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.ValidationResult;
 
+import com.microsoft.azure.storage.table.CloudTableClient;
+
 public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
     private String testString;
 
     private TAzureStorageOutputTableProperties properties;
 
+    private String currentTable;
+
     private Date testTimestamp;
+
+    private AzureStorageTableSink sink;
+
+    private CloudTableClient tableClient;
 
     private String filter = String.format("(PartitionKey eq '%s') or (PartitionKey eq '%s') or (PartitionKey eq '%s')", pk_test1,
             pk_test2, pk_test3);
@@ -65,25 +75,35 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         properties.actionOnTable.setValue(ActionOnTable.Create_table_if_does_not_exist);
         testTimestamp = new Date();
         testString = RandomStringUtils.random(50);
+
+        try {
+            sink = new AzureStorageTableSink();
+            sink.initialize(null, properties);
+            sink.validate(null);
+            tableClient = sink.getStorageTableClient(null);
+        } catch (InvalidKeyException | URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
     @After
     public void tearDown() throws Throwable {
-        cleanupEntities();
+        for (String t : tableClient.listTables(tbl_test)) {
+            tableClient.getTableReference(t).deleteIfExists();
+        }
     }
 
     public Writer<?> createWriter(ComponentProperties properties) {
-        AzureStorageTableSink sink = new AzureStorageTableSink();
         sink.initialize(null, properties);
         sink.validate(null);
         return sink.createWriteOperation().createWriter(null);
     }
 
     @SuppressWarnings("rawtypes")
-    public BoundedReader createReader(String combinedFilter) {
+    public BoundedReader createReader(String table, String combinedFilter) {
         TAzureStorageInputTableProperties props = new TAzureStorageInputTableProperties("tests");
         props = (TAzureStorageInputTableProperties) setupConnectionProperties((AzureStorageProvideConnectionProperties) props);
-        props.tableName.setValue(tbl_test);
+        props.tableName.setValue(table);
         props.useFilterExpression.setValue(true);
         props.combinedFilter.setValue(combinedFilter);
         props.schema.schema.setValue(getDynamicSchema());
@@ -188,27 +208,15 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
                 .endRecord();
     }
 
-    public void cleanupEntities() throws Throwable {
+    public void cleanupEntities(String table) throws Throwable {
 
         properties.dieOnError.setValue(false);
+        properties.tableName.setValue(table);
         properties.schema.schema.setValue(getDeleteSchema());
         properties.actionOnData.setValue(ActionOnData.Delete);
         properties.schemaListener.afterSchema();
         Writer<?> writer = createWriter(properties);
         writer.open("test-uid");
-        // BoundedReader readerEntities = createReader(filter);
-        // readerEntities.start();
-        // while (readerEntities.advance()) {
-        // IndexedRecord current = (IndexedRecord) readerEntities.getCurrent();
-        // assertNotNull(current);
-        //
-        // IndexedRecord entity = new GenericData.Record(getWriteSchema());
-        // entity.put(0, current.get(0));
-        // entity.put(1, current.get(1));
-        // writer.write(entity);
-        // }
-        // writer.close();
-        // readerEntities.close();
         for (String p : partitions) {
             for (String r : rows_all) {
                 IndexedRecord entity = new GenericData.Record(getWriteSchema());
@@ -221,10 +229,11 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         properties.dieOnError.setValue(true);
     }
 
-    public void insertTestValues() throws Throwable {
+    public void insertTestValues(String table) throws Throwable {
         properties.schema.schema.setValue(getDynamicSchema());
         properties.actionOnData.setValue(ActionOnData.Insert);
         properties.schemaListener.afterSchema();
+        properties.tableName.setValue(table);
         Writer<?> writer = createWriter(properties);
         writer.open("test-uid");
         for (String p : partitions) {
@@ -248,10 +257,10 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @Test
     @SuppressWarnings("rawtypes")
     public void testInsert() throws Throwable {
-        cleanupEntities();
-        insertTestValues();
+        currentTable = tbl_test + "Insert";
+        insertTestValues(currentTable);
         // check results...
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -273,8 +282,8 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testInsertOrReplace() throws Throwable {
-        cleanupEntities();
-        insertTestValues();
+        currentTable = tbl_test + "InsertOrReplace";
+        insertTestValues(currentTable);
         //
         properties.schema.schema.setValue(getSimpleTestSchema());
         properties.actionOnData.setValue(ActionOnData.Insert_Or_Replace);
@@ -306,7 +315,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         writer.write(entity);
         writer.close();
         // check results
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -323,8 +332,8 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testInsertOrMerge() throws Throwable {
-        cleanupEntities();
-        insertTestValues();
+        currentTable = tbl_test + "InsertOrMerge";
+        insertTestValues(currentTable);
         //
         properties.schema.schema.setValue(getWriteSchema());
         properties.actionOnData.setValue(ActionOnData.Insert_Or_Merge);
@@ -367,7 +376,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
         writer.close();
         // check results
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -391,8 +400,8 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testMerge() throws Throwable {
-        cleanupEntities();
-        insertTestValues();
+        currentTable = tbl_test + "Merge";
+        insertTestValues(currentTable);
         properties.schema.schema.setValue(getMergeSchema());
         properties.actionOnData.setValue(ActionOnData.Merge);
         properties.schemaListener.afterSchema();
@@ -410,7 +419,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
         writer.close();
         // check results...
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -434,8 +443,8 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testReplace() throws Throwable {
-        cleanupEntities();
-        insertTestValues();
+        currentTable = tbl_test + "Replace";
+        insertTestValues(currentTable);
         properties.schema.schema.setValue(getSimpleTestSchema());
         properties.actionOnData.setValue(ActionOnData.Replace);
         properties.schemaListener.afterSchema();
@@ -453,7 +462,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
         writer.close();
         // check results...
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         int counted = 0;
         assertTrue(reader.start());
         do {
@@ -470,12 +479,12 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testDelete() throws Throwable {
-        cleanupEntities();
+        currentTable = tbl_test + "Delete";
         //
-        insertTestValues();
+        insertTestValues(currentTable);
         //
-        cleanupEntities();
-        BoundedReader reader = createReader(filter);
+        cleanupEntities(currentTable);
+        BoundedReader reader = createReader(currentTable, filter);
         assertFalse(reader.start());
         reader.close();
     }
@@ -483,8 +492,9 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
     @SuppressWarnings("rawtypes")
     @Test
     public void testBatchInsert() throws Throwable {
-        cleanupEntities();
+        currentTable = tbl_test + "BatchInsert";
         //
+        properties.tableName.setValue(currentTable);
         properties.schema.schema.setValue(getDynamicSchema());
         properties.actionOnData.setValue(ActionOnData.Insert);
         properties.processOperationInBatch.setValue(true);
@@ -506,12 +516,12 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         }
 
         // no record should exist we have less than 100 operations on the same PK...
-        BoundedReader reader = createReader(filter);
+        BoundedReader reader = createReader(currentTable, filter);
         assertFalse(reader.start());
         reader.close();
         // close should trigger the batch
         writer.close();
-        reader = createReader(filter);
+        reader = createReader(currentTable, filter);
         assertTrue(reader.start());
         reader.close();
 
@@ -520,10 +530,11 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
     @Test
     public void testWriteResults() throws Throwable {
-        cleanupEntities();
+        currentTable = tbl_test + "WriteResults";
         //
         // test successful
         //
+        properties.tableName.setValue(currentTable);
         properties.schema.schema.setValue(getDynamicSchema());
         properties.actionOnData.setValue(ActionOnData.Insert);
         properties.schemaListener.afterSchema();
@@ -557,7 +568,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         //
         // test rejects now
         //
-        cleanupEntities(); // force the deletion
+        cleanupEntities(currentTable); // force the deletion
         properties.dieOnError.setValue(false);
         properties.schema.schema.setValue(getDeleteSchema());
         properties.actionOnData.setValue(ActionOnData.Delete);
@@ -589,10 +600,11 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
     @Test
     public void testWriteResultsInBatch() throws Throwable {
-        cleanupEntities();
+        currentTable = tbl_test + "WriteResultsInBatch";
         //
         // test successful
         //
+        properties.tableName.setValue(currentTable);
         properties.schema.schema.setValue(getDynamicSchema());
         properties.actionOnData.setValue(ActionOnData.Insert);
         properties.processOperationInBatch.setValue(true);
@@ -633,7 +645,7 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
         //
         // test rejects now
         //
-        cleanupEntities(); // force the deletion
+        cleanupEntities(currentTable); // force the deletion
         properties.dieOnError.setValue(false);
         properties.schema.schema.setValue(getDeleteSchema());
         properties.actionOnData.setValue(ActionOnData.Delete);

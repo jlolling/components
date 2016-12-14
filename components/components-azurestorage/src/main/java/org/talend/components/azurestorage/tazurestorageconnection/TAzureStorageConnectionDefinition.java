@@ -13,6 +13,7 @@
 package org.talend.components.azurestorage.tazurestorageconnection;
 
 import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageDefinition;
 import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
@@ -52,7 +53,8 @@ public class TAzureStorageConnectionDefinition extends AzureStorageDefinition {
     }
 
     @Override
-    public RuntimeInfo getRuntimeInfo(ComponentProperties properties, ConnectorTopology connectorTopology) {
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties,
+            ConnectorTopology connectorTopology) {
         if (connectorTopology == ConnectorTopology.NONE) {
             return getCommonRuntimeInfo(this.getClass().getClassLoader(), AzureStorageSourceOrSink.class);
         } else {
