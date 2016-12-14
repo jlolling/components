@@ -21,17 +21,18 @@ import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.io.IOProperties;
+import org.talend.components.jdbc.RuntimeSettingProvider;
 import org.talend.components.jdbc.dataset.JDBCDatasetProperties;
+import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.properties.ReferenceProperties;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
 public class JDBCOutputProperties extends FixedConnectorsComponentProperties
-        implements IOProperties<JDBCDatasetProperties> {
+        implements IOProperties<JDBCDatasetProperties>, RuntimeSettingProvider {
 
-    public ReferenceProperties<JDBCDatasetProperties> dataset = new ReferenceProperties<>("dataset",
-            JDBCOutputDefinition.NAME);
+    public ReferenceProperties<JDBCDatasetProperties> dataset = new ReferenceProperties<>("dataset", JDBCOutputDefinition.NAME);
 
     public Property<DataAction> dataAction = PropertyFactory.newEnum("dataAction", DataAction.class).setRequired();
 
@@ -82,5 +83,11 @@ public class JDBCOutputProperties extends FixedConnectorsComponentProperties
         INSERT,
         UPDATE,
         DELETE
+    }
+
+    @Override
+    public AllSetting getRuntimeSetting() {
+        // TODO now the data stream jdbcoutput can't work, so we keep it empty here, need a discussion with bd team
+        return null;
     }
 }

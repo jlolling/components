@@ -42,7 +42,7 @@ public class JDBCOutputDefinition extends AbstractComponentDefinition {
             ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
         // TODO may need to use the different runtime
-        new JdbcRuntimeInfo((JDBCOutputProperties) properties, "org.talend.components.jdbc.runtime.JDBCSource");
+        return new JdbcRuntimeInfo((JDBCOutputProperties) properties, "org.talend.components.jdbc.runtime.JDBCSink");
     }
 
     @Override
