@@ -47,7 +47,6 @@ public class AzureStorageAvroRegistryTest extends AzureStorageTableBaseTestIT {
         entity.getProperties().put("a_string", new EntityProperty(RandomStringUtils.random(10)));
 
         Schema s = registry.inferSchemaDynamicTableEntity(entity);
-        System.out.println(s);
         assertEquals(6, s.getFields().size());
 
         recordConv.setSchema(s);

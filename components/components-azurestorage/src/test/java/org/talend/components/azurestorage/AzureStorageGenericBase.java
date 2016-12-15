@@ -42,7 +42,6 @@ public abstract class AzureStorageGenericBase extends AbstractComponentTest {
 
     @Override
     public ComponentService getComponentService() {
-        System.out.println("getting component service..." + compServ);
         return compServ;
     }
 

@@ -136,7 +136,7 @@ public class TAzureStorageInputTableTestIT extends AzureStorageTableBaseTestIT {
     public void testFilterReader() throws Throwable {
         Date startTest = new Date();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
-
+        Thread.sleep(2000);
         String ctable = tbl_test + "InputFilter";
         createSampleDataset(ctable);
 
