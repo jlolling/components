@@ -107,7 +107,8 @@ public abstract class AzureStorageBaseTestIT {
      * @param properties {@link AzureStorageProperties} properties
      * @return <code>AzureStorageProperties</code> {@link AzureStorageProperties} azure storage properties
      */
-    public AzureStorageProvideConnectionProperties setupConnectionProperties(AzureStorageProvideConnectionProperties properties) {
+    public static AzureStorageProvideConnectionProperties setupConnectionProperties(
+            AzureStorageProvideConnectionProperties properties) {
         properties.getConnectionProperties().setupProperties();
         properties.getConnectionProperties().accountName.setValue(accountName);
         properties.getConnectionProperties().accountKey.setValue(accountKey);

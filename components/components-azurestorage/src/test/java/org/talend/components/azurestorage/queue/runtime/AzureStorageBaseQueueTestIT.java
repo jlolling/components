@@ -12,17 +12,15 @@
 // ============================================================================
 package org.talend.components.azurestorage.queue.runtime;
 
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-
+import org.junit.BeforeClass;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageBaseTestIT;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateProperties;
 
-import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueue;
+import com.microsoft.azure.storage.queue.CloudQueueClient;
 
 public class AzureStorageBaseQueueTestIT extends AzureStorageBaseTestIT {
 
@@ -30,25 +28,28 @@ public class AzureStorageBaseQueueTestIT extends AzureStorageBaseTestIT {
 
     protected static final String TEST_QUEUE_NAME_CREATE = "test-queue-create";
 
-    protected CloudQueue queue;
+    protected static CloudQueue queue;
+
+    protected static CloudQueueClient queueClient;
 
     protected String[] messages = { "A message to you rudy", "Message in a bottle", "Alert Message" };
 
     public AzureStorageBaseQueueTestIT(String testName) {
         super(testName);
+    }
 
-        try {
-            TAzureStorageQueueCreateProperties properties = new TAzureStorageQueueCreateProperties("tests");
-            properties = (TAzureStorageQueueCreateProperties) setupConnectionProperties(
-                    (AzureStorageProvideConnectionProperties) properties);
-            properties.setupProperties();
-            properties.queueName.setValue(TEST_QUEUE_NAME);
-            AzureStorageQueueSource source = new AzureStorageQueueSource();
-            source.initialize(null, properties);
-            queue = source.getCloudQueue(null, TEST_QUEUE_NAME);
-        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
-            e.printStackTrace();
-        }
+    @BeforeClass
+    public static void createTestQueue() throws Throwable {
+        TAzureStorageQueueCreateProperties properties = new TAzureStorageQueueCreateProperties("tests");
+        properties = (TAzureStorageQueueCreateProperties) setupConnectionProperties(
+                (AzureStorageProvideConnectionProperties) properties);
+        properties.setupProperties();
+        properties.queueName.setValue(TEST_QUEUE_NAME);
+        AzureStorageQueueSource source = new AzureStorageQueueSource();
+        source.initialize(null, properties);
+        queueClient = source.getStorageQueueClient(null);
+        queue = source.getCloudQueue(null, TEST_QUEUE_NAME);
+        queue.createIfNotExists();
     }
 
     @Override

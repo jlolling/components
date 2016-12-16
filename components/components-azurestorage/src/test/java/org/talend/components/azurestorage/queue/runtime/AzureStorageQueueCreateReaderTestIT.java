@@ -18,11 +18,14 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.avro.generic.IndexedRecord;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.azurestorage.AzureStorageDefinition;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateProperties;
+
+import com.microsoft.azure.storage.queue.CloudQueue;
 
 public class AzureStorageQueueCreateReaderTestIT extends AzureStorageBaseQueueTestIT {
 
@@ -30,17 +33,12 @@ public class AzureStorageQueueCreateReaderTestIT extends AzureStorageBaseQueueTe
         super("test-queue-create");
     }
 
-    // @SuppressWarnings("rawtypes")
-    // @After
-    // public void removeQueue() throws Throwable {
-    // TAzureStorageQueueDeleteProperties properties = new TAzureStorageQueueDeleteProperties("tests");
-    // properties.setupProperties();
-    // properties = (TAzureStorageQueueDeleteProperties) setupConnectionProperties(
-    // (AzureStorageProvideConnectionProperties) properties);
-    // properties.queueName.setValue(TEST_QUEUE_NAME_CREATE);
-    // BoundedReader reader = createBoundedReader(properties);
-    // assertTrue(reader.start());
-    // }
+    @AfterClass
+    public static void removeQueues() throws Throwable {
+        for (CloudQueue q : queueClient.listQueues(TEST_QUEUE_NAME_CREATE)) {
+            q.delete();
+        }
+    }
 
     @SuppressWarnings("rawtypes")
     @Test

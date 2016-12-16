@@ -12,13 +12,10 @@
 // ============================================================================
 package org.talend.components.azurestorage.queue.runtime;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.List;
 import java.util.regex.Pattern;
 
-import org.apache.avro.Schema;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
@@ -27,7 +24,6 @@ import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
 import org.talend.components.azurestorage.queue.AzureStorageQueueProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListProperties;
-import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
@@ -50,16 +46,6 @@ public class AzureStorageQueueSourceOrSink extends AzureStorageSourceOrSink impl
     }
 
     @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        return null;
-    }
-
-    @Override
-    public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
-        return null;
-    }
-
-    @Override
     public ValidationResult validate(RuntimeContainer container) {
         ValidationResult vr = super.validate(container);
         if (vr != ValidationResult.OK)
@@ -73,7 +59,7 @@ public class AzureStorageQueueSourceOrSink extends AzureStorageSourceOrSink impl
             if (q.isEmpty()) {
                 vr = new ValidationResult();
                 vr.setStatus(ValidationResult.Result.ERROR);
-                vr.setMessage("Queue name cannot be empty!");
+                vr.setMessage("Queue name cannot be empty.");
                 return vr;
             }
             if (q.length() < 3 || q.length() > 63) {
@@ -92,7 +78,7 @@ public class AzureStorageQueueSourceOrSink extends AzureStorageSourceOrSink impl
             if (!queueCheckNamePattern.matcher(q.replaceAll("-", "")).matches()) {
                 vr = new ValidationResult();
                 vr.setStatus(ValidationResult.Result.ERROR);
-                vr.setMessage("Queue name doesn't follow AzureStorage specification!");
+                vr.setMessage("Queue name doesn't follow AzureStorage specification.");
                 return vr;
             }
         }
