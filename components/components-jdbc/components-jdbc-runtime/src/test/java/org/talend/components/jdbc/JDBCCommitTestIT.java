@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.talend.components.api.component.runtime.WriteOperation;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.jdbc.common.DBTestUtils;
+import org.talend.components.jdbc.common.SimpleDBTable;
 import org.talend.components.jdbc.runtime.JDBCCommitSourceOrSink;
 import org.talend.components.jdbc.runtime.JDBCSink;
 import org.talend.components.jdbc.runtime.JDBCSourceOrSink;
@@ -83,7 +84,9 @@ public class JDBCCommitTestIT {
     public static void beforeClass() throws Exception {
         allSetting = DBTestUtils.createAllSetting();
 
-        DBTestUtils.createTable(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            SimpleDBTable.createTestTable(conn);
+        }
     }
 
     @AfterClass
@@ -93,7 +96,10 @@ public class JDBCCommitTestIT {
 
     @Before
     public void before() throws SQLException, ClassNotFoundException {
-        DBTestUtils.truncateTableAndLoadData(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn);
+            SimpleDBTable.loadTestData(conn);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -114,7 +120,7 @@ public class JDBCCommitTestIT {
         TJDBCOutputDefinition outputDefinition = new TJDBCOutputDefinition();
         TJDBCOutputProperties outputProperties = (TJDBCOutputProperties) outputDefinition.createRuntimeProperties();
 
-        outputProperties.main.schema.setValue(DBTestUtils.createTestSchema());
+        outputProperties.main.schema.setValue(SimpleDBTable.createTestSchema());
         outputProperties.updateOutputSchemas();
 
         outputProperties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
@@ -168,7 +174,7 @@ public class JDBCCommitTestIT {
         // create another session and check if the data is inserted
         try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting);
                 Statement statement = conn.createStatement();
-                ResultSet resultset = statement.executeQuery("select count(*) from TEST")) {
+                ResultSet resultset = statement.executeQuery("select count(*) from " + DBTestUtils.getTablename())) {
             if (resultset.next()) {
                 count = resultset.getInt(1);
             }

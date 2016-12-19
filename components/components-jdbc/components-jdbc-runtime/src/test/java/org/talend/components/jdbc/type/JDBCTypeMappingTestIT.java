@@ -16,6 +16,7 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +31,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
+import org.talend.components.jdbc.common.ComplexDBTableWithAllDataType;
 import org.talend.components.jdbc.common.DBTestUtils;
 import org.talend.components.jdbc.runtime.JDBCSource;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.writer.JDBCOutputWriter;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputDefinition;
@@ -51,7 +54,9 @@ public class JDBCTypeMappingTestIT {
     public static void beforeClass() throws Exception {
         allSetting = DBTestUtils.createAllSetting();
 
-        DBTestUtils.createTableForEveryType(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            ComplexDBTableWithAllDataType.createTestTable(conn);
+        }
     }
 
     @AfterClass
@@ -61,7 +66,10 @@ public class JDBCTypeMappingTestIT {
 
     @Before
     public void before() throws Exception {
-        DBTestUtils.truncateTableAndLoadDataForEveryType(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn);
+            ComplexDBTableWithAllDataType.loadTestData(conn);
+        }
     }
 
     @Test
@@ -69,7 +77,7 @@ public class JDBCTypeMappingTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(DBTestUtils.createTestSchema3(true));
+        properties.main.schema.setValue(ComplexDBTableWithAllDataType.createTestSchema(true));
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -264,7 +272,7 @@ public class JDBCTypeMappingTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(DBTestUtils.createTestSchema3(nullableForAnyColumn));
+        properties.main.schema.setValue(ComplexDBTableWithAllDataType.createTestSchema(nullableForAnyColumn));
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -318,7 +326,7 @@ public class JDBCTypeMappingTestIT {
             TJDBCInputDefinition definition = new TJDBCInputDefinition();
             TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-            properties.main.schema.setValue(DBTestUtils.createTestSchema3(nullableForAnyColumn));
+            properties.main.schema.setValue(ComplexDBTableWithAllDataType.createTestSchema(nullableForAnyColumn));
             properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
             properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -533,7 +541,7 @@ public class JDBCTypeMappingTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema3(nullableForAnyColumn);
+        Schema schema = ComplexDBTableWithAllDataType.createTestSchema(nullableForAnyColumn);
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -546,7 +554,7 @@ public class JDBCTypeMappingTestIT {
         try {
             writer.open("wid");
 
-            List<IndexedRecord> inputRecords = DBTestUtils.prepareIndexRecords(nullableForAnyColumn);
+            List<IndexedRecord> inputRecords = ComplexDBTableWithAllDataType.prepareIndexRecords(nullableForAnyColumn);
             for (IndexedRecord inputRecord : inputRecords) {
                 writer.write(inputRecord);
 
@@ -564,7 +572,7 @@ public class JDBCTypeMappingTestIT {
             TJDBCInputDefinition definition1 = new TJDBCInputDefinition();
             TJDBCInputProperties properties1 = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition1);
 
-            properties1.main.schema.setValue(DBTestUtils.createTestSchema3(nullableForAnyColumn));
+            properties1.main.schema.setValue(ComplexDBTableWithAllDataType.createTestSchema(nullableForAnyColumn));
             properties1.tableSelection.tablename.setValue(DBTestUtils.getTablename());
             properties1.sql.setValue(DBTestUtils.getSQL());
 

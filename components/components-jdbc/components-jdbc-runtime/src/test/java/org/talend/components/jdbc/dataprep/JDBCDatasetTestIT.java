@@ -12,6 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc.dataprep;
 
+import java.sql.Connection;
+
 import org.apache.avro.Schema;
 import org.apache.avro.generic.IndexedRecord;
 import org.junit.AfterClass;
@@ -19,9 +21,11 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.jdbc.common.DBTestUtils;
+import org.talend.components.jdbc.common.SimpleDBTable;
 import org.talend.components.jdbc.dataset.JDBCDatasetProperties;
 import org.talend.components.jdbc.datastore.JDBCDatastoreDefinition;
 import org.talend.components.jdbc.datastore.JDBCDatastoreProperties;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.dataprep.JDBCDatasetRuntime;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.java8.Consumer;
@@ -35,8 +39,13 @@ public class JDBCDatasetTestIT {
     public static void beforeClass() throws Exception {
         PropertiesTestUtils.setupPaxUrlFromMavenLaunch();
         allSetting = DBTestUtils.createAllSetting();
-        DBTestUtils.createTable(allSetting);
-        DBTestUtils.truncateTableAndLoadData(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            SimpleDBTable.createTestTable(conn);
+        }
+        try (Connection conn1 = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn1);
+            SimpleDBTable.loadTestData(conn1);
+        }
     }
 
     @AfterClass
@@ -51,7 +60,7 @@ public class JDBCDatasetTestIT {
         Schema schema = dataset.main.schema.getValue();
 
         Assert.assertNotNull(schema);
-        DBTestUtils.testMetadata(schema.getFields());
+        SimpleDBTable.testMetadata(schema.getFields());
     }
 
     @Test
@@ -63,7 +72,7 @@ public class JDBCDatasetTestIT {
         Schema schema = runtime.getSchema();
 
         Assert.assertNotNull(schema);
-        DBTestUtils.testMetadata(schema.getFields());
+        SimpleDBTable.testMetadata(schema.getFields());
     }
 
     @Test

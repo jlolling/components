@@ -15,6 +15,7 @@ package org.talend.components.jdbc;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -28,6 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.talend.components.api.exception.ComponentException;
 import org.talend.components.jdbc.common.DBTestUtils;
+import org.talend.components.jdbc.common.SimpleDBTable;
+import org.talend.components.jdbc.common.SimpleDBTableWithKey;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.runtime.writer.JDBCOutputWriter;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputDefinition;
@@ -44,7 +48,9 @@ public class JDBCOutputTestIT {
     public static void beforeClass() throws Exception {
         allSetting = DBTestUtils.createAllSetting();
 
-        DBTestUtils.createTable(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            SimpleDBTable.createTestTable(conn);
+        }
     }
 
     @AfterClass
@@ -54,7 +60,10 @@ public class JDBCOutputTestIT {
 
     @Before
     public void before() throws Exception {
-        DBTestUtils.truncateTableAndLoadData(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn);
+            SimpleDBTable.loadTestData(conn);
+        }
     }
 
     @Test
@@ -62,7 +71,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema();
+        Schema schema = SimpleDBTable.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -113,7 +122,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema();
+        Schema schema = SimpleDBTable.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -187,7 +196,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -240,7 +249,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -314,7 +323,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -362,7 +371,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -430,7 +439,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -492,7 +501,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
 
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
@@ -555,7 +564,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 
@@ -622,7 +631,7 @@ public class JDBCOutputTestIT {
         TJDBCOutputDefinition definition = new TJDBCOutputDefinition();
         TJDBCOutputProperties properties = DBTestUtils.createCommonJDBCOutputProperties(allSetting, definition);
 
-        Schema schema = DBTestUtils.createTestSchema2();
+        Schema schema = SimpleDBTableWithKey.createTestSchema();
         properties.main.schema.setValue(schema);
         properties.updateOutputSchemas();
 

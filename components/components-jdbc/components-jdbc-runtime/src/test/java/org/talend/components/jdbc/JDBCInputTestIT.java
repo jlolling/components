@@ -15,6 +15,7 @@ package org.talend.components.jdbc;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,9 @@ import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.jdbc.common.DBTestUtils;
+import org.talend.components.jdbc.common.SimpleDBTable;
 import org.talend.components.jdbc.runtime.JDBCSource;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputDefinition;
 import org.talend.components.jdbc.tjdbcinput.TJDBCInputProperties;
@@ -45,7 +48,9 @@ public class JDBCInputTestIT {
     public static void beforeClass() throws Exception {
         allSetting = DBTestUtils.createAllSetting();
 
-        DBTestUtils.createTable(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            SimpleDBTable.createTestTable(conn);
+        }
     }
 
     @AfterClass
@@ -55,7 +60,10 @@ public class JDBCInputTestIT {
 
     @Before
     public void before() throws SQLException, ClassNotFoundException {
-        DBTestUtils.truncateTableAndLoadData(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn);
+            SimpleDBTable.loadTestData(conn);
+        }
     }
 
     @Test
@@ -63,7 +71,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(DBTestUtils.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -89,7 +97,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(DBTestUtils.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -98,7 +106,7 @@ public class JDBCInputTestIT {
         Schema schema = source.getEndpointSchema(null, "TEST");
         assertEquals("TEST", schema.getName().toUpperCase());
         List<Field> columns = schema.getFields();
-        DBTestUtils.testMetadata(columns);
+        SimpleDBTable.testMetadata(columns);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -109,7 +117,7 @@ public class JDBCInputTestIT {
             TJDBCInputDefinition definition = new TJDBCInputDefinition();
             TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-            properties.main.schema.setValue(DBTestUtils.createTestSchema());
+            properties.main.schema.setValue(SimpleDBTable.createTestSchema());
             properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
             properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -166,7 +174,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(DBTestUtils.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 

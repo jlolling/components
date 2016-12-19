@@ -15,6 +15,7 @@ package org.talend.components.jdbc.dataprep;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -27,9 +28,11 @@ import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.jdbc.common.DBTestUtils;
+import org.talend.components.jdbc.common.SimpleDBTable;
 import org.talend.components.jdbc.dataset.JDBCDatasetProperties;
 import org.talend.components.jdbc.datastore.JDBCDatastoreDefinition;
 import org.talend.components.jdbc.datastore.JDBCDatastoreProperties;
+import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 import org.talend.daikon.properties.test.PropertiesTestUtils;
@@ -43,7 +46,9 @@ public class JDBCInputTestIT {
         PropertiesTestUtils.setupPaxUrlFromMavenLaunch();
         allSetting = DBTestUtils.createAllSetting();
 
-        DBTestUtils.createTable(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            SimpleDBTable.createTestTable(conn);
+        }
     }
 
     @AfterClass
@@ -53,7 +58,10 @@ public class JDBCInputTestIT {
 
     @Before
     public void before() throws SQLException, ClassNotFoundException {
-        DBTestUtils.truncateTableAndLoadData(allSetting);
+        try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
+            DBTestUtils.truncateTable(conn);
+            SimpleDBTable.loadTestData(conn);
+        }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
