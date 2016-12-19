@@ -104,9 +104,11 @@ public class JDBCAvroRegistry extends AvroRegistry {
     protected Schema inferSchemaResultSet(JDBCTableMetadata tableMetadata) throws SQLException {
         DatabaseMetaData databaseMetdata = tableMetadata.getDatabaseMetaData();
 
-        Set<String> keys = getPrimaryKeys(databaseMetdata, null, null, tableMetadata.getTablename());
+        Set<String> keys = getPrimaryKeys(databaseMetdata, tableMetadata.getCatalog(), tableMetadata.getDbSchema(),
+                tableMetadata.getTablename());
 
-        try (ResultSet metadata = databaseMetdata.getColumns(null, null, tableMetadata.getTablename(), null)) {
+        try (ResultSet metadata = databaseMetdata.getColumns(tableMetadata.getCatalog(), tableMetadata.getDbSchema(),
+                tableMetadata.getTablename(), null)) {
             if (!metadata.next()) {
                 return null;
             }
