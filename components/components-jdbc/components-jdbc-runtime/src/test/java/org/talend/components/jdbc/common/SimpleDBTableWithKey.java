@@ -16,8 +16,6 @@ import org.talend.daikon.avro.SchemaConstants;
 
 public class SimpleDBTableWithKey {
 
-    // TODO : now we have to use the type for derby to test, should use the common one for every database or write it for every
-    // database
     public static void createTestTable(Connection conn) throws SQLException {
         try (Statement statement = conn.createStatement()) {
             statement.execute("create table TEST (ID int, NAME varchar(8), PRIMARY KEY(ID))");
