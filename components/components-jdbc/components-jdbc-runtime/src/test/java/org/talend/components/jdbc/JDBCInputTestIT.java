@@ -12,7 +12,8 @@
 // ============================================================================
 package org.talend.components.jdbc;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -31,7 +32,7 @@ import org.junit.Test;
 import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.runtime.Reader;
 import org.talend.components.jdbc.common.DBTestUtils;
-import org.talend.components.jdbc.common.SimpleDBTable;
+import org.talend.components.jdbc.common.SimpleDBTableWithKey;
 import org.talend.components.jdbc.runtime.JDBCSource;
 import org.talend.components.jdbc.runtime.JdbcRuntimeUtils;
 import org.talend.components.jdbc.runtime.setting.AllSetting;
@@ -49,7 +50,7 @@ public class JDBCInputTestIT {
         allSetting = DBTestUtils.createAllSetting();
 
         try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
-            SimpleDBTable.createTestTable(conn);
+            SimpleDBTableWithKey.createTestTable(conn);
         }
     }
 
@@ -62,7 +63,7 @@ public class JDBCInputTestIT {
     public void before() throws SQLException, ClassNotFoundException {
         try (Connection conn = JdbcRuntimeUtils.createConnection(allSetting)) {
             DBTestUtils.truncateTable(conn);
-            SimpleDBTable.loadTestData(conn);
+            SimpleDBTableWithKey.loadTestData(conn);
         }
     }
 
@@ -71,7 +72,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTableWithKey.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -97,7 +98,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTableWithKey.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -106,7 +107,7 @@ public class JDBCInputTestIT {
         Schema schema = source.getEndpointSchema(null, "TEST");
         assertEquals("TEST", schema.getName().toUpperCase());
         List<Field> columns = schema.getFields();
-        SimpleDBTable.testMetadata(columns);
+        SimpleDBTableWithKey.testMetadata(columns);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -117,7 +118,7 @@ public class JDBCInputTestIT {
             TJDBCInputDefinition definition = new TJDBCInputDefinition();
             TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-            properties.main.schema.setValue(SimpleDBTable.createTestSchema());
+            properties.main.schema.setValue(SimpleDBTableWithKey.createTestSchema());
             properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
             properties.sql.setValue(DBTestUtils.getSQL());
 
@@ -174,7 +175,7 @@ public class JDBCInputTestIT {
         TJDBCInputDefinition definition = new TJDBCInputDefinition();
         TJDBCInputProperties properties = DBTestUtils.createCommonJDBCInputProperties(allSetting, definition);
 
-        properties.main.schema.setValue(SimpleDBTable.createTestSchema());
+        properties.main.schema.setValue(SimpleDBTableWithKey.createTestSchema());
         properties.tableSelection.tablename.setValue(DBTestUtils.getTablename());
         properties.sql.setValue(DBTestUtils.getSQL());
 

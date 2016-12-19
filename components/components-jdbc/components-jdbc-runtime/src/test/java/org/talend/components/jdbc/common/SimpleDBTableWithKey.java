@@ -1,11 +1,15 @@
 package org.talend.components.jdbc.common;
 
+import static org.junit.Assert.assertEquals;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
+import org.apache.avro.Schema.Field;
 import org.apache.avro.SchemaBuilder.FieldAssembler;
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
@@ -37,5 +41,12 @@ public class SimpleDBTableWithKey {
 
     public static void loadTestData(Connection conn) throws SQLException {
         SimpleDBTable.loadTestData(conn);
+    }
+
+    public static void testMetadata(List<Field> columns) {
+        SimpleDBTable.testMetadata(columns);
+
+        Schema.Field field = columns.get(0);
+        assertEquals("true", field.getObjectProp(SchemaConstants.TALEND_COLUMN_IS_KEY));
     }
 }
