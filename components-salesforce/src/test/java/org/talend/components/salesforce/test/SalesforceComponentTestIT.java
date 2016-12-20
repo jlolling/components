@@ -126,6 +126,42 @@ public abstract class SalesforceComponentTestIT extends SalesforceTestBase {
         assertFalse(props.proxy.userPassword.userId.isRequired());
         assertFalse(props.proxy.userPassword.password.isRequired());
 
+        Form mainForm = props.getForm(Form.MAIN);
+
+        Form advancedForm = props.getForm(Form.ADVANCED);
+        assertTrue(advancedForm.getWidget(props.reuseSession.getName()).isVisible());
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
+        // Check "loginType" value changes influence "reuseSession"/"sessionDirectory" visible
+        props.loginType.setValue(LoginType.OAuth);
+        checkAndAfter(mainForm, "loginType", props);
+        assertFalse(advancedForm.getWidget(props.reuseSession.getName()).isVisible());
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
+        props.loginType.setValue(LoginType.Basic);
+        checkAndAfter(mainForm, "loginType", props);
+        assertTrue(advancedForm.getWidget(props.reuseSession.getName()).isVisible());
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
+        // Check "bulkConnection" value changes influence "reuseSession"/"sessionDirectory" visible
+        props.bulkConnection.setValue(true);
+        checkAndAfter(advancedForm, "bulkConnection", props);
+        assertFalse(advancedForm.getWidget(props.reuseSession.getName()).isVisible());
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
+        props.bulkConnection.setValue(false);
+        checkAndAfter(advancedForm, "bulkConnection", props);
+        assertTrue(advancedForm.getWidget(props.reuseSession.getName()).isVisible());
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
+        // Check "reuseSession" value changes influence "sessionDirectory" visible
+        props.reuseSession.setValue(true);
+        checkAndAfter(advancedForm, "reuseSession", props);
+        assertTrue(advancedForm.getWidget(props.sessionDirectory).isVisible());
+        props.reuseSession.setValue(false);
+        checkAndAfter(advancedForm, "reuseSession", props);
+        assertFalse(advancedForm.getWidget(props.sessionDirectory).isVisible());
+
     }
 
     @Test
