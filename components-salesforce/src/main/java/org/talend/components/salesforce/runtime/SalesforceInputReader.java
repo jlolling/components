@@ -29,8 +29,6 @@ import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputPropert
 import org.talend.daikon.avro.AvroUtils;
 
 import com.sforce.soap.partner.QueryResult;
-import com.sforce.soap.partner.fault.ExceptionCode;
-import com.sforce.soap.partner.fault.UnexpectedErrorFault;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.bind.XmlObject;
@@ -141,20 +139,12 @@ public class SalesforceInputReader extends SalesforceReader<IndexedRecord> {
     }
 
     protected QueryResult executeSalesforceQuery() throws IOException, ConnectionException {
-        try {
-            TSalesforceInputProperties inProperties = (TSalesforceInputProperties) properties;
-            getConnection().setQueryOptions(inProperties.batchSize.getValue());
-            if (inProperties.includeDeleted.getValue()) {
-                return getConnection().queryAll(getQueryString(inProperties));
-            } else {
-                return getConnection().query(getQueryString(inProperties));
-            }
-        } catch (UnexpectedErrorFault fault) {
-            if (ExceptionCode.INVALID_SESSION_ID == fault.getExceptionCode()) {
-                ((SalesforceSource) getCurrentSource()).renewSession(getConnection().getConfig());
-                return executeSalesforceQuery();
-            }
-            throw fault;
+        TSalesforceInputProperties inProperties = (TSalesforceInputProperties) properties;
+        getConnection().setQueryOptions(inProperties.batchSize.getValue());
+        if (inProperties.includeDeleted.getValue()) {
+            return getConnection().queryAll(getQueryString(inProperties));
+        } else {
+            return getConnection().query(getQueryString(inProperties));
         }
     }
 

@@ -3,6 +3,7 @@ package org.talend.components.salesforce.runtime;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.talend.components.salesforce.runtime.SalesforceSourceOrSink.MAX_VALID_SECONDS;
 import static org.talend.components.salesforce.runtime.SalesforceSourceOrSink.SERVICE_ENDPOINT;
 import static org.talend.components.salesforce.runtime.SalesforceSourceOrSink.SESSION_FILE_PREFX;
@@ -11,6 +12,7 @@ import static org.talend.components.salesforce.runtime.SalesforceSourceOrSink.SE
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,6 +27,9 @@ import org.talend.components.salesforce.SalesforceConnectionProperties;
 import org.talend.components.salesforce.test.SalesforceTestBase;
 import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputProperties;
 import org.talend.daikon.properties.ValidationResult;
+
+import com.sforce.soap.partner.fault.ExceptionCode;
+import com.sforce.soap.partner.fault.LoginFault;
 
 /**
  * Test Salesforce connection
@@ -93,6 +98,18 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         LOGGER.debug("current records number in module " + EXISTING_MODULE_NAME + ": " + records.size());
         assertNotEquals(0, records.size());
 
+        // Test reuse session fails with wrong pwd
+        invalidSessionFile(props.connection);
+        try {
+            readRows(props);
+        } catch (IOException e) {
+            Throwable caused = e.getCause();
+            // Should login fails with wrong pwd
+            assertTrue(caused instanceof LoginFault);
+            assertEquals(ExceptionCode.INVALID_LOGIN, ((LoginFault) caused).getExceptionCode());
+            LOGGER.debug("except login fails: " + e.getMessage());
+        }
+
         // Disable reuse session function
         props.connection.reuseSession.setValue(false);
         LOGGER.debug("except login fails:");
@@ -109,7 +126,6 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
     }
 
     protected void invalidSessionFile(SalesforceConnectionProperties connectionProperties) throws Throwable {
-        LOGGER.debug("a");
         String sessionPath = connectionProperties.sessionDirectory.getValue() + "/" + SESSION_FILE_PREFX
                 + connectionProperties.userPassword.userId.getValue();
         FileInputStream sessionInput = new FileInputStream(sessionPath);
@@ -132,7 +148,6 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         } finally {
             sessionOutput.close();
         }
-        LOGGER.debug("b");
 
     }
 }

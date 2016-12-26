@@ -51,8 +51,6 @@ import com.sforce.soap.partner.DescribeGlobalSObjectResult;
 import com.sforce.soap.partner.DescribeSObjectResult;
 import com.sforce.soap.partner.GetUserInfoResult;
 import com.sforce.soap.partner.PartnerConnection;
-import com.sforce.soap.partner.fault.ExceptionCode;
-import com.sforce.soap.partner.fault.UnexpectedErrorFault;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.SessionRenewer;
@@ -228,6 +226,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
 
             @Override
             public SessionRenewalHeader renewSession(ConnectorConfig connectorConfig) throws ConnectionException {
+                LOG.debug("renewing session...");
                 SessionRenewalHeader header = new SessionRenewalHeader();
                 // FIXME - session id need to be null for trigger the login?
                 connectorConfig.setSessionId(null);
@@ -237,6 +236,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
                 // header.name = new QName("urn:partner.soap.sforce.com", "X-SFDC-Session");
                 header.name = new QName("urn:partner.soap.sforce.com", "SessionHeader");
                 header.headerElement = ch.connection.getSessionHeader();
+                LOG.debug("session renewed!");
                 return header;
             }
         });
@@ -398,10 +398,8 @@ public class SalesforceSourceOrSink implements SourceOrSink {
     }
 
     protected void renewSession(ConnectorConfig config) throws ConnectionException {
-        LOG.debug("renewing session...");
         SessionRenewer renewer = config.getSessionRenewer();
         renewer.renewSession(config);
-        LOG.debug("session renewed!");
     }
 
     /**
@@ -442,7 +440,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
      */
     protected void setupSessionProperties(PartnerConnection connection) throws ConnectionException {
         try {
-            GetUserInfoResult result = getUserInfo(connection);
+            GetUserInfoResult result = connection.getUserInfo();
             File sessionFile = new java.io.File(sessionFilePath);
             if (!sessionFile.exists()) {
                 File parentPath = sessionFile.getParentFile();
@@ -464,23 +462,6 @@ public class SalesforceSourceOrSink implements SourceOrSink {
             }
         } catch (IOException e) {
             throw new ConnectionException("Reuse session fails!", e);
-        }
-    }
-
-    /**
-     * Get user information to get session max valid seconds which set on server side
-     */
-    protected GetUserInfoResult getUserInfo(PartnerConnection connection) throws ConnectionException {
-        try {
-            return connection.getUserInfo();
-        } catch (UnexpectedErrorFault fault) {
-            // Seesion maybe disable when call "getUserInfo()"
-            if (ExceptionCode.INVALID_SESSION_ID == fault.getExceptionCode()) {
-                LOG.debug("session is valid. Would renew session");
-                renewSession(connection.getConfig());
-                return getUserInfo(connection);
-            }
-            throw fault;
         }
     }
 
