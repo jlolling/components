@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2016 Talend Inc. - www.talend.com
@@ -17,18 +16,15 @@
 package ${package};
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
-import org.talend.daikon.properties.property.Property;
-import org.talend.daikon.properties.property.PropertyFactory;
 import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.property.PropertyFactory;
+import org.talend.daikon.properties.property.StringProperty;
 
 /**
  * The ComponentProperties subclass provided by a component stores the 
@@ -52,9 +48,11 @@ import org.talend.daikon.properties.presentation.Form;
  */
 public class ${componentName}Properties extends FixedConnectorsComponentProperties {
 
-    public Property filename = PropertyFactory.newString("filename"); //$NON-NLS-1$
+    public StringProperty filename = PropertyFactory.newString("filename"); //$NON-NLS-1$
+	
     public SchemaProperties schema = new SchemaProperties("schema"); //$NON-NLS-1$
-    protected transient PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "schema");
+	
+    protected transient PropertyPathConnector mainConnector = new PropertyPathConnector(Connector.MAIN_NAME, "schema"); //$NON-NLS-1$
  
     public ${componentName}Properties(String name) {
         super(name);
