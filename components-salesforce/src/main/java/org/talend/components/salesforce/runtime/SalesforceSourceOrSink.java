@@ -12,11 +12,15 @@
 // ============================================================================
 package org.talend.components.salesforce.runtime;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.xml.namespace.QName;
 
@@ -45,8 +49,10 @@ import com.sforce.async.BulkConnection;
 import com.sforce.soap.partner.DescribeGlobalResult;
 import com.sforce.soap.partner.DescribeGlobalSObjectResult;
 import com.sforce.soap.partner.DescribeSObjectResult;
+import com.sforce.soap.partner.GetUserInfoResult;
 import com.sforce.soap.partner.PartnerConnection;
-import com.sforce.soap.partner.SessionHeader_element;
+import com.sforce.soap.partner.fault.ExceptionCode;
+import com.sforce.soap.partner.fault.UnexpectedErrorFault;
 import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.SessionRenewer;
@@ -60,6 +66,20 @@ public class SalesforceSourceOrSink implements SourceOrSink {
     protected SalesforceProvideConnectionProperties properties;
 
     protected static final String KEY_CONNECTION = "Connection";
+
+    protected static final String SESSION_ID = "SESSION_ID";
+
+    protected static final String SERVICE_ENDPOINT = "SERVICE_ENDPOINT";
+
+    protected static final String MAX_VALID_SECONDS = "MAX_VALID_SECONDS";
+
+    protected static final String SESSION_FILE_PREFX = "sessionIDFile_";
+
+    private String sessionFilePath;
+
+    private String sessionId;
+
+    private String serviceEndPoint;
 
     @Override
     public ValidationResult initialize(RuntimeContainer container, ComponentProperties properties) {
@@ -128,18 +148,30 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         }
     }
 
-    protected PartnerConnection doConnection(ConnectorConfig config) throws ConnectionException {
-        SalesforceConnectionProperties connProps = properties.getConnectionProperties();
-        String endpoint = connProps.endpoint.getStringValue();
-        endpoint = StringUtils.strip(endpoint, "\"");
-        if (SalesforceConnectionProperties.LoginType.OAuth.equals(connProps.loginType.getValue())) {
-            SalesforceOAuthConnection oauthConnection = new SalesforceOAuthConnection(connProps.oauth, endpoint, API_VERSION);
-            oauthConnection.login(config);
+    protected PartnerConnection doConnection(ConnectorConfig config, boolean openNewSession) throws ConnectionException {
+        if (!openNewSession) {
+            config.setSessionId(this.sessionId);
+            config.setServiceEndpoint(this.serviceEndPoint);
         } else {
-            config.setAuthEndpoint(endpoint);
+            SalesforceConnectionProperties connProps = properties.getConnectionProperties();
+            String endpoint = connProps.endpoint.getStringValue();
+            endpoint = StringUtils.strip(endpoint, "\"");
+            if (SalesforceConnectionProperties.LoginType.OAuth.equals(connProps.loginType.getValue())) {
+                SalesforceOAuthConnection oauthConnection = new SalesforceOAuthConnection(connProps.oauth, endpoint, API_VERSION);
+                oauthConnection.login(config);
+            } else {
+                config.setAuthEndpoint(endpoint);
+            }
+            // config.setServiceEndpoint(null);
         }
-        PartnerConnection connection;
-        connection = new PartnerConnection(config);
+        PartnerConnection connection = new PartnerConnection(config);
+        if (openNewSession && isReuseSession()) {
+            this.sessionId = config.getSessionId();
+            this.serviceEndPoint = config.getServiceEndpoint();
+            if (this.sessionId != null && this.serviceEndPoint != null) {
+                setupSessionProperties(connection);
+            }
+        }
         return connection;
     }
 
@@ -198,14 +230,13 @@ public class SalesforceSourceOrSink implements SourceOrSink {
             public SessionRenewalHeader renewSession(ConnectorConfig connectorConfig) throws ConnectionException {
                 SessionRenewalHeader header = new SessionRenewalHeader();
                 // FIXME - session id need to be null for trigger the login?
-                // connectorConfig.setSessionId(null);
-                doConnection(connectorConfig);
+                connectorConfig.setSessionId(null);
+                ch.connection = doConnection(connectorConfig, true);
 
-                SessionHeader_element h = ch.connection.getSessionHeader();
                 // FIXME - one or the other, I have seen both
                 // header.name = new QName("urn:partner.soap.sforce.com", "X-SFDC-Session");
                 header.name = new QName("urn:partner.soap.sforce.com", "SessionHeader");
-                header.headerElement = h.getSessionId();
+                header.headerElement = ch.connection.getSessionHeader();
                 return header;
             }
         });
@@ -221,7 +252,20 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         config.setValidateSchema(false);
 
         try {
-            ch.connection = doConnection(config);
+            // Get session from session file or get from server sid
+            if (isReuseSession()) {
+                Properties properties = getSessionProperties();
+                if (properties != null) {
+                    this.sessionId = properties.getProperty(SESSION_ID);
+                    this.serviceEndPoint = properties.getProperty(SERVICE_ENDPOINT);
+                }
+            }
+            if (this.sessionId != null && this.serviceEndPoint != null) {
+                ch.connection = doConnection(config, false);
+            } else {
+                ch.connection = doConnection(config, true);
+            }
+
             if (ch.connection != null) {
                 String clientId = connProps.clientId.getStringValue();
                 if (clientId != null) {
@@ -354,8 +398,102 @@ public class SalesforceSourceOrSink implements SourceOrSink {
     }
 
     protected void renewSession(ConnectorConfig config) throws ConnectionException {
+        LOG.debug("renewing session...");
         SessionRenewer renewer = config.getSessionRenewer();
         renewer.renewSession(config);
+        LOG.debug("session renewed!");
+    }
+
+    /**
+     * Get the session properties instance
+     * 
+     * @return session properties
+     * @throws ConnectionException connection disable during get user information
+     */
+    protected Properties getSessionProperties() throws ConnectionException {
+        File sessionFile = new java.io.File(sessionFilePath);
+        try {
+            if (sessionFile.exists()) {
+                FileInputStream sessionInput = new FileInputStream(sessionFile);
+                try {
+                    Properties sessionProp = new Properties();
+                    sessionProp.load(sessionInput);
+                    int maxValidSeconds = Integer.valueOf(sessionProp.getProperty(MAX_VALID_SECONDS));
+                    // Check whether the session is timeout
+                    if (maxValidSeconds > ((System.currentTimeMillis() - sessionFile.lastModified()) / 1000)) {
+                        return sessionProp;
+                    }
+                } finally {
+                    sessionInput.close();
+                }
+            }
+        } catch (IOException e) {
+            throw new ConnectionException("Reuse session fails!", e);
+        }
+        return null;
+    }
+
+    /**
+     * Save session to target file
+     * 
+     * @param connection which you want to saved information
+     * @throws IOException error during create or write session file
+     * @throws ConnectionException connection disable during get user information
+     */
+    protected void setupSessionProperties(PartnerConnection connection) throws ConnectionException {
+        try {
+            GetUserInfoResult result = getUserInfo(connection);
+            File sessionFile = new java.io.File(sessionFilePath);
+            if (!sessionFile.exists()) {
+                File parentPath = sessionFile.getParentFile();
+                if (!parentPath.exists()) {
+                    parentPath.mkdirs();
+                }
+                sessionFile.createNewFile();
+            }
+            FileOutputStream sessionOutput = null;
+            sessionOutput = new FileOutputStream(sessionFile);
+            Properties sessionProp = new Properties();
+            sessionProp.setProperty(SESSION_ID, sessionId);
+            sessionProp.setProperty(SERVICE_ENDPOINT, serviceEndPoint);
+            sessionProp.setProperty(MAX_VALID_SECONDS, String.valueOf(result.getSessionSecondsValid()));
+            try {
+                sessionProp.store(sessionOutput, null);
+            } finally {
+                sessionOutput.close();
+            }
+        } catch (IOException e) {
+            throw new ConnectionException("Reuse session fails!", e);
+        }
+    }
+
+    /**
+     * Get user information to get session max valid seconds which set on server side
+     */
+    protected GetUserInfoResult getUserInfo(PartnerConnection connection) throws ConnectionException {
+        try {
+            return connection.getUserInfo();
+        } catch (UnexpectedErrorFault fault) {
+            // Seesion maybe disable when call "getUserInfo()"
+            if (ExceptionCode.INVALID_SESSION_ID == fault.getExceptionCode()) {
+                LOG.debug("session is valid. Would renew session");
+                renewSession(connection.getConfig());
+                return getUserInfo(connection);
+            }
+            throw fault;
+        }
+    }
+
+    /**
+     * Whether reuse session available
+     */
+    protected boolean isReuseSession() {
+        SalesforceConnectionProperties connectionProperties = properties.getConnectionProperties();
+        sessionFilePath = connectionProperties.sessionDirectory.getValue() + "/" + SESSION_FILE_PREFX
+                + connectionProperties.userPassword.userId.getValue();
+        return (connectionProperties.getReferencedComponentId() == null)
+                && (SalesforceConnectionProperties.LoginType.Basic == connectionProperties.loginType.getValue())
+                && connectionProperties.reuseSession.getValue() && !StringUtils.isEmpty(sessionFilePath);
     }
 
 }
