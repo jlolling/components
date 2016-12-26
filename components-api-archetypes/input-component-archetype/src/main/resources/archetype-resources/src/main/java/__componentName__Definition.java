@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2016 Talend Inc. - www.talend.com
@@ -16,32 +15,26 @@
 // ============================================================================
 package ${package};
 
-import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.talend.components.api.Constants;
 import org.talend.components.api.component.AbstractComponentDefinition;
-import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.daikon.runtime.RuntimeInfo;
 import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
-import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
-
-import aQute.bnd.annotation.component.Component;
 
 /**
  * The ${componentName}Definition acts as an entry point for all of services that 
- * a component provides to integrate with the Studio (at design-time) and other 
+ * a component provides to integrate with the Platform (at design-time) and other 
  * components (at run-time).
  */
 public class ${componentName}Definition extends AbstractComponentDefinition {
+	
     public static final String COMPONENT_NAME = "${componentName}"; //$NON-NLS-1$
 
     public ${componentName}Definition() {
@@ -75,13 +68,10 @@ public class ${componentName}Definition extends AbstractComponentDefinition {
 
     
     @Override
-    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties, ConnectorTopology componentType) {
+    public RuntimeInfo getRuntimeInfo(ExecutionEngine engine, ComponentProperties properties, ConnectorTopology connectorTopology) {
         assertEngineCompatibility(engine);
-        if (componentType == ConnectorTopology.OUTGOING) {
-            return new SimpleRuntimeInfo(this.getClass().getClassLoader(), DependenciesReader.computeDependenciesFilePath("${groupId}", "${artifactId}"), ${componentName}Source.class.getCanonicalName());
-        } else {
-            return null;
-        }
+		assertConnectorTopologyCompatibility(connectorTopology);
+        return new SimpleRuntimeInfo(this.getClass().getClassLoader(), DependenciesReader.computeDependenciesFilePath("${groupId}", "${artifactId}"), ${componentName}Source.class.getCanonicalName());
     }
 
     @Override
