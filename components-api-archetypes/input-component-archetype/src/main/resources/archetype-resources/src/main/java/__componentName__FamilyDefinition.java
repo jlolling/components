@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2016 Talend Inc. - www.talend.com
@@ -16,16 +15,9 @@
 // ============================================================================
 package ${package};
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
-import org.talend.components.api.component.ComponentDefinition;
-import org.talend.components.api.wizard.ComponentWizardDefinition;
-import org.talend.daikon.i18n.I18nMessages;
 
 import aQute.bnd.annotation.component.Component;
 
@@ -39,7 +31,6 @@ public class ${componentName}FamilyDefinition extends AbstractComponentFamilyDef
 
     public ${componentName}FamilyDefinition() {
         super(NAME, new ${componentName}Definition());
-
     }
 
     @Override
