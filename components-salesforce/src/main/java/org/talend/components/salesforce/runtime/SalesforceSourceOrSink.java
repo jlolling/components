@@ -128,6 +128,10 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         ConnectorConfig bulkConfig = new ConnectorConfig();
         setProxy(bulkConfig);
         bulkConfig.setSessionId(config.getSessionId());
+        // For session renew
+        bulkConfig.setSessionRenewer(config.getSessionRenewer());
+        bulkConfig.setUsername(config.getUsername());
+        bulkConfig.setPassword(config.getPassword());
         /*
          * The endpoint for the Bulk API service is the same as for the normal SOAP uri until the /Soap/ part. From here
          * it's '/async/versionNumber'
@@ -228,12 +232,9 @@ public class SalesforceSourceOrSink implements SourceOrSink {
             public SessionRenewalHeader renewSession(ConnectorConfig connectorConfig) throws ConnectionException {
                 LOG.debug("renewing session...");
                 SessionRenewalHeader header = new SessionRenewalHeader();
-                // FIXME - session id need to be null for trigger the login?
                 connectorConfig.setSessionId(null);
                 ch.connection = doConnection(connectorConfig, true);
 
-                // FIXME - one or the other, I have seen both
-                // header.name = new QName("urn:partner.soap.sforce.com", "X-SFDC-Session");
                 header.name = new QName("urn:partner.soap.sforce.com", "SessionHeader");
                 header.headerElement = ch.connection.getSessionHeader();
                 LOG.debug("session renewed!");
@@ -397,7 +398,12 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         }
     }
 
+    /**
+     * This is for Buck connection session renew
+     * PartnerConnection would call renew method automatically
+     */
     protected void renewSession(ConnectorConfig config) throws ConnectionException {
+        LOG.debug("renew session bulk connection");
         SessionRenewer renewer = config.getSessionRenewer();
         renewer.renewSession(config);
     }

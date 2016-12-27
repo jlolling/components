@@ -117,12 +117,42 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
 
     }
 
+    @Test
+    public void testBulkSessionRenew() throws Throwable {
+
+        TSalesforceInputProperties props = (TSalesforceInputProperties) new TSalesforceInputProperties("foo").init(); //$NON-NLS-1$
+        props.module.moduleName.setValue(EXISTING_MODULE_NAME);
+        props.module.main.schema.setValue(getMakeRowSchema(false));
+        props.connection = setupProps(null, !ADD_QUOTES);
+
+        // setup session function
+        props.connection.bulkConnection.setValue(true);
+        props.queryMode.setValue(TSalesforceInputProperties.QueryMode.Bulk);
+
+        // Init session
+        assertEquals(ValidationResult.Result.OK, testConnection(props).getStatus());
+        // invalidSession(props.connection);
+
+        List<IndexedRecord> records = readRows(props);
+        assertNotNull(records);
+        LOGGER.debug("current records number in module " + EXISTING_MODULE_NAME + ": " + records.size());
+        assertNotEquals(0, records.size());
+    }
+
     protected ValidationResult testConnection(ComponentProperties props) {
         SalesforceSourceOrSink sourceOrSink = new SalesforceSourceOrSink();
         sourceOrSink.initialize(null, props);
         ValidationResult result = sourceOrSink.validate(null);
         LOGGER.debug(result.toString());
         return result;
+    }
+
+    protected void invalidSession(ComponentProperties props) throws Throwable {
+        SalesforceSourceOrSink sourceOrSink = new SalesforceSourceOrSink();
+        sourceOrSink.initialize(null, props);
+        SalesforceSourceOrSink.ConnectionHolder connectionHolder = sourceOrSink.connect(null);
+        assertNotNull(connectionHolder.connection);
+        connectionHolder.connection.logout();
     }
 
     protected void invalidSessionFile(SalesforceConnectionProperties connectionProperties) throws Throwable {
