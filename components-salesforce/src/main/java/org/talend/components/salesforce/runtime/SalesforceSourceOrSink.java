@@ -233,11 +233,13 @@ public class SalesforceSourceOrSink implements SourceOrSink {
                 LOG.debug("renewing session...");
                 SessionRenewalHeader header = new SessionRenewalHeader();
                 connectorConfig.setSessionId(null);
-                ch.connection = doConnection(connectorConfig, true);
+                PartnerConnection connection = doConnection(connectorConfig, true);
+                // update the connection session header
+                ch.connection.setSessionHeader(connection.getSessionHeader().getSessionId());
 
                 header.name = new QName("urn:partner.soap.sforce.com", "SessionHeader");
-                header.headerElement = ch.connection.getSessionHeader();
-                LOG.debug("session renewed!");
+                header.headerElement = connection.getSessionHeader();
+                LOG.debug("session renewed: " + connection.getSessionHeader().getSessionId());
                 return header;
             }
         });

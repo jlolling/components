@@ -105,6 +105,10 @@ public class SalesforceBulkRuntime {
         }
     }
 
+    public BulkConnection getBulkConnection() {
+        return bulkConnection;
+    }
+
     private void setBulkOperation(String sObjectType, OutputAction userOperation, String externalIdFieldName,
             String contentTypeStr, String bulkFileName, int maxBytes, int maxRows) {
         this.sObjectType = sObjectType;
