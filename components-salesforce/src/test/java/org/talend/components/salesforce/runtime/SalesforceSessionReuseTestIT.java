@@ -20,12 +20,20 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.BoundedReader;
+import org.talend.components.api.container.DefaultComponentRuntimeContainerImpl;
+import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
+import org.talend.components.api.test.ComponentTestUtils;
 import org.talend.components.salesforce.SalesforceConnectionProperties;
 import org.talend.components.salesforce.test.SalesforceTestBase;
+import org.talend.components.salesforce.tsalesforceconnection.TSalesforceConnectionDefinition;
+import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputDefinition;
 import org.talend.components.salesforce.tsalesforceinput.TSalesforceInputProperties;
 import org.talend.components.salesforce.tsalesforceoutput.TSalesforceOutputProperties;
 import org.talend.daikon.properties.ValidationResult;
+import org.talend.daikon.properties.presentation.Form;
+import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.test.PropertiesTestUtils;
 
 import com.sforce.soap.partner.fault.ExceptionCode;
 import com.sforce.soap.partner.fault.LoginFault;
@@ -57,6 +65,73 @@ public class SalesforceSessionReuseTestIT extends SalesforceTestBase {
         // Set wrong pwd to test reuse session from session folder
         props.userPassword.password.setValue("WRONG_PASSWORD");
         assertEquals(ValidationResult.Result.OK, testConnection(props).getStatus());
+
+    }
+
+    @Test
+    public void testUseExistingConnection() throws Throwable {
+        File sessionFolder = new File(tempFolder.getRoot().getPath() + "/tsalesforceconnection_1/");
+        assertEquals(0, sessionFolder.getTotalSpace());
+        LOGGER.debug("session folder: " + sessionFolder.getAbsolutePath());
+        SalesforceConnectionProperties connProps = (SalesforceConnectionProperties) getComponentService()
+                .getComponentProperties(TSalesforceConnectionDefinition.COMPONENT_NAME);
+        setupProps(connProps, !ADD_QUOTES);
+        // setup session function
+        connProps.reuseSession.setValue(true);
+        connProps.sessionDirectory.setValue(sessionFolder.getAbsolutePath());
+
+        final String currentComponentName = TSalesforceConnectionDefinition.COMPONENT_NAME + "_1";
+        RuntimeContainer connContainer = new DefaultComponentRuntimeContainerImpl() {
+
+            @Override
+            public String getCurrentComponentId() {
+                return currentComponentName;
+            }
+        };
+        // 1. salesforce connection would save the session to a session file
+        SalesforceSourceOrSink salesforceSourceOrSink = new SalesforceSourceOrSink();
+        salesforceSourceOrSink.initialize(connContainer, connProps);
+        assertEquals(ValidationResult.Result.OK, salesforceSourceOrSink.validate(connContainer).getStatus());
+
+        // 2. set a wrong pwd to connection properties
+        connProps.userPassword.password.setValue("WRONG_PWD");
+
+        // Input component get connection from the tSalesforceConnection
+        TSalesforceInputProperties inProps = (TSalesforceInputProperties) getComponentService()
+                .getComponentProperties(TSalesforceInputDefinition.COMPONENT_NAME);
+        inProps.connection.referencedComponent.componentInstanceId.setValue(currentComponentName);
+        inProps.connection.referencedComponent.componentProperties = connProps;
+        checkAndAfter(inProps.connection.getForm(Form.REFERENCE), "referencedComponent", inProps.connection);
+
+        ComponentTestUtils.checkSerialize(inProps, errorCollector);
+
+        assertEquals(2, inProps.getForms().size());
+        Form f = inProps.module.getForm(Form.REFERENCE);
+        assertTrue(f.getWidget("moduleName").isCallBeforeActivate());
+        ComponentProperties moduleProps = (ComponentProperties) f.getProperties();
+        // 3. input components would be get connection from connection session file
+        moduleProps = (ComponentProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f, "moduleName",
+                moduleProps);
+        Property prop = (Property) f.getWidget("moduleName").getContent();
+        assertTrue(prop.getPossibleValues().size() > 100);
+        assertEquals(ValidationResult.Result.OK, moduleProps.getValidationResult().getStatus());
+        LOGGER.debug(moduleProps.getValidationResult().toString());
+
+        // 4. invalid the session, then the session should be renew based on reference connection information(wrong pwd)
+        // connect would be fail
+        invalidSession(inProps.connection, null);
+
+        moduleProps = (ComponentProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f, "moduleName",
+                moduleProps);
+        assertEquals(ValidationResult.Result.ERROR, moduleProps.getValidationResult().getStatus());
+        LOGGER.debug(moduleProps.getValidationResult().toString());
+
+        // 5.set correct pwd back
+        setupProps(connProps, !ADD_QUOTES);
+        moduleProps = (ComponentProperties) PropertiesTestUtils.checkAndBeforeActivate(getComponentService(), f, "moduleName",
+                moduleProps);
+        assertEquals(ValidationResult.Result.OK, moduleProps.getValidationResult().getStatus());
+        LOGGER.debug(moduleProps.getValidationResult().toString());
 
     }
 

@@ -115,12 +115,19 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         }
     }
 
+    /**
+     * If referenceComponentId is not null, it should return the reference connection properties
+     */
     public SalesforceConnectionProperties getConnectionProperties() {
-        return properties.getConnectionProperties();
+        SalesforceConnectionProperties connectionProperties = properties.getConnectionProperties();
+        if (connectionProperties.getReferencedComponentId() != null) {
+            connectionProperties = connectionProperties.getReferencedConnectionProperties();
+        }
+        return connectionProperties;
     }
 
     protected BulkConnection connectBulk(ConnectorConfig config) throws ComponentException {
-        final SalesforceConnectionProperties connProps = properties.getConnectionProperties();
+        final SalesforceConnectionProperties connProps = getConnectionProperties();
         /*
          * When PartnerConnection is instantiated, a login is implicitly executed and, if successful, a valid session is
          * stored in the ConnectorConfig instance. Use this key to initialize a BulkConnection:
@@ -155,7 +162,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
             config.setSessionId(this.sessionId);
             config.setServiceEndpoint(this.serviceEndPoint);
         } else {
-            SalesforceConnectionProperties connProps = properties.getConnectionProperties();
+            SalesforceConnectionProperties connProps = getConnectionProperties();
             String endpoint = connProps.endpoint.getStringValue();
             endpoint = StringUtils.strip(endpoint, "\"");
             if (SalesforceConnectionProperties.LoginType.OAuth.equals(connProps.loginType.getValue())) {
@@ -477,11 +484,10 @@ public class SalesforceSourceOrSink implements SourceOrSink {
      * Whether reuse session available
      */
     protected boolean isReuseSession() {
-        SalesforceConnectionProperties connectionProperties = properties.getConnectionProperties();
+        SalesforceConnectionProperties connectionProperties = getConnectionProperties();
         sessionFilePath = connectionProperties.sessionDirectory.getValue() + "/" + SESSION_FILE_PREFX
                 + connectionProperties.userPassword.userId.getValue();
-        return (connectionProperties.getReferencedComponentId() == null)
-                && (SalesforceConnectionProperties.LoginType.Basic == connectionProperties.loginType.getValue())
+        return (SalesforceConnectionProperties.LoginType.Basic == connectionProperties.loginType.getValue())
                 && connectionProperties.reuseSession.getValue() && !StringUtils.isEmpty(sessionFilePath);
     }
 
