@@ -157,6 +157,13 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         }
     }
 
+    /**
+     * Create a connection with specified connector configuration
+     * @param config connector configuration with endpoint/userId/password
+     * @param openNewSession whether need to create new session
+     * @return PartnerConnection object with correct session id
+     * @throws ConnectionException create connection fails
+     */
     protected PartnerConnection doConnection(ConnectorConfig config, boolean openNewSession) throws ConnectionException {
         if (!openNewSession) {
             config.setSessionId(this.sessionId);
@@ -171,13 +178,13 @@ public class SalesforceSourceOrSink implements SourceOrSink {
             } else {
                 config.setAuthEndpoint(endpoint);
             }
-            // config.setServiceEndpoint(null);
         }
         PartnerConnection connection = new PartnerConnection(config);
         if (openNewSession && isReuseSession()) {
             this.sessionId = config.getSessionId();
             this.serviceEndPoint = config.getServiceEndpoint();
             if (this.sessionId != null && this.serviceEndPoint != null) {
+                //update session file with current sessionId/serviceEndPoint
                 setupSessionProperties(connection);
             }
         }
@@ -246,7 +253,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
 
                 header.name = new QName("urn:partner.soap.sforce.com", "SessionHeader");
                 header.headerElement = connection.getSessionHeader();
-                LOG.debug("session renewed: " + connection.getSessionHeader().getSessionId());
+                LOG.debug("session renewed!");
                 return header;
             }
         });
@@ -262,7 +269,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
         config.setValidateSchema(false);
 
         try {
-            // Get session from session file or get from server sid
+            // Get session from session file or new connection
             if (isReuseSession()) {
                 Properties properties = getSessionProperties();
                 if (properties != null) {
@@ -409,7 +416,7 @@ public class SalesforceSourceOrSink implements SourceOrSink {
 
     /**
      * This is for Buck connection session renew
-     * PartnerConnection would call renew method automatically
+     * It can't called automatically with current force-wsc api
      */
     protected void renewSession(ConnectorConfig config) throws ConnectionException {
         LOG.debug("renew session bulk connection");

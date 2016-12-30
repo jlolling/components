@@ -46,7 +46,9 @@ public class SalesforceBulkQueryInputReader extends SalesforceReader<IndexedReco
     @Override
     public boolean start() throws IOException {
         try {
-            bulkRuntime = new SalesforceBulkRuntime((SalesforceSource) getCurrentSource(), container);
+            if (bulkRuntime == null) {
+                bulkRuntime = new SalesforceBulkRuntime((SalesforceSource) getCurrentSource(), container);
+            }
             executeSalesforceBulkQuery();
             bulkResultSet = bulkRuntime.getQueryResultSet(bulkRuntime.nextResultId());
             currentRecord = bulkResultSet.next();
@@ -82,7 +84,6 @@ public class SalesforceBulkQueryInputReader extends SalesforceReader<IndexedReco
         return currentRecord;
     }
 
-    // FIXME some duplicate code
     protected void executeSalesforceBulkQuery() throws IOException, ConnectionException {
         String queryText = getQueryString(properties);
         try {

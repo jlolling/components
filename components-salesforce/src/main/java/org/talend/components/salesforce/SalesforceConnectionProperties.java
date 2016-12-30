@@ -130,7 +130,7 @@ public class SalesforceConnectionProperties extends ComponentPropertiesImpl
         advancedForm.addRow(endpoint);
         advancedForm.addRow(bulkConnection);
         advancedForm.addRow(reuseSession);
-        advancedForm.addRow(widget(sessionDirectory).setWidgetType(Widget.FILE_WIDGET_TYPE));
+        advancedForm.addRow(widget(sessionDirectory).setWidgetType(Widget.DIRECTORY_WIDGET_TYPE));
         advancedForm.addRow(needCompression);
         advancedForm.addRow(httpTraceMessage);
         advancedForm.addRow(httpChunked);
