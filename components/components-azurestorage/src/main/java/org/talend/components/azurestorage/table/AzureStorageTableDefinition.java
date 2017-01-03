@@ -66,4 +66,10 @@ public abstract class AzureStorageTableDefinition extends AzureStorageDefinition
         }
     }
 
+    @Override
+    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
+        return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
+                new Class[] { AzureStorageTableProperties.class });
+    }
+
 }

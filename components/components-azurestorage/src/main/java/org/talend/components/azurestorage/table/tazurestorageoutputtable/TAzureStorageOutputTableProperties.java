@@ -19,11 +19,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.avro.Schema;
-import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.ISchemaListener;
 import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.azurestorage.table.AzureStorageTableProperties;
-import org.talend.components.common.SchemaProperties;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
@@ -53,14 +51,6 @@ public class TAzureStorageOutputTableProperties extends AzureStorageTablePropert
     public Property<ActionOnData> actionOnData = PropertyFactory.newEnum("actionOnData", ActionOnData.class);
 
     public Property<ActionOnTable> actionOnTable = PropertyFactory.newEnum("actionOnTable", ActionOnTable.class);
-
-    protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
-
-    protected transient PropertyPathConnector REJECT_CONNECTOR = new PropertyPathConnector(Connector.REJECT_NAME, "schemaReject");
-
-    public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow"); //$NON-NLS-1$
-
-    public SchemaProperties schemaReject = new SchemaProperties("schemaReject"); //$NON-NLS-1$
 
     public Property<Boolean> processOperationInBatch = PropertyFactory.newBoolean("processOperationInBatch");
 

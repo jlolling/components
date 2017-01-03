@@ -48,6 +48,7 @@ public class FilterExpressionTableTest {
     }
 
     public void setTableVals() {
+        fet.setupProperties();
         fet.column.setValue(columns);
         fet.function.setValue(functions);
         fet.operand.setValue(values);
@@ -57,11 +58,13 @@ public class FilterExpressionTableTest {
     @SuppressWarnings("unchecked")
     @Test
     public void testGetPossibleValues() {
+        fet.setupProperties();
         assertThat((List<Comparison>) fet.function.getPossibleValues(), contains(Comparison.EQUAL, Comparison.NOT_EQUAL,
                 Comparison.GREATER_THAN, Comparison.GREATER_THAN_OR_EQUAL, Comparison.LESS_THAN, Comparison.LESS_THAN_OR_EQUAL));
         assertThat((List<Predicate>) fet.predicate.getPossibleValues(), contains(Predicate.AND, Predicate.OR, Predicate.NOT));
         fet.function.setStoredValue(Arrays.asList("GREATER_THAN", "EQUAL", "LESS_THAN"));
-        assertEquals(Arrays.asList(Comparison.GREATER_THAN, Comparison.EQUAL, Comparison.LESS_THAN), fet.function.getValue());
+        assertEquals(Arrays.asList(Comparison.GREATER_THAN, Comparison.EQUAL, Comparison.LESS_THAN).toString(),
+                fet.function.getValue().toString());
 
         fet.function.setValueEvaluator(new PropertyValueEvaluator() {
 

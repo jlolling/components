@@ -66,4 +66,10 @@ public abstract class AzureStorageQueueDefinition extends AzureStorageDefinition
         return AzureStorageQueueProperties.class;
     }
 
+    @Override
+    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
+        return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
+                new Class[] { AzureStorageQueueProperties.class });
+    }
+
 }

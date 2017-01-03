@@ -12,9 +12,9 @@
 // ============================================================================
 package org.talend.components.azurestorage.table.helpers;
 
-import static org.talend.daikon.properties.property.PropertyFactory.newEnumList;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.reflect.TypeLiteral;
@@ -22,8 +22,9 @@ import org.talend.components.api.properties.ComponentPropertiesImpl;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.ValidationResult.Result;
 import org.talend.daikon.properties.presentation.Form;
-import org.talend.daikon.properties.property.EnumListProperty;
+import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
+import org.talend.daikon.properties.property.PropertyValueEvaluator;
 
 import com.microsoft.azure.storage.table.TableQuery;
 import com.microsoft.azure.storage.table.TableQuery.Operators;
@@ -59,14 +60,52 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
 
     public Property<List<String>> column = newProperty(LIST_STRING_TYPE, "column"); //$NON-NLS-1$
 
-    public EnumListProperty<Comparison> function = newEnumList("function", LIST_COMPARISON_TYPE);
-
     public Property<List<String>> operand = newProperty(LIST_STRING_TYPE, "operand"); //$NON-NLS-1$
 
-    public EnumListProperty<Predicate> predicate = newEnumList("predicate", LIST_PREDICATE_TYPE);
+    public Property<List<Comparison>> function = newProperty(LIST_COMPARISON_TYPE, "function");
+
+    public Property<List<Predicate>> predicate = newProperty(LIST_PREDICATE_TYPE, "predicate");
+    // public EnumListProperty<Comparison> function = newEnumList("function", LIST_COMPARISON_TYPE);
+    // public EnumListProperty<Predicate> predicate = newEnumList("predicate", LIST_PREDICATE_TYPE);
 
     public FilterExpressionTable(String name) {
         super(name);
+
+        function.setValueEvaluator(new PropertyValueEvaluator() {
+
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @Override
+            public <T> T evaluate(Property<T> property, Object storedValue) {
+                System.out.println("property: " + property + " storedValue: " + storedValue);
+                List convertedValues = new ArrayList();
+                List values = (List) storedValue;
+                for (Object value : values) {
+                    System.out.println("value: " + value);
+                    if (value instanceof Comparison)
+                        convertedValues.add(value);
+                    else
+                        convertedValues.add(Comparison.valueOf((String) value));
+                }
+                return (T) convertedValues;
+            }
+        });
+
+        predicate.setValueEvaluator(new PropertyValueEvaluator() {
+
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            @Override
+            public <T> T evaluate(Property<T> property, Object storedValue) {
+                List convertedValues = new ArrayList();
+                List values = (List) storedValue;
+                for (Object value : values) {
+                    if (value instanceof Predicate)
+                        convertedValues.add(value);
+                    else
+                        convertedValues.add(Predicate.valueOf((String) value));
+                }
+                return (T) convertedValues;
+            }
+        });
     }
 
     @Override
@@ -79,9 +118,9 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
     public void setupLayout() {
         Form mainForm = new Form(this, Form.MAIN);
         mainForm.addColumn(column);
-        mainForm.addColumn(function);
+        mainForm.addColumn(Widget.widget(function).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(operand);
-        mainForm.addColumn(predicate);
+        mainForm.addColumn(Widget.widget(predicate).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
     }
 
     @Override
@@ -157,9 +196,14 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         String filter = "";
         for (int idx = 0; idx < column.getValue().size(); idx++) {
             String c = column.getValue().get(idx);
-            String f = getComparison(function.getValue().get(idx));
+            Object _t = function.getValue().get(idx);
+            Comparison cfn = _t instanceof String ? Comparison.valueOf(_t.toString()) : (Comparison) _t;
+            _t = predicate.getValue().get(idx);
+            Predicate cop = _t instanceof String ? Predicate.valueOf(_t.toString()) : (Predicate) _t;
+
+            String f = getComparison(cfn);
             String v = operand.getValue().get(idx);
-            String p = getOperator(predicate.getValue().get(idx));
+            String p = getOperator(cop);
 
             String flt = TableQuery.generateFilterCondition(c, f, v);
 

@@ -17,7 +17,7 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public abstract class AzureStorageContainerProperties extends AzureStorageProperties {
+public class AzureStorageContainerProperties extends AzureStorageProperties {
 
     private static final long serialVersionUID = 2687440470676027837L;
 

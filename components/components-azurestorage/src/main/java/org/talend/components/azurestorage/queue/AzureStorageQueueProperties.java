@@ -25,7 +25,7 @@ import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
 
-public abstract class AzureStorageQueueProperties extends FixedConnectorsComponentProperties
+public class AzureStorageQueueProperties extends FixedConnectorsComponentProperties
         implements AzureStorageProvideConnectionProperties {
 
     private static final long serialVersionUID = 858597956478343860L;

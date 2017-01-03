@@ -15,20 +15,29 @@ package org.talend.components.azurestorage.table.runtime;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.avro.Schema;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
 import org.talend.components.azurestorage.table.AzureStorageTableProperties;
+import org.talend.components.azurestorage.table.avro.AzureStorageAvroRegistry;
+import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
+import com.microsoft.azure.storage.table.DynamicTableEntity;
+import com.microsoft.azure.storage.table.TableQuery;
 
 public class AzureStorageTableSourceOrSink extends AzureStorageSourceOrSink implements SourceOrSink {
 
@@ -41,6 +50,8 @@ public class AzureStorageTableSourceOrSink extends AzureStorageSourceOrSink impl
     private static final long serialVersionUID = 5588144102302302129L;
 
     private final Pattern tableCheckNamePattern = Pattern.compile("^[A-Za-z][A-Za-z0-9]{2,62}$");
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageTableSourceOrSink.class);
 
     @Override
     public ValidationResult validate(RuntimeContainer container) {
@@ -65,14 +76,50 @@ public class AzureStorageTableSourceOrSink extends AzureStorageSourceOrSink impl
         return ValidationResult.OK;
     }
 
+    public static List<NamedThing> getSchemaNames(RuntimeContainer container, TAzureStorageConnectionProperties properties)
+            throws IOException {
+        AzureStorageTableSourceOrSink sos = new AzureStorageTableSourceOrSink();
+        sos.initialize(container, properties);
+        return sos.getSchemaNames(container);
+    }
+
     @Override
     public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        return null;
+        List<NamedThing> result = new ArrayList<>();
+        try {
+            CloudTableClient client = getStorageTableClient(container);
+            for (String t : client.listTables()) {
+                result.add(new SimpleNamedThing(t, t));
+            }
+        } catch (InvalidKeyException | URISyntaxException e) {
+            LOGGER.error(e.getLocalizedMessage());
+            throw new ComponentException(e);
+        }
+        return result;
+    }
+
+    public static Schema getSchema(RuntimeContainer container, TAzureStorageConnectionProperties properties, String schemaName)
+            throws IOException {
+        System.out.println(properties.accountName.getValue());
+        AzureStorageTableSourceOrSink sos = new AzureStorageTableSourceOrSink();
+        sos.initialize(container, properties);
+        return sos.getEndpointSchema(container, schemaName);
     }
 
     @Override
     public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
-        return null;
+        CloudTable table;
+        try {
+            table = getStorageTableReference(container, schemaName);
+            TableQuery<DynamicTableEntity> partitionQuery;
+            partitionQuery = TableQuery.from(DynamicTableEntity.class).take(1);
+            Iterable<DynamicTableEntity> entities = table.execute(partitionQuery);
+            DynamicTableEntity result = entities.iterator().next();
+            return AzureStorageAvroRegistry.get().inferSchema(result);
+        } catch (InvalidKeyException | URISyntaxException | StorageException e) {
+            LOGGER.error(e.getLocalizedMessage());
+            throw new ComponentException(e);
+        }
     }
 
     public CloudTableClient getStorageTableClient(RuntimeContainer runtime) throws InvalidKeyException, URISyntaxException {

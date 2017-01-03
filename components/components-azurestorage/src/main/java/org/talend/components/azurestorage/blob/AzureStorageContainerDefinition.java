@@ -56,4 +56,11 @@ public abstract class AzureStorageContainerDefinition extends AzureStorageDefini
             return null;
         }
     }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Class<? extends ComponentProperties>[] getNestedCompatibleComponentPropertiesClass() {
+        return concatPropertiesClasses(super.getNestedCompatibleComponentPropertiesClass(),
+                new Class[] { AzureStorageContainerProperties.class });
+    }
 }

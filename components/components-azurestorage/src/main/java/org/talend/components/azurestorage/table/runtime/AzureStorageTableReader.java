@@ -93,7 +93,10 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
         String tableName = properties.tableName.getValue();
         String filter = "";
         if (properties.useFilterExpression.getValue())
-            filter = properties.combinedFilter.getValue();
+            filter = properties.filterExpression.getCombinedFilterConditions();
+
+        System.out.println("Filter : " + filter);
+
         try {
             CloudTable table = ((AzureStorageTableSource) getCurrentSource()).getStorageTableReference(runtime, tableName);
             TableQuery<DynamicTableEntity> partitionQuery;

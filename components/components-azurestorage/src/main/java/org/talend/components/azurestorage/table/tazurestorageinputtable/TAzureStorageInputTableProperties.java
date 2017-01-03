@@ -38,7 +38,7 @@ public class TAzureStorageInputTableProperties extends AzureStorageTableProperti
 
     public FilterExpressionTable filterExpression = new FilterExpressionTable("filterExpression");
 
-    public Property<String> combinedFilter = PropertyFactory.newString("combinedFilter");
+    // public Property<String> combinedFilter = PropertyFactory.newString("combinedFilter");
 
     public TAzureStorageInputTableProperties(String name) {
         super(name);
@@ -58,8 +58,8 @@ public class TAzureStorageInputTableProperties extends AzureStorageTableProperti
         super.setupProperties();
 
         useFilterExpression.setValue(false);
-        combinedFilter.setValue(
-                "(((PartitionKey eq '12345') and (RowKey gt '12345')) or (Timestamp ge datetime'2016-01-01T00:00:00Z'))");
+        // combinedFilter.setValue("(((PartitionKey eq '12345') and (RowKey gt '12345')) or (Timestamp ge
+        // datetime'2016-01-01T00:00:00Z'))");
         // default Input schema
         Schema s = SchemaBuilder.record("Main").fields()
                 //
@@ -86,7 +86,7 @@ public class TAzureStorageInputTableProperties extends AzureStorageTableProperti
 
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(useFilterExpression);
-        mainForm.addRow(combinedFilter);
+        // mainForm.addRow(combinedFilter);
         // FIXME Table doesn't with List<EnumType> and EnumListProperty...
         mainForm.addRow(widget(filterExpression).setWidgetType(Widget.TABLE_WIDGET_TYPE));
         mainForm.getWidget(filterExpression.getName()).setVisible(false);
@@ -99,7 +99,7 @@ public class TAzureStorageInputTableProperties extends AzureStorageTableProperti
         super.refreshLayout(form);
 
         if (form.getName() == Form.MAIN) {
-            form.getWidget(combinedFilter.getName()).setVisible(useFilterExpression.getValue());
+            // form.getWidget(combinedFilter.getName()).setVisible(useFilterExpression.getValue());
             // FIXME activate when FilterExpressionTable works !
             form.getWidget(filterExpression.getName()).setVisible(useFilterExpression.getValue());
         }

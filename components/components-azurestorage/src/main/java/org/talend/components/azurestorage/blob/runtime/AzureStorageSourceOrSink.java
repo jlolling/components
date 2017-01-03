@@ -15,19 +15,22 @@ package org.talend.components.azurestorage.blob.runtime;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.commons.lang3.StringUtils;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.components.azurestorage.utils.SharedAccessSignatureUtils;
 import org.talend.daikon.NamedThing;
+import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.ValidationResult;
+import org.talend.daikon.properties.ValidationResult.Result;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.StorageCredentials;
@@ -80,9 +83,17 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
         return null;
     }
 
-    @Override
-    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
-        return Collections.emptyList();
+    public static ValidationResult validateConnection(AzureStorageProvideConnectionProperties properties) {
+        ValidationResult vr = new ValidationResult().setStatus(Result.OK);
+        try {
+            AzureStorageSourceOrSink sos = new AzureStorageSourceOrSink();
+            sos.initialize(null, (ComponentProperties) properties);
+            sos.getStorageAccount(null);
+        } catch (InvalidKeyException | URISyntaxException e) {
+            vr.setStatus(Result.ERROR);
+            vr.setMessage(e.getLocalizedMessage());
+        }
+        return vr;
     }
 
     public TAzureStorageConnectionProperties validateConnection(RuntimeContainer container) {
@@ -157,4 +168,26 @@ public class AzureStorageSourceOrSink implements SourceOrSink {
             throws InvalidKeyException, URISyntaxException, StorageException {
         return getServiceClient(container).getContainerReference(storageContainer);
     }
+
+    public static List<NamedThing> getSchemaNames(RuntimeContainer container, TAzureStorageConnectionProperties properties)
+            throws IOException {
+        AzureStorageSourceOrSink sos = new AzureStorageSourceOrSink();
+        sos.initialize(container, properties);
+        return sos.getSchemaNames(container);
+    }
+
+    @Override
+    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
+        List<NamedThing> result = new ArrayList<>();
+        try {
+            CloudBlobClient client = getServiceClient(container);
+            for (CloudBlobContainer c : client.listContainers()) {
+                result.add(new SimpleNamedThing(c.getName(), c.getName()));
+            }
+        } catch (InvalidKeyException | URISyntaxException e) {
+            throw new ComponentException(e);
+        }
+        return result;
+    }
+
 }

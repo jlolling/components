@@ -12,18 +12,26 @@
 // ============================================================================
 package org.talend.components.azurestorage.queue.runtime;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.avro.Schema;
 import org.talend.components.api.component.runtime.SourceOrSink;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
 import org.talend.components.azurestorage.blob.runtime.AzureStorageSourceOrSink;
 import org.talend.components.azurestorage.queue.AzureStorageQueueProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListProperties;
+import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
+import org.talend.daikon.NamedThing;
+import org.talend.daikon.SimpleNamedThing;
 import org.talend.daikon.properties.ValidationResult;
 
 import com.microsoft.azure.storage.StorageException;
@@ -109,6 +117,33 @@ public class AzureStorageQueueSourceOrSink extends AzureStorageSourceOrSink impl
     public CloudQueue getCloudQueue(RuntimeContainer runtime, String queue)
             throws InvalidKeyException, URISyntaxException, StorageException {
         return getStorageQueueClient(runtime).getQueueReference(queue);
+    }
+
+    @Override
+    public Schema getEndpointSchema(RuntimeContainer container, String schemaName) throws IOException {
+        // TODO Auto-generated method stub
+        return super.getEndpointSchema(container, schemaName);
+    }
+
+    public static List<NamedThing> getSchemaNames(RuntimeContainer container, TAzureStorageConnectionProperties properties)
+            throws IOException {
+        AzureStorageQueueSourceOrSink sos = new AzureStorageQueueSourceOrSink();
+        sos.initialize(container, properties);
+        return sos.getSchemaNames(container);
+    }
+
+    @Override
+    public List<NamedThing> getSchemaNames(RuntimeContainer container) throws IOException {
+        List<NamedThing> result = new ArrayList<>();
+        try {
+            CloudQueueClient client = getStorageQueueClient(container);
+            for (CloudQueue q : client.listQueues()) {
+                result.add(new SimpleNamedThing(q.getName(), q.getName()));
+            }
+        } catch (InvalidKeyException | URISyntaxException e) {
+            throw new ComponentException(e);
+        }
+        return result;
     }
 
 }
