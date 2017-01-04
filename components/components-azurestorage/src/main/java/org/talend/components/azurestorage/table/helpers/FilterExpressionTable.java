@@ -26,6 +26,7 @@ import org.talend.daikon.properties.presentation.Widget;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
 
+import com.microsoft.azure.storage.table.EdmType;
 import com.microsoft.azure.storage.table.TableQuery;
 import com.microsoft.azure.storage.table.TableQuery.Operators;
 import com.microsoft.azure.storage.table.TableQuery.QueryComparisons;
@@ -49,6 +50,15 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         NOT
     }
 
+    public enum FieldType {
+        STRING,
+        NUMERIC,
+        DATE,
+        INT64,
+        BINARY,
+        GUID
+    }
+
     public static final TypeLiteral<List<String>> LIST_STRING_TYPE = new TypeLiteral<List<String>>() {
     };
 
@@ -58,6 +68,9 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
     public static final TypeLiteral<List<Predicate>> LIST_PREDICATE_TYPE = new TypeLiteral<List<Predicate>>() {
     };
 
+    public static final TypeLiteral<List<FieldType>> LIST_FIELDTYPE_TYPE = new TypeLiteral<List<FieldType>>() {
+    };
+
     public Property<List<String>> column = newProperty(LIST_STRING_TYPE, "column"); //$NON-NLS-1$
 
     public Property<List<String>> operand = newProperty(LIST_STRING_TYPE, "operand"); //$NON-NLS-1$
@@ -65,6 +78,8 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
     public Property<List<Comparison>> function = newProperty(LIST_COMPARISON_TYPE, "function");
 
     public Property<List<Predicate>> predicate = newProperty(LIST_PREDICATE_TYPE, "predicate");
+
+    public Property<List<FieldType>> fieldType = newProperty(LIST_FIELDTYPE_TYPE, "fieldType");
     // public EnumListProperty<Comparison> function = newEnumList("function", LIST_COMPARISON_TYPE);
     // public EnumListProperty<Predicate> predicate = newEnumList("predicate", LIST_PREDICATE_TYPE);
 
@@ -76,11 +91,9 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
             @SuppressWarnings({ "rawtypes", "unchecked" })
             @Override
             public <T> T evaluate(Property<T> property, Object storedValue) {
-                System.out.println("property: " + property + " storedValue: " + storedValue);
                 List convertedValues = new ArrayList();
                 List values = (List) storedValue;
                 for (Object value : values) {
-                    System.out.println("value: " + value);
                     if (value instanceof Comparison)
                         convertedValues.add(value);
                     else
@@ -112,6 +125,7 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
     public void setupProperties() {
         function.setPossibleValues(Comparison.values());
         predicate.setPossibleValues(Predicate.values());
+        fieldType.setPossibleValues(FieldType.values());
     }
 
     @Override
@@ -121,6 +135,7 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         mainForm.addColumn(Widget.widget(function).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
         mainForm.addColumn(operand);
         mainForm.addColumn(Widget.widget(predicate).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
+        mainForm.addColumn(Widget.widget(fieldType).setWidgetType(Widget.ENUMERATION_WIDGET_TYPE));
     }
 
     @Override
@@ -168,6 +183,28 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         return null;
     }
 
+    public EdmType getType(FieldType ft) {
+        switch (ft) {
+        case STRING:
+            return EdmType.STRING;
+        case NUMERIC:
+            return EdmType.INT32;
+        case INT64:
+            return EdmType.INT64;
+        case DATE:
+            return EdmType.DATE_TIME;
+        case BINARY:
+            return EdmType.BINARY;
+        case GUID:
+            return EdmType.GUID;
+
+        default:
+            break;
+        }
+
+        return null;
+    }
+
     public int size() {
         if (column.getValue() != null && !column.getValue().isEmpty())
             return column.getValue().size();
@@ -194,18 +231,22 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
 
     public String getCombinedFilterConditions() {
         String filter = "";
-        for (int idx = 0; idx < column.getValue().size(); idx++) {
+        for (int idx = 0; idx < size(); idx++) {
             String c = column.getValue().get(idx);
             Object _t = function.getValue().get(idx);
             Comparison cfn = _t instanceof String ? Comparison.valueOf(_t.toString()) : (Comparison) _t;
             _t = predicate.getValue().get(idx);
             Predicate cop = _t instanceof String ? Predicate.valueOf(_t.toString()) : (Predicate) _t;
+            _t = fieldType.getValue().get(idx);
+            FieldType typ = _t instanceof String ? FieldType.valueOf(_t.toString()) : (FieldType) _t;
 
             String f = getComparison(cfn);
             String v = operand.getValue().get(idx);
             String p = getOperator(cop);
 
-            String flt = TableQuery.generateFilterCondition(c, f, v);
+            EdmType t = getType(typ);
+
+            String flt = TableQuery.generateFilterCondition(c, f, v, t);
 
             if (!filter.isEmpty()) {
                 filter = TableQuery.combineFilters(filter, p, flt);

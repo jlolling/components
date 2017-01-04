@@ -17,7 +17,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -29,6 +31,9 @@ import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.Writer;
 import org.talend.components.azurestorage.AzureStorageProvideConnectionProperties;
+import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.Comparison;
+import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.FieldType;
+import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.Predicate;
 import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableProperties;
 import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureStorageOutputTableProperties;
 import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureStorageOutputTableProperties.ActionOnData;
@@ -135,16 +140,27 @@ public class TAzureStorageInputTableTestIT extends AzureStorageTableBaseTestIT {
     @Test
     public void testFilterReader() throws Throwable {
         Date startTest = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+        String sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").format(startTest);
         Thread.sleep(2000);
         String ctable = tbl_test + "InputFilter";
         createSampleDataset(ctable);
 
         properties.tableName.setValue(ctable);
-        String f = String.format("(PartitionKey eq '%s') and (Timestamp gt datetime'%s:00Z')", pk_test1, sdf.format(startTest));
+        // String f = String.format("datetime\'%s:00Z\'", sdf);
+        System.out.println("filter is ... " + sdf);
         // TODO remake the test
-        // properties.combinedFilter.setValue(f);
         properties.useFilterExpression.setValue(true);
+        List<String> cols = Arrays.asList("PartitionKey", "Timestamp");
+        List<String> ops = Arrays.asList(pk_test1, sdf);
+        List<Comparison> funs = Arrays.asList(Comparison.EQUAL, Comparison.GREATER_THAN);
+        List<Predicate> preds = Arrays.asList(Predicate.AND, Predicate.AND);
+        List<FieldType> types = Arrays.asList(FieldType.STRING, FieldType.DATE);
+        properties.filterExpression.column.setValue(cols);
+        properties.filterExpression.function.setValue(funs);
+        properties.filterExpression.operand.setValue(ops);
+        properties.filterExpression.predicate.setValue(preds);
+        properties.filterExpression.fieldType.setValue(types);
+        // properties.combinedFilter.setValue(f);
         properties.schema.schema.setValue(getDynamicSchema());
         BoundedReader reader = createBoundedReader(properties);
         assertTrue(reader.start());

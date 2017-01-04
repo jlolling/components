@@ -23,6 +23,7 @@ import java.util.List;
 import org.junit.Test;
 import org.talend.components.azurestorage.table.AzureStorageTableProperties;
 import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.Comparison;
+import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.FieldType;
 import org.talend.components.azurestorage.table.helpers.FilterExpressionTable.Predicate;
 import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.property.Property;
@@ -38,6 +39,8 @@ public class FilterExpressionTableTest {
 
     List<Predicate> predicates = new ArrayList<>();
 
+    List<FieldType> fieldTypes = new ArrayList<>();
+
     FilterExpressionTable fet = new FilterExpressionTable("tests");
 
     public void clearLists() {
@@ -45,6 +48,7 @@ public class FilterExpressionTableTest {
         values.clear();
         functions.clear();
         predicates.clear();
+        fieldTypes.clear();
     }
 
     public void setTableVals() {
@@ -53,6 +57,7 @@ public class FilterExpressionTableTest {
         fet.function.setValue(functions);
         fet.operand.setValue(values);
         fet.predicate.setValue(predicates);
+        fet.fieldType.setValue(fieldTypes);
     }
 
     @SuppressWarnings("unchecked")
@@ -91,6 +96,7 @@ public class FilterExpressionTableTest {
         functions.add(Comparison.EQUAL);
         values.add("12345");
         predicates.add(Predicate.NOT);
+        fieldTypes.add(FieldType.STRING);
         setTableVals();
         query = fet.getCombinedFilterConditions();
         assertEquals(query, "PartitionKey eq '12345'");
@@ -99,6 +105,7 @@ public class FilterExpressionTableTest {
         functions.add(Comparison.GREATER_THAN);
         values.add("AVID12345");
         predicates.add(Predicate.AND);
+        fieldTypes.add(FieldType.STRING);
         setTableVals();
         query = fet.getCombinedFilterConditions();
         assertEquals(query, "(PartitionKey eq '12345') and (RowKey gt 'AVID12345')");
@@ -107,18 +114,21 @@ public class FilterExpressionTableTest {
         functions.add(Comparison.GREATER_THAN_OR_EQUAL);
         values.add("2016-01-01 00:00:00");
         predicates.add(Predicate.OR);
+        fieldTypes.add(FieldType.DATE);
         setTableVals();
         query = fet.getCombinedFilterConditions();
-        assertEquals(query, "((PartitionKey eq '12345') and (RowKey gt 'AVID12345')) or (Timestamp ge '2016-01-01 00:00:00')");
+        assertEquals(query,
+                "((PartitionKey eq '12345') and (RowKey gt 'AVID12345')) or (Timestamp ge datetime'2016-01-01 00:00:00')");
         //
         columns.add("AnUnknownProperty");
         functions.add(Comparison.LESS_THAN);
         values.add("WEB345");
         predicates.add(Predicate.OR);
+        fieldTypes.add(FieldType.STRING);
         setTableVals();
         query = fet.getCombinedFilterConditions();
         assertEquals(query,
-                "(((PartitionKey eq '12345') and (RowKey gt 'AVID12345')) or (Timestamp ge '2016-01-01 00:00:00')) or (AnUnknownProperty lt 'WEB345')");
+                "(((PartitionKey eq '12345') and (RowKey gt 'AVID12345')) or (Timestamp ge datetime'2016-01-01 00:00:00')) or (AnUnknownProperty lt 'WEB345')");
     }
 
     @Test
