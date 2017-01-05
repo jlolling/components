@@ -45,7 +45,6 @@ public class TAzureStorageContainerCreateProperties extends AzureStorageContaine
     public void setupProperties() {
         super.setupProperties();
 
-        container.setRequired(true);
         accessControl.setValue(AccessControl.Private);
     }
 }

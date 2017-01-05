@@ -30,11 +30,4 @@ public class TAzureStorageContainerDeleteProperties extends AzureStorageContaine
         Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(dieOnError);
     }
-
-    @Override
-    public void setupProperties() {
-        super.setupProperties();
-
-        container.setRequired(true);
-    }
 }
