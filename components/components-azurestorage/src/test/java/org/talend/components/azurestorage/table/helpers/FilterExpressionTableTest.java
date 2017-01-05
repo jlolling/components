@@ -29,6 +29,10 @@ import org.talend.daikon.properties.ValidationResult;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyValueEvaluator;
 
+import com.microsoft.azure.storage.table.EdmType;
+import com.microsoft.azure.storage.table.TableQuery.Operators;
+import com.microsoft.azure.storage.table.TableQuery.QueryComparisons;
+
 public class FilterExpressionTableTest {
 
     List<String> columns = new ArrayList<>();
@@ -157,6 +161,33 @@ public class FilterExpressionTableTest {
         predicates.add(Predicate.AND);
         setTableVals();
         assertEquals(ValidationResult.Result.ERROR, fet.validateFilterExpession().getStatus());
+    }
+
+    @Test
+    public void testGetFieldType() {
+        assertEquals(EdmType.STRING, fet.getType(FieldType.STRING));
+        assertEquals(EdmType.INT64, fet.getType(FieldType.INT64));
+        assertEquals(EdmType.INT32, fet.getType(FieldType.NUMERIC));
+        assertEquals(EdmType.BINARY, fet.getType(FieldType.BINARY));
+        assertEquals(EdmType.GUID, fet.getType(FieldType.GUID));
+        assertEquals(EdmType.DATE_TIME, fet.getType(FieldType.DATE));
+    }
+
+    @Test
+    public void testGetComparison() {
+        assertEquals(QueryComparisons.EQUAL, fet.getComparison(Comparison.EQUAL));
+        assertEquals(QueryComparisons.NOT_EQUAL, fet.getComparison(Comparison.NOT_EQUAL));
+        assertEquals(QueryComparisons.GREATER_THAN, fet.getComparison(Comparison.GREATER_THAN));
+        assertEquals(QueryComparisons.GREATER_THAN_OR_EQUAL, fet.getComparison(Comparison.GREATER_THAN_OR_EQUAL));
+        assertEquals(QueryComparisons.LESS_THAN, fet.getComparison(Comparison.LESS_THAN));
+        assertEquals(QueryComparisons.LESS_THAN_OR_EQUAL, fet.getComparison(Comparison.LESS_THAN_OR_EQUAL));
+    }
+
+    @Test
+    public void testGetOperator() {
+        assertEquals(Operators.AND, fet.getOperator(Predicate.AND));
+        assertEquals(Operators.OR, fet.getOperator(Predicate.OR));
+        assertEquals(Operators.NOT, fet.getOperator(Predicate.NOT));
     }
 
 }

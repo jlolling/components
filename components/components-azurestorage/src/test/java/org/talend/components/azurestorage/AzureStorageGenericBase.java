@@ -12,10 +12,10 @@
 // ============================================================================
 package org.talend.components.azurestorage;
 
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.talend.components.api.service.ComponentService;
+import org.talend.components.api.service.common.ComponentServiceImpl;
+import org.talend.components.api.service.common.DefinitionRegistry;
 import org.talend.components.api.test.AbstractComponentTest;
 import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateDefinition;
 import org.talend.components.azurestorage.blob.tazurestoragecontainerdelete.TAzureStorageContainerDeleteDefinition;
@@ -37,12 +37,21 @@ import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageC
 
 public abstract class AzureStorageGenericBase extends AbstractComponentTest {
 
-    @Inject
-    ComponentService compServ;
+    // @Inject
+    // ComponentService compServ;
+
+    private ComponentServiceImpl componentService;
 
     @Override
     public ComponentService getComponentService() {
-        return compServ;
+        // return compServ;
+        if (componentService == null) {
+            DefinitionRegistry testComponentRegistry = new DefinitionRegistry();
+
+            testComponentRegistry.registerComponentFamilyDefinition(new AzureStorageFamilyDefinition());
+            componentService = new ComponentServiceImpl(testComponentRegistry);
+        }
+        return componentService;
     }
 
     @Test

@@ -45,7 +45,7 @@ public class TAzureStorageInputTableProperties extends AzureStorageTableProperti
     }
 
     @Override
-    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+    public Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
         if (isOutputConnection) {
             return Collections.singleton(MAIN_CONNECTOR);
         } else {

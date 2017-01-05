@@ -55,7 +55,7 @@ public class FileMaskTable extends ComponentPropertiesImpl {
      * @return the size of parameters.
      */
     public int size() {
-        return fileMask.getValue().size();
+        return fileMask.getValue() == null ? 0 : fileMask.getValue().size();
     }
 
     @Override

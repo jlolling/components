@@ -24,13 +24,11 @@ public class AzureStorageConnectionWizardDefinition extends AbstractComponentWiz
 
     @Override
     public ComponentWizard createWizard(String location) {
-        System.out.println("WD::createWiz01");
         return new AzureStorageConnectionWizard(this, location);
     }
 
     @Override
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
-        System.out.println("WD::createWiz02");
         AzureStorageConnectionWizard wizard = (AzureStorageConnectionWizard) createWizard(location);
         wizard.setupProperties((TAzureStorageConnectionProperties) properties);
         return wizard;
@@ -38,22 +36,18 @@ public class AzureStorageConnectionWizardDefinition extends AbstractComponentWiz
 
     @Override
     public String getPngImagePath(WizardImageType imageType) {
-        System.out.println("WD::getImage " + imageType);
         switch (imageType) {
         case TREE_ICON_16X16:
             return "connectionWizardIcon.png"; //$NON-NLS-1$
         case WIZARD_BANNER_75X66:
             return "azureStorageWizardBanner.png"; // $NON-NLS-1$
-
         default:
-            // will return null
+            return null;
         }
-        return null;
     }
 
     @Override
     public boolean supportsProperties(Class<? extends ComponentProperties> propertiesClass) {
-        System.out.println("WD::supportProperties " + propertiesClass);
         return propertiesClass.isAssignableFrom(TAzureStorageConnectionProperties.class);
     }
 
@@ -64,7 +58,6 @@ public class AzureStorageConnectionWizardDefinition extends AbstractComponentWiz
 
     @Override
     public boolean isTopLevel() {
-        System.out.println("WD::isTopLevel");
         return true;
     }
 

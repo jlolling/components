@@ -59,7 +59,7 @@ public class TAzureStorageOutputTableProperties extends AzureStorageTablePropert
     }
 
     @Override
-    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+    public Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
         HashSet<PropertyPathConnector> connectors = new HashSet<>();
         if (isOutputConnection) {
             connectors.add(FLOW_CONNECTOR);

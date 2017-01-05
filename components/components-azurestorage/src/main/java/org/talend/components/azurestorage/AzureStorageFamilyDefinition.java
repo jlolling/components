@@ -29,10 +29,8 @@ import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureSt
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeueoutput.TAzureStorageQueueOutputDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeuepurge.TAzureStorageQueuePurgeDefinition;
-import org.talend.components.azurestorage.queue.wizard.AzureStorageQueueListWizardDefinition;
 import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableDefinition;
 import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureStorageOutputTableDefinition;
-import org.talend.components.azurestorage.table.wizard.AzureStorageTableWizardDefinition;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionDefinition;
 import org.talend.components.azurestorage.wizard.AzureStorageConnectionEditWizardDefinition;
 import org.talend.components.azurestorage.wizard.AzureStorageConnectionWizardDefinition;
@@ -61,8 +59,7 @@ public class AzureStorageFamilyDefinition extends AbstractComponentFamilyDefinit
                 new TAzureStorageQueueListDefinition(), new TAzureStorageQueueInputDefinition(),
                 new TAzureStorageQueueOutputDefinition(), new TAzureStorageQueuePurgeDefinition(),
                 // wizards
-                new AzureStorageConnectionWizardDefinition(), new AzureStorageConnectionEditWizardDefinition(),
-                new AzureStorageQueueListWizardDefinition(), new AzureStorageTableWizardDefinition()
+                new AzureStorageConnectionWizardDefinition(), new AzureStorageConnectionEditWizardDefinition()
         //
         );
     }

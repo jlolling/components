@@ -40,9 +40,6 @@ public class AzureStorageTableProperties extends FixedConnectorsComponentPropert
     // for wizard
     public static final String FORM_WIZARD = "Wizard";
 
-    @SuppressWarnings("unused")
-    private String repositoryLocation;
-
     public Property<String> name = PropertyFactory.newString("name").setRequired();
 
     public PresentationItem preview = new PresentationItem("preview", "Preview");
@@ -142,11 +139,6 @@ public class AzureStorageTableProperties extends FixedConnectorsComponentPropert
 
     public ValidationResult validateNameMapping() {
         return nameMapping.validateNameMappings();
-    }
-
-    public AzureStorageTableProperties setRepositoryLocation(String repositoryLocation) {
-        this.repositoryLocation = repositoryLocation;
-        return this;
     }
 
     @Override

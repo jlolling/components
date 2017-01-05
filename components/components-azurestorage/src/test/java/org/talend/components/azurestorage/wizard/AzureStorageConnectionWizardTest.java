@@ -32,14 +32,12 @@ import org.talend.components.api.wizard.WizardNameComparator;
 import org.talend.components.azurestorage.AzureStorageGenericBase;
 import org.talend.components.azurestorage.tazurestorageconnection.TAzureStorageConnectionProperties;
 import org.talend.daikon.NamedThing;
-import org.talend.daikon.properties.PresentationItem;
 import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.presentation.Form;
-import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.service.Repository;
 import org.talend.daikon.properties.test.PropertiesTestUtils;
 
-public class AzureStorageConnectionWizardTestIT extends AzureStorageGenericBase {
+public class AzureStorageConnectionWizardTest extends AzureStorageGenericBase {
 
     static class RepoProps {
 
@@ -108,11 +106,11 @@ public class AzureStorageConnectionWizardTestIT extends AzureStorageGenericBase 
             }
         }
         assertEquals(1, count);
-        assertEquals("Create Salesforce Connection", wizardDef.getMenuItemName());
+        assertEquals("Create an Azure Storage Connection", wizardDef.getMenuItemName());
         ComponentWizard wiz = getComponentService()
-                .getComponentWizard(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeSalesforce");
+                .getComponentWizard(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeAzureStorage");
         assertNotNull(wiz);
-        assertEquals("nodeSalesforce", wiz.getRepositoryLocation());
+        assertEquals("nodeAzureStorage", wiz.getRepositoryLocation());
         AzureStorageConnectionWizard swiz = (AzureStorageConnectionWizard) wiz;
         List<Form> forms = wiz.getForms();
         Form connFormWizard = forms.get(0);
@@ -121,16 +119,14 @@ public class AzureStorageConnectionWizardTestIT extends AzureStorageGenericBase 
         assertFalse(connFormWizard.isAllowForward());
         assertFalse(connFormWizard.isAllowFinish());
         // Main from SalesforceModuleListProperties
-        assertEquals("Main", forms.get(1).getName());
-        assertEquals("Salesforce Connection Settings", connFormWizard.getTitle());
-        assertEquals("Complete these fields in order to connect to your Salesforce account.", connFormWizard.getSubtitle());
+        assertEquals("Container", forms.get(1).getName());
+        assertEquals("Queue", forms.get(2).getName());
+        assertEquals("Table", forms.get(3).getName());
+        assertEquals("Azure Storage Connection Settings", connFormWizard.getTitle());
+        assertEquals("Fill in fields to configure connection.", connFormWizard.getSubtitle());
 
         TAzureStorageConnectionProperties connProps = (TAzureStorageConnectionProperties) connFormWizard.getProperties();
-
-        Form af = connProps.getForm(Form.ADVANCED);
-        assertTrue(
-                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() + " should be == to " + af,
-                ((PresentationItem) connFormWizard.getWidget("advanced").getContent()).getFormtoShow() == af);
+        connProps.setupProperties();
 
         Object image = getComponentService().getWizardPngImage(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME,
                 WizardImageType.TREE_ICON_16X16);
@@ -144,10 +140,9 @@ public class AzureStorageConnectionWizardTestIT extends AzureStorageGenericBase 
         // check password i18n
         assertEquals("Name", connProps.getProperty("name").getDisplayName());
         connProps.name.setValue("connName");
+        connProps.accountName.setValue("demo");
+        connProps.accountKey.setValue("demo");
 
-        Form userPassword = (Form) connFormWizard.getWidget("userPassword").getContent();
-        Property passwordSe = (Property) userPassword.getWidget("password").getContent();
-        assertEquals("Password", passwordSe.getDisplayName());
         // check name i18n
         NamedThing nameProp = connFormWizard.getWidget("name").getContent(); //$NON-NLS-1$
         assertEquals("Name", nameProp.getDisplayName());
@@ -161,15 +156,18 @@ public class AzureStorageConnectionWizardTestIT extends AzureStorageGenericBase 
     @Test
     public void testModuleWizard() throws Throwable {
         ComponentWizard wiz = getComponentService()
-                .getComponentWizard(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeSalesforce");
+                .getComponentWizard(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeAzureStorage");
         List<Form> forms = wiz.getForms();
         Form connFormWizard = forms.get(0);
         TAzureStorageConnectionProperties connProps = (TAzureStorageConnectionProperties) connFormWizard.getProperties();
 
         ComponentWizard[] subWizards = getComponentService().getComponentWizardsForProperties(connProps, "location")
-                .toArray(new ComponentWizard[3]);
+                .toArray(new ComponentWizard[1]);
         Arrays.sort(subWizards, new WizardNameComparator());
-        assertEquals(3, subWizards.length);
+
+        for (ComponentWizard s : subWizards)
+            System.out.println(s);
+        assertEquals(2, subWizards.length);
         // Edit connection wizard - we copy the connection properties, as we present the UI, so we use the
         // connection properties object created by the new wizard
         assertFalse(connProps == subWizards[1].getForms().get(0).getProperties());

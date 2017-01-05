@@ -162,10 +162,8 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         case LESS_THAN_OR_EQUAL:
             return QueryComparisons.LESS_THAN_OR_EQUAL;
         default:
-            break;
+            return null;
         }
-
-        return null;
     }
 
     public String getOperator(Predicate p) {
@@ -177,10 +175,8 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
         case NOT:
             return Operators.NOT;
         default:
-            break;
+            return null;
         }
-
-        return null;
     }
 
     public EdmType getType(FieldType ft) {
@@ -197,12 +193,9 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
             return EdmType.BINARY;
         case GUID:
             return EdmType.GUID;
-
         default:
-            break;
+            return null;
         }
-
-        return null;
     }
 
     public int size() {

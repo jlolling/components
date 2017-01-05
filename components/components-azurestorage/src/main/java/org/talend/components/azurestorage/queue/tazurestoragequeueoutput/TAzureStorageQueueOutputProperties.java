@@ -30,7 +30,7 @@ public class TAzureStorageQueueOutputProperties extends AzureStorageQueuePropert
 
     private static final long serialVersionUID = 3427627996958495784L;
 
-    protected transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
+    public transient PropertyPathConnector FLOW_CONNECTOR = new PropertyPathConnector(Connector.MAIN_NAME, "schemaFlow");
 
     public SchemaProperties schemaFlow = new SchemaProperties("schemaFlow");
 
@@ -73,7 +73,7 @@ public class TAzureStorageQueueOutputProperties extends AzureStorageQueuePropert
     }
 
     @Override
-    protected Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
+    public Set<PropertyPathConnector> getAllSchemaPropertiesConnectors(boolean isOutputConnection) {
         HashSet<PropertyPathConnector> connectors = new HashSet<>();
         if (isOutputConnection) {
             connectors.add(FLOW_CONNECTOR);

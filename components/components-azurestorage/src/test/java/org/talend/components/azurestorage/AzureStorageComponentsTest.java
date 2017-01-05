@@ -15,11 +15,17 @@ package org.talend.components.azurestorage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
+import java.util.EnumSet;
+
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.talend.components.api.component.Connector;
+import org.talend.components.api.component.ConnectorTopology;
+import org.talend.components.api.component.PropertyPathConnector;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.azurestorage.blob.AzureStorageContainerProperties;
 import org.talend.components.azurestorage.blob.runtime.AzureStorageSource;
@@ -113,6 +119,23 @@ public class AzureStorageComponentsTest {// extends AzureStorageGenericBase {
         props.setupProperties();
         Schema ps = props.schema.schema.getValue();
         assertEquals(s, ps);
+    }
+
+    @Test
+    public void testAzureStorageDefinition() {
+        AzureStorageDefinition def = new TAzureStorageConnectionDefinition();
+        assertEquals(EnumSet.of(ConnectorTopology.OUTGOING), def.getSupportedConnectorTopologies());
+        assertTrue(def.isStartable());
+        assertEquals("org.talend.components", def.getMavenGroupId());
+        assertEquals("components-azurestorage", def.getMavenArtifactId());
+    }
+
+    @Test
+    public void testAzureStorageBaseProperties() {
+        AzureStorageProperties p = new TAzureStorageContainerListProperties("test");
+        assertEquals(Collections.emptySet(), p.getAllSchemaPropertiesConnectors(false));
+        assertEquals(Collections.singleton(new PropertyPathConnector(Connector.MAIN_NAME, "schema")),
+                p.getAllSchemaPropertiesConnectors(true));
     }
 
 }

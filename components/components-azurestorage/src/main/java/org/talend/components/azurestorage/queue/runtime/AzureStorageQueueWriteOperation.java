@@ -26,6 +26,8 @@ public class AzureStorageQueueWriteOperation implements WriteOperation<Result> {
 
     private Sink sink;
 
+    protected RuntimeContainer runtime;
+
     public AzureStorageQueueWriteOperation(Sink sink) {
         this.sink = sink;
     }
@@ -47,5 +49,6 @@ public class AzureStorageQueueWriteOperation implements WriteOperation<Result> {
 
     @Override
     public void initialize(RuntimeContainer adaptor) {
+        runtime = adaptor;
     }
 }
