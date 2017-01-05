@@ -53,8 +53,7 @@ public class TAzureStorageContainerListProperties extends AzureStorageProperties
     public void setupLayout() {
         super.setupLayout();
 
-        Form main = new Form(this, Form.MAIN);
-        main.addRow(connection.getForm(Form.REFERENCE));
+        Form main = getForm(Form.MAIN);
         main.addRow(schema.getForm(Form.REFERENCE));
         main.addRow(dieOnError);
     }

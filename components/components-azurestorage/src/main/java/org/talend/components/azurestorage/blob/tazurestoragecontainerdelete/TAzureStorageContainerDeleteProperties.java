@@ -27,7 +27,7 @@ public class TAzureStorageContainerDeleteProperties extends AzureStorageContaine
     public void setupLayout() {
         super.setupLayout();
 
-        Form mainForm = new Form(this, Form.MAIN);
+        Form mainForm = getForm(Form.MAIN);
         mainForm.addRow(dieOnError);
     }
 

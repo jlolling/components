@@ -39,7 +39,7 @@ public class AzureStorageContainerProperties extends AzureStorageProperties {
     public void setupLayout() {
         super.setupLayout();
 
-        Form main = new Form(this, Form.MAIN);
+        Form main = getForm(Form.MAIN);
         main.addRow(container);
     }
 
