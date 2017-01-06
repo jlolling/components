@@ -20,5 +20,6 @@
         <module>components-localio</module>
         <module>components-processing</module>
 		<module>components-jdbc</module>
-  </modules>
+        <module>components-elasticsearch</module>
+    </modules>
 </project>
