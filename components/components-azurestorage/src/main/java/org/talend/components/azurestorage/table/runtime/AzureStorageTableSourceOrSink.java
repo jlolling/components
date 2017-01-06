@@ -100,7 +100,6 @@ public class AzureStorageTableSourceOrSink extends AzureStorageSourceOrSink impl
 
     public static Schema getSchema(RuntimeContainer container, TAzureStorageConnectionProperties properties, String schemaName)
             throws IOException {
-        System.out.println(properties.accountName.getValue());
         AzureStorageTableSourceOrSink sos = new AzureStorageTableSourceOrSink();
         sos.initialize(container, properties);
         return sos.getEndpointSchema(container, schemaName);

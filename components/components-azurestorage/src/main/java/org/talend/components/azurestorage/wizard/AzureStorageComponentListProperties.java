@@ -15,6 +15,7 @@ package org.talend.components.azurestorage.wizard;
 import static org.talend.daikon.properties.presentation.Widget.widget;
 import static org.talend.daikon.properties.property.PropertyFactory.newProperty;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.avro.Schema;
@@ -133,49 +134,45 @@ public class AzureStorageComponentListProperties extends ComponentPropertiesImpl
     }
 
     public ValidationResult afterFormFinishTable(Repository<Properties> repo) throws Exception {
-        System.out.println("TLP::afterFormFinishMain " + repo);
-        String connRepLocation = repo.storeProperties(connection, connection.name.getValue(), repositoryLocation, null);
-
-        System.out.println("connloc" + connRepLocation);
+        String repoLoc = repo.storeProperties(connection, connection.name.getValue(), repositoryLocation, null);
+        String storeId;
 
         for (NamedThing nl : selectedContainerNames.getValue()) {
             String containerId = nl.getName();
+            storeId = nl.getName().replaceAll("-", "_").replaceAll(" ", "_");
             AzureStorageContainerProperties containerProps = new AzureStorageContainerProperties(containerId);
-            containerProps.connection = connection;
             containerProps.init();
+            containerProps.connection = connection;
             containerProps.container.setValue(containerId);
             containerProps.schema.schema.setValue(getContainerSchema());
-            System.out.println("Adding container to repo: " + containerId);
-            repo.storeProperties(containerProps, nl.getName(), connRepLocation, null);
+            repo.storeProperties(containerProps, storeId, repoLoc, "schema.schema");
         }
 
         for (NamedThing nl : selectedQueueNames.getValue()) {
             String queueId = nl.getName();
+            storeId = queueId.replaceAll("-", "_").replaceAll(" ", "_");
             AzureStorageQueueProperties queueProps = new AzureStorageQueueProperties(queueId);
-            queueProps.connection = connection;
             queueProps.init();
+            queueProps.connection = connection;
             queueProps.queueName.setValue(queueId);
             queueProps.schema.schema.setValue(getQueueSchema());
-            System.out.println("Adding queue to repo: " + queueId);
-            repo.storeProperties(queueProps, nl.getName(), connRepLocation, "schema.schema");
+            repo.storeProperties(queueProps, storeId, repoLoc, "schema.schema");
         }
 
         for (NamedThing nl : selectedTableNames.getValue()) {
             String tableId = nl.getName();
+            storeId = tableId.replaceAll("-", "_").replaceAll(" ", "_");
             AzureStorageTableProperties tableProps = new AzureStorageTableProperties(tableId);
-            tableProps.connection = connection;
             tableProps.init();
+            tableProps.connection = connection;
             tableProps.tableName.setValue(tableId);
-            Schema schema = null;
             try {
-                schema = AzureStorageTableSourceOrSink.getSchema(null, connection, tableId);
-            } catch (Exception e) {
+                Schema schema = AzureStorageTableSourceOrSink.getSchema(null, connection, tableId);
+                tableProps.schema.schema.setValue(schema);
+                repo.storeProperties(tableProps, storeId, repoLoc, "schema.schema");
+            } catch (IOException e) {
                 LOGGER.error(e.getLocalizedMessage());
-                e.printStackTrace();
             }
-            tableProps.schema.schema.setValue(schema);
-            System.out.println("Adding table to repo: " + tableId);
-            repo.storeProperties(tableProps, nl.getName(), connRepLocation, "schema.schema");
         }
         return ValidationResult.OK;
     }
@@ -185,11 +182,9 @@ public class AzureStorageComponentListProperties extends ComponentPropertiesImpl
                 .name("containerName").prop(SchemaConstants.TALEND_COLUMN_IS_KEY, "true")
                 .prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "100").type(AvroUtils._string()).noDefault()//
                 .endRecord();
-
     }
 
     public Schema getQueueSchema() {
-
         return SchemaBuilder.builder().record("Main").fields()//
                 .name(AzureStorageQueueProperties.FIELD_MESSAGE_ID).prop(SchemaConstants.TALEND_COLUMN_IS_KEY, "true")
                 .prop(SchemaConstants.TALEND_COLUMN_DB_LENGTH, "100").type(AvroUtils._string()).noDefault()//

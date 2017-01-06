@@ -28,6 +28,7 @@ public class AzureStorageConnectionWizard extends ComponentWizard {
 
     public AzureStorageConnectionWizard(ComponentWizardDefinition definition, String repositoryLocation) {
         super(definition, repositoryLocation);
+
         cProperties = new TAzureStorageConnectionProperties("connection");
         cProperties.init();
         cProperties.setRepositoryLocation(repositoryLocation);
@@ -43,8 +44,6 @@ public class AzureStorageConnectionWizard extends ComponentWizard {
     }
 
     public void setupProperties(TAzureStorageConnectionProperties properties) {
-        LOGGER.warn("setupProperties:: {}", properties.accountName.getValue());
-
         cProperties.setupProperties();
         cProperties.copyValuesFrom(properties);
         qProperties.setConnection(properties);

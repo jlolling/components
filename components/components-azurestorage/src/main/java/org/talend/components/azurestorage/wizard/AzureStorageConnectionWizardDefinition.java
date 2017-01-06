@@ -31,6 +31,7 @@ public class AzureStorageConnectionWizardDefinition extends AbstractComponentWiz
     public ComponentWizard createWizard(ComponentProperties properties, String location) {
         AzureStorageConnectionWizard wizard = (AzureStorageConnectionWizard) createWizard(location);
         wizard.setupProperties((TAzureStorageConnectionProperties) properties);
+
         return wizard;
     }
 

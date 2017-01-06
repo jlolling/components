@@ -111,7 +111,6 @@ public class AzureStorageConnectionWizardTest extends AzureStorageGenericBase {
                 .getComponentWizard(AzureStorageConnectionWizardDefinition.COMPONENT_WIZARD_NAME, "nodeAzureStorage");
         assertNotNull(wiz);
         assertEquals("nodeAzureStorage", wiz.getRepositoryLocation());
-        AzureStorageConnectionWizard swiz = (AzureStorageConnectionWizard) wiz;
         List<Form> forms = wiz.getForms();
         Form connFormWizard = forms.get(0);
         assertEquals("Wizard", connFormWizard.getName());
