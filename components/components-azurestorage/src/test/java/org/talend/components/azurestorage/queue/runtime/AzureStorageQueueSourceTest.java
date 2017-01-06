@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuedelete.TAzureStorageQueueDeleteProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputProperties;
+import org.talend.components.azurestorage.queue.tazurestoragequeueinputloop.TAzureStorageQueueInputLoopProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListProperties;
-import org.talend.components.azurestorage.queue.tazurestoragequeueoutput.TAzureStorageQueueOutputProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueoutput.TAzureStorageQueueOutputProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuepurge.TAzureStorageQueuePurgeProperties;
 
@@ -62,6 +62,9 @@ public class AzureStorageQueueSourceTest {
 
         source.initialize(null, new TAzureStorageQueueInputProperties("test"));
         assertTrue(source.createReader(null) instanceof AzureStorageQueueInputReader);
+
+        source.initialize(null, new TAzureStorageQueueInputLoopProperties("test"));
+        assertTrue(source.createReader(null) instanceof AzureStorageQueueInputLoopReader);
 
         source.initialize(null, new TAzureStorageQueueOutputProperties("test"));
         assertNull(source.createReader(null));

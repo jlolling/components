@@ -40,13 +40,13 @@ public class AzureStorageQueueInputReader extends AzureStorageReader<IndexedReco
 
     private TAzureStorageQueueInputProperties properties;
 
-    private Iterator<CloudQueueMessage> messages;
+    protected Iterator<CloudQueueMessage> messages;
 
-    private CloudQueueMessage current;
+    protected CloudQueueMessage current;
 
-    private Boolean delete = Boolean.FALSE;
+    protected Boolean delete = Boolean.FALSE;
 
-    private CloudQueue queue;
+    protected CloudQueue queue;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureStorageQueueInputReader.class);
 

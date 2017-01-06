@@ -28,6 +28,7 @@ import org.talend.components.azurestorage.blob.tazurestorageput.TAzureStoragePut
 import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeuedelete.TAzureStorageQueueDeleteDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputDefinition;
+import org.talend.components.azurestorage.queue.tazurestoragequeueinputloop.TAzureStorageQueueInputLoopDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeueoutput.TAzureStorageQueueOutputDefinition;
 import org.talend.components.azurestorage.queue.tazurestoragequeuepurge.TAzureStorageQueuePurgeDefinition;
@@ -76,5 +77,6 @@ public abstract class AzureStorageGenericBase extends AbstractComponentTest {
         assertComponentIsRegistered(TAzureStorageQueueDeleteDefinition.COMPONENT_NAME);
         assertComponentIsRegistered(TAzureStorageQueueCreateDefinition.COMPONENT_NAME);
         assertComponentIsRegistered(TAzureStorageQueueListDefinition.COMPONENT_NAME);
+        assertComponentIsRegistered(TAzureStorageQueueInputLoopDefinition.COMPONENT_NAME);
     }
 }

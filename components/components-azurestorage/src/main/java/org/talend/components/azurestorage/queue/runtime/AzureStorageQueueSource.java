@@ -20,6 +20,7 @@ import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureStorageQueueCreateProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuedelete.TAzureStorageQueueDeleteProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeueinput.TAzureStorageQueueInputProperties;
+import org.talend.components.azurestorage.queue.tazurestoragequeueinputloop.TAzureStorageQueueInputLoopProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuelist.TAzureStorageQueueListProperties;
 import org.talend.components.azurestorage.queue.tazurestoragequeuepurge.TAzureStorageQueuePurgeProperties;
 
@@ -41,6 +42,9 @@ public class AzureStorageQueueSource extends AzureStorageQueueSourceOrSink imple
         }
         if (properties instanceof TAzureStorageQueuePurgeProperties) {
             return new AzureStorageQueuePurgeReader(container, this, (TAzureStorageQueuePurgeProperties) properties);
+        }
+        if (properties instanceof TAzureStorageQueueInputLoopProperties) {
+            return new AzureStorageQueueInputLoopReader(container, this, (TAzureStorageQueueInputLoopProperties) properties);
         }
         if (properties instanceof TAzureStorageQueueInputProperties) {
             return new AzureStorageQueueInputReader(container, this, (TAzureStorageQueueInputProperties) properties);
