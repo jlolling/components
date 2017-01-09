@@ -30,6 +30,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.blob.AzureStorageBlobDefinition;
 import org.talend.components.azurestorage.blob.AzureStorageContainerDefinition;
 import org.talend.components.azurestorage.blob.helpers.RemoteBlob;
+import org.talend.components.azurestorage.blob.tazurestoragecontainerlist.TAzureStorageContainerListDefinition;
 import org.talend.components.azurestorage.blob.tazurestoragelist.TAzureStorageListProperties;
 
 import com.microsoft.azure.storage.StorageException;
@@ -114,6 +115,7 @@ public class AzureStorageListReader extends AzureStorageReader<IndexedRecord> {
     @Override
     public Map<String, Object> getReturnValues() {
         Map<String, Object> resultMap = super.getReturnValues();
+        resultMap.put(TAzureStorageContainerListDefinition.RETURN_TOTAL_RECORD_COUNT, dataCount);
         resultMap.put(AzureStorageContainerDefinition.RETURN_CONTAINER, properties.container.getValue());
         if (currentBlob != null)
             resultMap.put(AzureStorageBlobDefinition.RETURN_CURRENT_BLOB, currentBlob.getName());
