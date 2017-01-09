@@ -27,6 +27,7 @@ import org.talend.components.api.component.runtime.AbstractBoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.component.runtime.Result;
 import org.talend.components.api.container.RuntimeContainer;
+import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.table.avro.AzureStorageAvroRegistry;
 import org.talend.components.azurestorage.table.avro.AzureStorageTableAdaptorFactory;
 import org.talend.components.azurestorage.table.tazurestorageinputtable.TAzureStorageInputTableProperties;
@@ -92,8 +93,10 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
         Boolean startable = Boolean.FALSE;
         String tableName = properties.tableName.getValue();
         String filter = "";
-        if (properties.useFilterExpression.getValue())
+        if (properties.useFilterExpression.getValue()) {
             filter = properties.filterExpression.getCombinedFilterConditions();
+            LOGGER.warn("Filter applied : {}.", filter);
+        }
         try {
             CloudTable table = ((AzureStorageTableSource) getCurrentSource()).getStorageTableReference(runtime, tableName);
             TableQuery<DynamicTableEntity> partitionQuery;
@@ -113,6 +116,9 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
             }
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             LOGGER.error(e.getLocalizedMessage());
+            if (properties.dieOnError.getValue()) {
+                throw new ComponentException(e);
+            }
         }
         return startable;
     }
@@ -133,6 +139,9 @@ public class AzureStorageTableReader extends AbstractBoundedReader<IndexedRecord
             return getFactory().convertToAvro(current);
         } catch (Exception e) {
             LOGGER.error(e.getLocalizedMessage());
+            if (properties.dieOnError.getValue()) {
+                throw new ComponentException(e);
+            }
         }
         return null;
     }

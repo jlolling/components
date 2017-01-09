@@ -224,6 +224,8 @@ public class FilterExpressionTable extends ComponentPropertiesImpl {
 
     public String getCombinedFilterConditions() {
         String filter = "";
+        if (validateFilterExpession().getStatus().equals(Result.ERROR))
+            return filter;
         for (int idx = 0; idx < size(); idx++) {
             String c = column.getValue().get(idx);
             Object _t = function.getValue().get(idx);
