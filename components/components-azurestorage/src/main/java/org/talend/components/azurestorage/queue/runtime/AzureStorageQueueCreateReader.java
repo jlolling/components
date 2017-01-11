@@ -34,6 +34,7 @@ import org.talend.components.azurestorage.queue.tazurestoragequeuecreate.TAzureS
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.queue.CloudQueue;
 
@@ -54,8 +55,25 @@ public class AzureStorageQueueCreateReader extends AzureStorageReader<IndexedRec
         String queue = properties.queueName.getValue();
         try {
             CloudQueue cqueue = ((AzureStorageQueueSource) getCurrentSource()).getCloudQueue(runtime, queue);
-            LOGGER.warn("Queue {} is about to be created", cqueue.getName());
-            startable = cqueue.createIfNotExists();
+            LOGGER.debug("Queue {} is about to be created.", cqueue.getName());
+            try {
+                startable = cqueue.createIfNotExists();
+            } catch (StorageException e) {
+                if (!e.getErrorCode().equals(StorageErrorCodeStrings.QUEUE_BEING_DELETED)) {
+                    throw e;
+                }
+                LOGGER.error("Queue '{}' is currently being deleted. We'll retry in a few moments...", cqueue.getName());
+                // Documentation doesn't specify how many seconds at least to wait.
+                // 40 seconds before retrying.
+                // See https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/delete-queue3
+                try {
+                    Thread.sleep(40000);
+                } catch (InterruptedException eint) {
+                    throw new IOException("Wait process for recreating table interrupted.");
+                }
+                startable = cqueue.createIfNotExists();
+                LOGGER.info("Container {} created.", cqueue.getName());
+            }
             if (startable) {
                 dataCount++;
             } else {

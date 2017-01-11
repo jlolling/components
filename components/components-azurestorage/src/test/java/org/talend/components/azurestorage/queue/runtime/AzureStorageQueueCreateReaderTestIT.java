@@ -77,4 +77,23 @@ public class AzureStorageQueueCreateReaderTestIT extends AzureStorageBaseQueueTe
         reader.close();
     }
 
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void testDeleteAndRecreateQueue() throws Exception {
+        TAzureStorageQueueCreateProperties properties = new TAzureStorageQueueCreateProperties("tests");
+        properties.setupProperties();
+        properties = (TAzureStorageQueueCreateProperties) setupConnectionProperties(
+                (AzureStorageProvideConnectionProperties) properties);
+        String fqueue = TEST_QUEUE_NAME_CREATE + "deleteandrecreate";
+        properties.queueName.setValue(fqueue);
+        BoundedReader reader = createBoundedReader(properties);
+        assertTrue(reader.start());
+        reader.close();
+        //
+        queueClient.getQueueReference(fqueue).delete();
+        //
+        assertTrue(reader.start());
+        reader.close();
+    }
+
 }

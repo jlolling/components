@@ -40,6 +40,7 @@ import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.avro.converter.IndexedRecordConverter;
 
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.table.CloudTable;
 import com.microsoft.azure.storage.table.CloudTableClient;
@@ -47,6 +48,7 @@ import com.microsoft.azure.storage.table.DynamicTableEntity;
 import com.microsoft.azure.storage.table.EntityProperty;
 import com.microsoft.azure.storage.table.TableBatchOperation;
 import com.microsoft.azure.storage.table.TableOperation;
+import com.microsoft.azure.storage.table.TableServiceException;
 
 public class AzureStorageTableWriter implements WriterWithFeedback<Result, IndexedRecord, IndexedRecord> {
 
@@ -126,19 +128,31 @@ public class AzureStorageTableWriter implements WriterWithFeedback<Result, Index
             // FIXME How does this will behave in a distributed runtime ? See where to place correctly this
             // instruction...
             switch (actionTable) {
-            case Default:
-            case Create_table:
-            case Create_table_if_does_not_exist:
-                table.createIfNotExists();
-                break;
             case Drop_and_create_table:
             case Drop_table_if_exist_and_create:
                 table.deleteIfExists();
-                table.create();
                 break;
             default:
-                LOGGER.warn("An operation on Table is required...");
             }
+            //
+            try {
+                table.createIfNotExists();
+            } catch (TableServiceException e) {
+                if (!e.getErrorCode().equals(StorageErrorCodeStrings.TABLE_BEING_DELETED)) {
+                    throw e;
+                }
+                LOGGER.error("Table '{}' is currently being deleted. We'll retry in a few moments...", tableName);
+                // wait 50 seconds (min is 40s) before retrying.
+                // See https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/Delete-Table#Remarks
+                try {
+                    Thread.sleep(50000);
+                } catch (InterruptedException eint) {
+                    throw new IOException("Wait process for recreating table interrupted.");
+                }
+                table.createIfNotExists();
+                LOGGER.info("Table {} created.", tableName);
+            }
+
         } catch (InvalidKeyException | URISyntaxException | StorageException e) {
             LOGGER.error(e.getLocalizedMessage());
             throw new ComponentException(e);

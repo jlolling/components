@@ -26,6 +26,7 @@ import org.talend.components.api.exception.ComponentException;
 import org.talend.components.azurestorage.blob.AzureStorageContainerDefinition;
 import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
 
+import com.microsoft.azure.storage.StorageErrorCodeStrings;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.BlobContainerPermissions;
 import com.microsoft.azure.storage.blob.BlobContainerPublicAccessType;
@@ -52,7 +53,23 @@ public class AzureStorageContainerCreateReader extends AzureStorageReader<Boolea
             String access = properties.accessControl.getStringValue();
             CloudBlobContainer container = ((AzureStorageSource) getCurrentSource()).getStorageContainerReference(runtime,
                     mycontainer);
-            result = container.createIfNotExists();
+            try {
+                result = container.createIfNotExists();
+            } catch (StorageException e) {
+                if (!e.getErrorCode().equals(StorageErrorCodeStrings.CONTAINER_BEING_DELETED)) {
+                    throw e;
+                }
+                LOGGER.error("Container '{}' is currently being deleted. We'll retry in a few moments...", mycontainer);
+                // wait 40 seconds (min is 30s) before retrying.
+                // See https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/delete-container
+                try {
+                    Thread.sleep(40000);
+                } catch (InterruptedException eint) {
+                    throw new IOException("Wait process for recreating table interrupted.");
+                }
+                result = container.createIfNotExists();
+                LOGGER.info("Container {} created.", mycontainer);
+            }
             // Manage accessControl
             if (access.equals("Public") && result) {
                 // Create a permissions object.

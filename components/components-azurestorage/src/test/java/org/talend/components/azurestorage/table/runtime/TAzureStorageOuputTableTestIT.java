@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +44,8 @@ import org.talend.components.azurestorage.table.tazurestorageoutputtable.TAzureS
 import org.talend.daikon.avro.AvroUtils;
 import org.talend.daikon.avro.SchemaConstants;
 import org.talend.daikon.properties.ValidationResult;
+
+import com.microsoft.azure.storage.StorageException;
 
 public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
 
@@ -253,6 +257,22 @@ public class TAzureStorageOuputTableTestIT extends AzureStorageTableBaseTestIT {
             }
         }
         writer.close();
+    }
+
+    @Test
+    public void testDropAndCreateTable() throws IOException, StorageException, URISyntaxException {
+        String tblDrop = tbl_test + "Drop";
+        properties.schema.schema.setValue(getDynamicSchema());
+        properties.actionOnTable.setValue(ActionOnTable.Drop_and_create_table);
+        properties.tableName.setValue(tblDrop);
+        Writer<?> writer = createWriter(properties);
+        // table shouldn't exist
+        writer.open("test-uid");
+        writer.close();
+        assertTrue(tableClient.getTableReference(tblDrop).exists());
+        // redo op for testing
+        writer.open("test-drop");
+        assertTrue(tableClient.getTableReference(tblDrop).exists());
     }
 
     @Test

@@ -17,7 +17,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.azurestorage.blob.tazurestoragecontainercreate.TAzureStorageContainerCreateProperties;
@@ -36,7 +36,7 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseBlo
         super("container-create-" + getRandomTestUID());
     }
 
-    @Before
+    @After
     public void cleanupTestContainers() throws Exception {
         for (String c : TEST_CONTAINERS) {
             doContainerDelete(getNamedThingForTest(c));
@@ -75,4 +75,12 @@ public class AzureStorageContainerCreateReaderTestIT extends AzureStorageBaseBlo
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_2), AccessControl.Private));
         assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_3), AccessControl.Public));
     }
+
+    @Test
+    public void testDeleteAndRecreateConainer() throws Exception {
+        assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
+        doContainerDelete(getNamedThingForTest(TEST_CONTAINER_1));
+        assertTrue(doContainerCreate(getNamedThingForTest(TEST_CONTAINER_1), AccessControl.Private));
+    }
+
 }
