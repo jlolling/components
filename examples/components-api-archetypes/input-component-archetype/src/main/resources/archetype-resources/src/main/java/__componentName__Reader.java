@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2017 Talend Inc. - www.talend.com

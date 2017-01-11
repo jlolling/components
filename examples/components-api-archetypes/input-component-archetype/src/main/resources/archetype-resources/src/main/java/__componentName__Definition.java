@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2017 Talend Inc. - www.talend.com
@@ -16,25 +15,18 @@
 // ============================================================================
 package ${package};
 
-import java.io.InputStream;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.talend.components.api.Constants;
 import org.talend.components.api.component.AbstractComponentDefinition;
-import org.talend.components.api.component.ComponentDefinition;
 import org.talend.components.api.component.ComponentImageType;
 import org.talend.components.api.component.ConnectorTopology;
 import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.ExecutionEngine;
-import org.talend.daikon.runtime.RuntimeInfo;
 import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
-import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.properties.ComponentProperties;
-import org.talend.daikon.properties.Properties;
 import org.talend.daikon.properties.property.Property;
-
-import aQute.bnd.annotation.component.Component;
+import org.talend.daikon.runtime.RuntimeInfo;
 
 /**
  * The ${componentName}Definition acts as an entry point for all of services that 

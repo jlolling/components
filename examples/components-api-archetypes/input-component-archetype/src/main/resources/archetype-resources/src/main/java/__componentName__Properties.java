@@ -1,7 +1,6 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-
 // ============================================================================
 //
 // Copyright (C) 2006-2017 Talend Inc. - www.talend.com
@@ -17,18 +16,15 @@
 package ${package};
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.avro.Schema;
 import org.talend.components.api.component.Connector;
 import org.talend.components.api.component.PropertyPathConnector;
-import org.talend.components.api.properties.ComponentProperties;
 import org.talend.components.common.FixedConnectorsComponentProperties;
 import org.talend.components.common.SchemaProperties;
+import org.talend.daikon.properties.presentation.Form;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.properties.property.PropertyFactory;
-import org.talend.daikon.properties.presentation.Form;
 
 /**
  * The ComponentProperties subclass provided by a component stores the 
