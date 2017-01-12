@@ -13,7 +13,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package ${package};
+package ${package}.runtime.reader;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,6 +26,7 @@ import org.talend.components.api.component.runtime.BoundedReader;
 import org.talend.components.api.component.runtime.BoundedSource;
 import org.talend.components.api.container.RuntimeContainer;
 import org.talend.components.api.properties.ComponentProperties;
+import ${package}.${componentPackage}.${componentName}Properties;
 
 import org.talend.daikon.NamedThing;
 import org.talend.daikon.properties.ValidationResult;

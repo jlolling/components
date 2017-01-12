@@ -13,7 +13,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package ${package};
+package ${package}.runtime.reader;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -36,7 +36,7 @@ public class ${componentName}Reader extends AbstractBoundedReader<String> {
     /** Default serial version UID. */
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(${componentName}Definition.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(${componentName}Reader.class);
 
     private RuntimeContainer container;
 

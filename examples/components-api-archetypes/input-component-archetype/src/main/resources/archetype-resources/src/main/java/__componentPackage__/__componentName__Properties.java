@@ -13,7 +13,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package ${package};
+package ${package}.${componentPackage};
 
 import java.util.Collections;
 import java.util.Set;

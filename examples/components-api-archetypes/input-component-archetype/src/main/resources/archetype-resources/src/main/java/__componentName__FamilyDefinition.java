@@ -18,6 +18,7 @@ package ${package};
 import org.talend.components.api.AbstractComponentFamilyDefinition;
 import org.talend.components.api.ComponentInstaller;
 import org.talend.components.api.Constants;
+import ${package}.${componentPackage}.${componentName}Definition;
 
 import aQute.bnd.annotation.component.Component;
 

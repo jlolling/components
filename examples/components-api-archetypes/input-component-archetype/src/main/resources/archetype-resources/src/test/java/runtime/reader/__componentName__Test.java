@@ -13,7 +13,14 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package ${package};
+package ${package}.runtime.reader;
+
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
+
+import java.io.File;
+import java.io.PrintWriter;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -27,6 +34,8 @@ import org.talend.components.api.component.runtime.Source;
 import org.talend.components.api.service.ComponentService;
 import org.talend.components.api.service.common.ComponentServiceImpl;
 import org.talend.components.api.service.common.DefinitionRegistry;
+import ${package}.${componentName}FamilyDefinition;
+import ${package}.${componentPackage}.${componentName}Properties;
 
 @SuppressWarnings("nls")
 public class ${componentName}Test {

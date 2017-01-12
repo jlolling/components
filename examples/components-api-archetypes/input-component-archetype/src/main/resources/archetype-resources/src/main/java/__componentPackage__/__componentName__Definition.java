@@ -13,7 +13,7 @@
 // 9 rue Pages 92150 Suresnes, France
 //
 // ============================================================================
-package ${package};
+package ${package}.${componentPackage};
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -25,6 +25,7 @@ import org.talend.components.api.component.runtime.DependenciesReader;
 import org.talend.components.api.component.runtime.ExecutionEngine;
 import org.talend.components.api.component.runtime.SimpleRuntimeInfo;
 import org.talend.components.api.properties.ComponentProperties;
+import ${package}.runtime.reader.${componentName}Source;
 import org.talend.daikon.properties.property.Property;
 import org.talend.daikon.runtime.RuntimeInfo;
 
@@ -54,9 +55,9 @@ public class ${componentName}Definition extends AbstractComponentDefinition {
     public String getPngImagePath(ComponentImageType imageType) {
         switch (imageType) {
         case PALLETE_ICON_32X32:
-            return "fileReader_icon32.png"; //$NON-NLS-1$
+            return "t${componentName}_icon32.png"; //$NON-NLS-1$
         default:
-            return "fileReader_icon32.png"; //$NON-NLS-1$
+            return "t${componentName}_icon32.png"; //$NON-NLS-1$
         }
     }
     
