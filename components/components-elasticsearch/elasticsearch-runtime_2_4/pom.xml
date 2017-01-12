@@ -79,7 +79,7 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
-                        <es.hosts>${docker.host.address}:9200</es.hosts>
+                        <es.hosts>${docker.host.address}:${es.port}</es.hosts>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -103,8 +103,8 @@
                                     <alias>elasticsearch</alias>
                                     <run>
                                         <ports>
-                                            <port>9200:9200</port>
-                                            <port>9300:9300</port>
+                                            <port>es.port:9200</port>
+                                            <port>es.transport.port:9300</port>
                                         </ports>
                                         <wait>
                                             <time>10000</time>
