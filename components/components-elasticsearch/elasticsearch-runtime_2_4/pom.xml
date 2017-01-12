@@ -80,6 +80,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <es.hosts>${docker.host.address}:${es.port}</es.hosts>
+                        <es.transport.port>${es.transport.port}</es.transport.port>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
