@@ -18,5 +18,6 @@
         <module>components-adapter-beam</module>
         <module>components-api</module>
         <module>components-api-proptester</module>
+        <module>components-osgitest</module>
   </modules>
 </project>
