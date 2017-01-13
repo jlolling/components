@@ -17,5 +17,6 @@
         <module>components-adapter-beam-parent</module>
         <module>components-adapter-beam</module>
         <module>components-api</module>
+        <module>components-api-proptester</module>
   </modules>
 </project>

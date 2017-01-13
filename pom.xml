@@ -15,7 +15,6 @@
 		<module>components-common-oauth</module>
 		<module>components-salesforce</module>
 		<module>components-osgitest</module>
-		<module>components-api-proptester</module>
 		<module>components-snowflake</module>
 		<module>components-splunk</module>
 		<module>components-jira</module>
