@@ -11,14 +11,7 @@
 	<modules>
 		<module>components-parent</module>
 		<module>core</module>
-		<module>components-common</module>
-		<module>components-common-oauth</module>
-		<module>components-salesforce</module>
 		<module>components-osgitest</module>
-		<module>components-snowflake</module>
-		<module>components-splunk</module>
-		<module>components-jira</module>
-		<module>components-filedelimited</module>
 		<module>services</module>
 		<module>examples</module>
 		<module>components</module>
