@@ -16,5 +16,6 @@
     <modules>
         <module>components-adapter-beam-parent</module>
         <module>components-adapter-beam</module>
+        <module>components-api</module>
   </modules>
 </project>

@@ -10,7 +10,6 @@
 	<name>Component Aggregator</name>
 	<modules>
 		<module>components-parent</module>
-		<module>components-api</module>
 		<module>core</module>
 		<module>components-common</module>
 		<module>components-common-oauth</module>
